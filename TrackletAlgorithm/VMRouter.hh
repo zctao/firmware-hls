@@ -5,6 +5,7 @@
 // Must be PS-layer
 //
 #pragma once
+#define FAT_CLASS
 #include "HLSFullStubLayerPS.hh"
 #include "HLSFullStubLayer2S.hh"
 #include "HLSConstants.hh"
@@ -49,40 +50,46 @@ void VMRouter(T *stubsInLayer,
       ReducedPt_Layer redPt;
       ap_uint<2> routePhi;
       ap_uint<1> routeZ;
-      if (N==1 || N==2 || N==3)
+      if (N==1 || N==2 || N==3) // PS layers
       {
         FullZ_Layer_PS curZ = stubsInLayer[i].GetZ();
         FullPhi_Layer_PS curPhi = stubsInLayer[i].GetPhi();
         FullR_Layer_PS curR = stubsInLayer[i].GetR();
         FullPt_Layer_PS curPt = stubsInLayer[i].GetPt();
         redPt = curPt;
-        redZ = (curZ >> 5) & 0xFU;
-        redR = (curR >> 5) & 0x3U;
-        routeZ = (curZ >> 9) & 0x1U;
+        redZ = curZ.range(5+4,5);
+        //redZ = (curZ >> 5) & 0xFU;
+        redR = curR.range(5+3,5);
+        routeZ = curZ[9];
+        //routeZ = (curZ >> 9) & 0x1U;
         if (N==2){
-          redPhi = (curPhi >> 9) & 0x7U;
+          redPhi = curPhi(9+6,9);
+          //redPhi = (curPhi >> 9) & 0x7U;
           routePhi = (curPhi >> 12 ) & 0x3U;
+          routePhi = curPhi(12+2,2);
         } else {
-          redPhi = (curPhi >> 9) ^ 0x4U;
+          redPhi = (curPhi >> 9) ^ 0x4U; // why is this OR'd?
           routePhi = (((curPhi >> 11) - 1) >> 1) & 0x3U;
         }
       }
-      else if (N==4 || N==5 || N==6)
+      else if (N==4 || N==5 || N==6) // 2S layers
       {
         FullZ_Layer_2S curZ = stubsInLayer[i].GetZ();
         FullPhi_Layer_2S curPhi = stubsInLayer[i].GetPhi();
         FullR_Layer_2S curR = stubsInLayer[i].GetR();
         FullPt_Layer_2S curPt = stubsInLayer[i].GetPt();
         redPt = curPt;
-        redZ = (curZ >> 1) & 0xFU;
-        redR = (curR >> 6) & 0x3U;
-        routeZ = (curZ >> 5) & 0x1U;
+        redZ = curZ.range(4+1,1);
+        redR = curR.range(2+6,2);
+        routZ = curZ[5];
         if (N==5){
-          redPhi = (curPhi >> 12) ^ 0x4U;
+          redPhi = (curPhi >> 12) ^ 0x4U; // why is this an OR?
           routePhi = (((curPhi >> 14) - 1) >> 1) & 0x3U;
         } else {
-          redPhi = (curPhi >> 12) & 0x7U;
-          routePhi = (curPhi >> 15 ) & 0x3U;
+          //redPhi = (curPhi >> 12) & 0x7U;
+          redPhi = curPhi.range(12+3,3);
+          routePhi = curPhi.range(15+2,15);
+          //routePhi = (curPhi >> 15 ) & 0x3U;
         }
       }
 
@@ -135,7 +142,7 @@ void VMRouter(T *stubsInLayer,
           }
           break;
       }
-      if (index==63) { index--; };
+      if (index==63) { index--; }; // what vodoo is this?
       ++index;
     } else
     {
