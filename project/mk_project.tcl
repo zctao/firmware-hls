@@ -11,7 +11,7 @@ set_top VMRouterDispatcher
 
 # source files
 add_files ../TrackletAlgorithm/VMRouterDispatcher.cpp
-add_files ../TrackletAlgorithm/VMRouter.cpp
+#add_files ../TrackletAlgorithm/VMRouter.cpp
 add_files -tb -cflags "-I../TrackletAlgorithm" ../TestBenches/VMRouter_test.cpp
 
 # add data files
