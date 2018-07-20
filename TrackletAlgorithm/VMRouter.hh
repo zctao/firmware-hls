@@ -14,142 +14,171 @@
 #include <stdio.h>
 #include <bitset>
 
-using namespace std;
 
 template <class T, int N>
-void VMRouter(T *stubsInLayer,
-              T *allStubs,
-              HLSReducedStubLayer *vmStubsPH1Z1,
-              HLSReducedStubLayer *vmStubsPH2Z1,
-              HLSReducedStubLayer *vmStubsPH3Z1,
-              HLSReducedStubLayer *vmStubsPH4Z1,
-              HLSReducedStubLayer *vmStubsPH1Z2,
-              HLSReducedStubLayer *vmStubsPH2Z2,
-              HLSReducedStubLayer *vmStubsPH3Z2,
-              HLSReducedStubLayer *vmStubsPH4Z2,
-              const int nStubs,
-              ReducedIndex *nPH1Z1, ReducedIndex *nPH2Z1,
-              ReducedIndex *nPH3Z1, ReducedIndex *nPH4Z1,
-              ReducedIndex *nPH1Z2, ReducedIndex *nPH2Z2,
-              ReducedIndex *nPH3Z2, ReducedIndex *nPH4Z2)
+class VMRouter
 {
-  ReducedIndex index = 0;
-  STUBLOOP: for (int i=0; i<MAX_nSTUBS; ++i)
+private:
+  T *stubsInLayer_;
+  T *allStubs_;
+  HLSReducedStubLayer *vmStubsPH1Z1_;
+  HLSReducedStubLayer *vmStubsPH2Z1_;
+  HLSReducedStubLayer *vmStubsPH3Z1_;
+  HLSReducedStubLayer *vmStubsPH4Z1_;
+  HLSReducedStubLayer *vmStubsPH1Z2_;
+  HLSReducedStubLayer *vmStubsPH2Z2_;
+  HLSReducedStubLayer *vmStubsPH3Z2_;
+  HLSReducedStubLayer *vmStubsPH4Z2_;
+  const int nStubs_;
+  ReducedIndex *nPH1Z1_; ReducedIndex *nPH2Z1_;
+  ReducedIndex *nPH3Z1_; ReducedIndex *nPH4Z1_;
+  ReducedIndex *nPH1Z2_; ReducedIndex *nPH2Z2_;
+  ReducedIndex *nPH3Z2_; ReducedIndex *nPH4Z2_;
+public:
+  // constructor; just copy in the pointers to the input and output arrays
+  VMRouter(T *stubsInLayer,
+           T *allStubs,
+           HLSReducedStubLayer *vmStubsPH1Z1,
+           HLSReducedStubLayer *vmStubsPH2Z1,
+           HLSReducedStubLayer *vmStubsPH3Z1,
+           HLSReducedStubLayer *vmStubsPH4Z1,
+           HLSReducedStubLayer *vmStubsPH1Z2,
+           HLSReducedStubLayer *vmStubsPH2Z2,
+           HLSReducedStubLayer *vmStubsPH3Z2,
+           HLSReducedStubLayer *vmStubsPH4Z2,
+           const int nStubs,
+           ReducedIndex *nPH1Z1, ReducedIndex *nPH2Z1,
+           ReducedIndex *nPH3Z1, ReducedIndex *nPH4Z1,
+           ReducedIndex *nPH1Z2, ReducedIndex *nPH2Z2,
+           ReducedIndex *nPH3Z2, ReducedIndex *nPH4Z2
+	   ):
+  stubsInLayer_(stubsInLayer),
+    allStubs_(allStubs),
+    vmStubsPH1Z1_(vmStubsPH1Z1),
+    vmStubsPH2Z1_(vmStubsPH2Z1),
+    vmStubsPH3Z1_(vmStubsPH3Z1),
+    vmStubsPH4Z1_(vmStubsPH4Z1),
+    vmStubsPH1Z2_(vmStubsPH1Z2),
+    vmStubsPH2Z2_(vmStubsPH2Z2),
+    vmStubsPH3Z2_(vmStubsPH3Z2),
+    vmStubsPH4Z2_(vmStubsPH4Z2),
+    nStubs_(nStubs),
+    nPH1Z1_(nPH1Z1),
+    nPH2Z1_(nPH2Z1),
+    nPH3Z1_(nPH3Z1),
+    nPH4Z1_(nPH4Z1),
+    nPH1Z2_(nPH1Z2),
+    nPH2Z2_(nPH2Z2),
+    nPH3Z2_(nPH3Z2),
+    nPH4Z2_(nPH4Z2)
+  {}
+  // doesn't this need to know about BX somewhere?
+  void execute()
   {
-  #pragma HLS PIPELINE II=1
-    if (i < nStubs)
-    {
-      // Extract stub parameters
-      // Calculate reduced-format parameters.
-      // (&ing with hex is to fix correct number if bit width is messed up.
-      //  will leave it in for now but it doesn't appear to be needed).
-      // Calculate routing parameters
-      ReducedZ_Layer redZ;
-      ReducedPhi_Layer redPhi;
-      ReducedR_Layer redR;
-      ReducedPt_Layer redPt;
-      ap_uint<2> routePhi;
-      ap_uint<1> routeZ;
-      if (N==1 || N==2 || N==3) // PS layers
-      {
-        FullZ_Layer_PS curZ = stubsInLayer[i].GetZ();
-        FullPhi_Layer_PS curPhi = stubsInLayer[i].GetPhi();
-        FullR_Layer_PS curR = stubsInLayer[i].GetR();
-        FullPt_Layer_PS curPt = stubsInLayer[i].GetPt();
-        redPt = curPt;
-        redZ = curZ.range(5+4,5);
-        //redZ = (curZ >> 5) & 0xFU;
-        redR = curR.range(5+3,5);
-        routeZ = curZ[9];
-        //routeZ = (curZ >> 9) & 0x1U;
-        if (N==2){
-          redPhi = curPhi(9+6,9);
-          //redPhi = (curPhi >> 9) & 0x7U;
-          routePhi = (curPhi >> 12 ) & 0x3U;
-          routePhi = curPhi(12+2,2);
-        } else {
-          redPhi = (curPhi >> 9) ^ 0x4U; // why is this OR'd?
-          routePhi = (((curPhi >> 11) - 1) >> 1) & 0x3U;
+    ReducedIndex index = 0;
+  STUBLOOP: for (int i=0; i<MAX_nSTUBS; ++i) {
+#pragma HLS PIPELINE II=1
+      if (i < nStubs_) {
+        // Extract stub parameters
+        // Calculate reduced-format parameters.
+        // Calculate routing parameters
+        ReducedZ_Layer redZ;
+        ReducedPhi_Layer redPhi;
+        ReducedR_Layer redR;
+        ReducedPt_Layer redPt;
+        ap_uint<2> routePhi;
+        ap_uint<1> routeZ;
+        if (N==1 || N==2 || N==3) { // PS layers
+          FullZ_Layer_PS curZ = stubsInLayer_[i].GetZ();
+          FullPhi_Layer_PS curPhi = stubsInLayer_[i].GetPhi();
+          FullR_Layer_PS curR = stubsInLayer_[i].GetR();
+          FullPt_Layer_PS curPt = stubsInLayer_[i].GetPt();
+          redPt = curPt;
+          redZ = curZ.range(5+4,5);
+          redR = curR.range(5+3,5);
+          routeZ = curZ[9];
+          if (N==2){
+            redPhi = curPhi(9+6,9);
+            routePhi = (curPhi >> 12 ) & 0x3U;
+            routePhi = curPhi(12+2,2);
+          } else {
+            redPhi = (curPhi >> 9) ^ 0x4U; // why is this OR'd?
+            routePhi = (((curPhi >> 11) - 1) >> 1) & 0x3U;
+          }
         }
-      }
-      else if (N==4 || N==5 || N==6) // 2S layers
-      {
-        FullZ_Layer_2S curZ = stubsInLayer[i].GetZ();
-        FullPhi_Layer_2S curPhi = stubsInLayer[i].GetPhi();
-        FullR_Layer_2S curR = stubsInLayer[i].GetR();
-        FullPt_Layer_2S curPt = stubsInLayer[i].GetPt();
-        redPt = curPt;
-        redZ = curZ.range(4+1,1);
-        redR = curR.range(2+6,2);
-        routZ = curZ[5];
-        if (N==5){
-          redPhi = (curPhi >> 12) ^ 0x4U; // why is this an OR?
-          routePhi = (((curPhi >> 14) - 1) >> 1) & 0x3U;
-        } else {
-          //redPhi = (curPhi >> 12) & 0x7U;
-          redPhi = curPhi.range(12+3,3);
-          routePhi = curPhi.range(15+2,15);
-          //routePhi = (curPhi >> 15 ) & 0x3U;
+        else if (N==4 || N==5 || N==6) { // 2S layers
+          FullZ_Layer_2S curZ = stubsInLayer_[i].GetZ();
+          FullPhi_Layer_2S curPhi = stubsInLayer_[i].GetPhi();
+          FullR_Layer_2S curR = stubsInLayer_[i].GetR();
+          FullPt_Layer_2S curPt = stubsInLayer_[i].GetPt();
+          redPt = curPt;
+          redZ = curZ.range(4+1,1);
+          redR = curR.range(2+6,2);
+          routeZ = curZ[5];
+          if (N==5){
+            redPhi = (curPhi >> 12) ^ 0x4U; // why is this an OR?
+            routePhi = (((curPhi >> 14) - 1) >> 1) & 0x3U;
+          } else {
+            redPhi = curPhi.range(12+3,3);
+            routePhi = curPhi.range(15+2,15);
+          }
         }
-      }
 
-      // Rewrite stub parameters to new stub in allStubs
-      allStubs[i].AddStub(stubsInLayer[i].raw());
+        // Rewrite stub parameters to new stub in allStubs
+        allStubs_[i].AddStub(stubsInLayer_[i].raw());
 
-      // Route stubs
-      switch (routeZ)
-      {
+        // Route stubs
+        switch (routeZ) {
         case 0:
-          switch (routePhi)
-          {
-            case 0:
-              vmStubsPH1Z1[nPH1Z1->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
-              ++(*nPH1Z1);
-              break;
-            case 1:
-              vmStubsPH2Z1[nPH2Z1->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
-              ++(*nPH2Z1);
-              break;
-            case 2:
-              vmStubsPH3Z1[nPH3Z1->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
-              ++(*nPH3Z1);
-              break;
-            case 3:
-              vmStubsPH4Z1[nPH4Z1->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
-              ++(*nPH4Z1);
-              break;
+          switch (routePhi) { 
+          case 0:
+            vmStubsPH1Z1_[nPH1Z1_->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
+            ++(*nPH1Z1_);
+            break;
+          case 1:
+            vmStubsPH2Z1_[nPH2Z1_->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
+            ++(*nPH2Z1_);
+            break;
+          case 2:
+            vmStubsPH3Z1_[nPH3Z1_->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
+            ++(*nPH3Z1_);
+            break;
+          case 3:
+            vmStubsPH4Z1_[nPH4Z1_->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
+            ++(*nPH4Z1_);
+            break;
           }
           break;
         case 1:
-          switch (routePhi)
-          {
-            case 0:
-             vmStubsPH1Z2[nPH1Z2->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
-              ++(*nPH1Z2);
-              break;
-            case 1:
-              vmStubsPH2Z2[nPH2Z2->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
-              ++(*nPH2Z2);
-              break;
-            case 2:
-              vmStubsPH3Z2[nPH3Z2->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
-              ++(*nPH3Z2);
-              break;
-            case 3:
-             vmStubsPH4Z2[nPH4Z2->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
-              ++(*nPH4Z2);
-              break;
+          switch (routePhi) {
+          case 0:
+            vmStubsPH1Z2_[nPH1Z2_->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
+            ++(*nPH1Z2_);
+            break;
+          case 1:
+            vmStubsPH2Z2_[nPH2Z2_->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
+            ++(*nPH2Z2_);
+            break;
+          case 2:
+            vmStubsPH3Z2_[nPH3Z2_->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
+            ++(*nPH3Z2_);
+            break;
+          case 3:
+            vmStubsPH4Z2_[nPH4Z2_->to_int()].AddStub(redZ, redPhi, redR, redPt, index);
+            ++(*nPH4Z2_);
+            break;
           }
           break;
-      }
-      if (index==63) { index--; }; // what vodoo is this?
-      ++index;
-    } else
-    {
-      break;
+        }
+        if (index==63)  
+          index--;  // what vodoo is this?
+        ++index;
+      } 
+      else 
+        break;
     }
-  }
-}
+  } // end void execute()
+};
 
 
 
