@@ -6,7 +6,7 @@ using namespace std;
 
 // Define max number of stubs an individual module can take
 const int MAX_nSTUBS = 64;
-const int MAX_nSECTORS = 3;
+const int MAX_nSECTORS = 1;
 const int MAX_nINNERRS = 3;
 const int MAX_nOUTERRS = 3;
 const int MAX_nREGIONS = 6;

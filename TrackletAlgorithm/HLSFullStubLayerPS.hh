@@ -5,7 +5,6 @@
 #include "ap_int.h"
 #include "HLSConstants.hh"
 
-//#define FAT_CLASS
 
 class HLSFullStubLayerPS
 {
@@ -126,6 +125,3 @@ public:
   }
 };
 
-#ifdef FAT_CLASS
-#undef FAT_CLASS
-#endif

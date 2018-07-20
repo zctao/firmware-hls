@@ -1,7 +1,6 @@
 // This is the HLSReducedStubLayer class, which contains, in essence the 18 bits of a reduced stub, after it has been routed
 #pragma once
 
-//#define FAT_CLASS
 
 #include "ap_int.h"
 #include "HLSConstants.hh"
@@ -119,7 +118,3 @@ public:
   // }
 };
 
-
-#ifdef FAT_CLASS
-#undef FAT_CLASS
-#endif
