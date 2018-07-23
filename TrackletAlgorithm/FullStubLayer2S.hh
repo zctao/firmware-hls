@@ -127,7 +127,7 @@ public:
     data_ = (data_ & maskPt ) | ( newPt.to_long() << ptShift);
 //    pt = newPt;
   }
-#ifndef __SYNTHESIS__
-  friend std::ostream & operator<<(std::ostream & o, const FullStubLayer2S & sl );
-#endif // not __SYNTHESIS__
+// #ifndef __SYNTHESIS__
+//   friend std::ostream & operator<<(std::ostream & o, const FullStubLayer2S & sl );
+// #endif // not __SYNTHESIS__
 };
