@@ -6,9 +6,9 @@
 //
 #pragma once
 #define FAT_CLASS
-#include "HLSFullStubLayerPS.hh"
-#include "HLSFullStubLayer2S.hh"
-#include "HLSConstants.hh"
+#include "FullStubLayerPS.hh"
+#include "FullStubLayer2S.hh"
+#include "Constants.hh"
 #include "ap_int.h"
 #include <vector>
 #include <stdio.h>
@@ -21,14 +21,14 @@ class VMRouter
 private:
   T *stubsInLayer_;
   T *allStubs_;
-  HLSReducedStubLayer *vmStubsPH1Z1_;
-  HLSReducedStubLayer *vmStubsPH2Z1_;
-  HLSReducedStubLayer *vmStubsPH3Z1_;
-  HLSReducedStubLayer *vmStubsPH4Z1_;
-  HLSReducedStubLayer *vmStubsPH1Z2_;
-  HLSReducedStubLayer *vmStubsPH2Z2_;
-  HLSReducedStubLayer *vmStubsPH3Z2_;
-  HLSReducedStubLayer *vmStubsPH4Z2_;
+  ReducedStubLayer *vmStubsPH1Z1_;
+  ReducedStubLayer *vmStubsPH2Z1_;
+  ReducedStubLayer *vmStubsPH3Z1_;
+  ReducedStubLayer *vmStubsPH4Z1_;
+  ReducedStubLayer *vmStubsPH1Z2_;
+  ReducedStubLayer *vmStubsPH2Z2_;
+  ReducedStubLayer *vmStubsPH3Z2_;
+  ReducedStubLayer *vmStubsPH4Z2_;
   const int nStubs_;
   ReducedIndex *nPH1Z1_; ReducedIndex *nPH2Z1_;
   ReducedIndex *nPH3Z1_; ReducedIndex *nPH4Z1_;
@@ -38,14 +38,14 @@ public:
   // constructor; just copy in the pointers to the input and output arrays
   VMRouter(T *stubsInLayer,
            T *allStubs,
-           HLSReducedStubLayer *vmStubsPH1Z1,
-           HLSReducedStubLayer *vmStubsPH2Z1,
-           HLSReducedStubLayer *vmStubsPH3Z1,
-           HLSReducedStubLayer *vmStubsPH4Z1,
-           HLSReducedStubLayer *vmStubsPH1Z2,
-           HLSReducedStubLayer *vmStubsPH2Z2,
-           HLSReducedStubLayer *vmStubsPH3Z2,
-           HLSReducedStubLayer *vmStubsPH4Z2,
+           ReducedStubLayer *vmStubsPH1Z1,
+           ReducedStubLayer *vmStubsPH2Z1,
+           ReducedStubLayer *vmStubsPH3Z1,
+           ReducedStubLayer *vmStubsPH4Z1,
+           ReducedStubLayer *vmStubsPH1Z2,
+           ReducedStubLayer *vmStubsPH2Z2,
+           ReducedStubLayer *vmStubsPH3Z2,
+           ReducedStubLayer *vmStubsPH4Z2,
            const int nStubs,
            ReducedIndex *nPH1Z1, ReducedIndex *nPH2Z1,
            ReducedIndex *nPH3Z1, ReducedIndex *nPH4Z1,

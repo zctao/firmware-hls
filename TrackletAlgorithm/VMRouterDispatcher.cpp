@@ -1,25 +1,24 @@
 // VMRouterDispatcher module
-#include "HLSConstants.hh"
-#include "HLSFullStubLayerPS.hh"
-#include "HLSFullStubLayer2S.hh"
-#include "HLSReducedStubLayer.hh"
+#include "Constants.hh"
+#include "FullStubLayerPS.hh"
+#include "FullStubLayer2S.hh"
+#include "ReducedStubLayer.hh"
 #include "VMRouter.hh"
 #include <vector>
 
-//using namespace std;
-
-void VMRouterDispatcher(HLSFullStubLayerPS curStubsInLayerPS[MAX_nSTUBS*MAX_nSECTORS*MAX_nINNERRS],
-                        HLSFullStubLayerPS curAllStubsPS[MAX_nSTUBS*MAX_nSECTORS*MAX_nINNERRS],
-			HLSFullStubLayer2S curStubsInLayer2S[MAX_nSTUBS*MAX_nSECTORS*MAX_nOUTERRS],
-                        HLSFullStubLayer2S curAllStubs2S[MAX_nSTUBS*MAX_nSECTORS*MAX_nOUTERRS],
-                        HLSReducedStubLayer curvmStubsPH1Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS],
-                        HLSReducedStubLayer curvmStubsPH2Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS],
-                        HLSReducedStubLayer curvmStubsPH3Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS],
-                        HLSReducedStubLayer curvmStubsPH4Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS],
-                        HLSReducedStubLayer curvmStubsPH1Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS],
-                        HLSReducedStubLayer curvmStubsPH2Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS],
-                        HLSReducedStubLayer curvmStubsPH3Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS],
-                        HLSReducedStubLayer curvmStubsPH4Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS],
+// call for a single sector
+void VMRouterDispatcher(FullStubLayerPS curStubsInLayerPS[MAX_nSTUBS*MAX_nINNERRS],
+                        FullStubLayerPS curAllStubsPS[MAX_nSTUBS*MAX_nINNERRS],
+             			FullStubLayer2S curStubsInLayer2S[MAX_nSTUBS*MAX_nOUTERRS],
+                        FullStubLayer2S curAllStubs2S[MAX_nSTUBS*MAX_nOUTERRS],
+                        ReducedStubLayer curvmStubsPH1Z1[MAX_nSTUBS*MAX_nREGIONS],
+                        ReducedStubLayer curvmStubsPH2Z1[MAX_nSTUBS*MAX_nREGIONS],
+                        ReducedStubLayer curvmStubsPH3Z1[MAX_nSTUBS*MAX_nREGIONS],
+                        ReducedStubLayer curvmStubsPH4Z1[MAX_nSTUBS*MAX_nREGIONS],
+                        ReducedStubLayer curvmStubsPH1Z2[MAX_nSTUBS*MAX_nREGIONS],
+                        ReducedStubLayer curvmStubsPH2Z2[MAX_nSTUBS*MAX_nREGIONS],
+                        ReducedStubLayer curvmStubsPH3Z2[MAX_nSTUBS*MAX_nREGIONS],
+                        ReducedStubLayer curvmStubsPH4Z2[MAX_nSTUBS*MAX_nREGIONS],
                         int curnStubs[MAX_nSECTORS*MAX_nREGIONS],
                         ReducedIndex curnPH1Z1[MAX_nSECTORS*MAX_nREGIONS],
                         ReducedIndex curnPH2Z1[MAX_nSECTORS*MAX_nREGIONS],
@@ -64,62 +63,62 @@ void VMRouterDispatcher(HLSFullStubLayerPS curStubsInLayerPS[MAX_nSTUBS*MAX_nSEC
   #pragma HLS ARRAY_PARTITION variable=curnPH3Z2 complete
   #pragma HLS ARRAY_PARTITION variable=curnPH4Z2 complete
 
-  for (int j=0; j<MAX_nSECTORS; j++)
+  for (int j=1; j<2; ++j) // HACK
   {
     #pragma HLS UNROLL
-    VMRouter<HLSFullStubLayerPS,1>(&curStubsInLayerPS[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS], &curAllStubsPS[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z1[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z1[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z2[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z2[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS],
-                curnStubs[j+0*MAX_nSECTORS],
-                &curnPH1Z1[j+0*MAX_nSECTORS], &curnPH2Z1[j+0*MAX_nSECTORS], &curnPH3Z1[j+0*MAX_nSECTORS], &curnPH4Z1[j+0*MAX_nSECTORS],
-                &curnPH1Z2[j+0*MAX_nSECTORS], &curnPH2Z2[j+0*MAX_nSECTORS], &curnPH3Z2[j+0*MAX_nSECTORS], &curnPH4Z2[j+0*MAX_nSECTORS]);
+    VMRouter<FullStubLayerPS,1>(&curStubsInLayerPS[j*MAX_nSTUBS+0*MAX_nSTUBS], &curAllStubsPS[j*MAX_nSTUBS+0*MAX_nSTUBS],
+                &curvmStubsPH1Z1[j*MAX_nSTUBS+0*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+0*MAX_nSTUBS],
+                &curvmStubsPH3Z1[j*MAX_nSTUBS+0*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+0*MAX_nSTUBS],
+                &curvmStubsPH1Z2[j*MAX_nSTUBS+0*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+0*MAX_nSTUBS],
+                &curvmStubsPH3Z2[j*MAX_nSTUBS+0*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+0*MAX_nSTUBS],
+                curnStubs[j+0],
+                &curnPH1Z1[j+0], &curnPH2Z1[j+0], &curnPH3Z1[j+0], &curnPH4Z1[j+0],
+                &curnPH1Z2[j+0], &curnPH2Z2[j+0], &curnPH3Z2[j+0], &curnPH4Z2[j+0]);
 
-    VMRouter<HLSFullStubLayerPS,2>(&curStubsInLayerPS[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS], &curAllStubsPS[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z1[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z1[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z2[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z2[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS],
-                curnStubs[j+1*MAX_nSECTORS],
-                &curnPH1Z1[j+1*MAX_nSECTORS], &curnPH2Z1[j+1*MAX_nSECTORS], &curnPH3Z1[j+1*MAX_nSECTORS], &curnPH4Z1[j+1*MAX_nSECTORS],
-                &curnPH1Z2[j+1*MAX_nSECTORS], &curnPH2Z2[j+1*MAX_nSECTORS], &curnPH3Z2[j+1*MAX_nSECTORS], &curnPH4Z2[j+1*MAX_nSECTORS]);
+    VMRouter<FullStubLayerPS,2>(&curStubsInLayerPS[j*MAX_nSTUBS+1*MAX_nSTUBS], &curAllStubsPS[j*MAX_nSTUBS+1*MAX_nSTUBS],
+                &curvmStubsPH1Z1[j*MAX_nSTUBS+1*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+1*MAX_nSTUBS],
+                &curvmStubsPH3Z1[j*MAX_nSTUBS+1*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+1*MAX_nSTUBS],
+                &curvmStubsPH1Z2[j*MAX_nSTUBS+1*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+1*MAX_nSTUBS],
+                &curvmStubsPH3Z2[j*MAX_nSTUBS+1*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+1*MAX_nSTUBS],
+                curnStubs[j+1],
+                &curnPH1Z1[j+1], &curnPH2Z1[j+1], &curnPH3Z1[j+1], &curnPH4Z1[j+1],
+                &curnPH1Z2[j+1], &curnPH2Z2[j+1], &curnPH3Z2[j+1], &curnPH4Z2[j+1]);
 
-    VMRouter<HLSFullStubLayerPS,3>(&curStubsInLayerPS[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS], &curAllStubsPS[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z1[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z1[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z2[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z2[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS],
-                curnStubs[j+2*MAX_nSECTORS],
-                &curnPH1Z1[j+2*MAX_nSECTORS], &curnPH2Z1[j+2*MAX_nSECTORS], &curnPH3Z1[j+2*MAX_nSECTORS], &curnPH4Z1[j+2*MAX_nSECTORS],
-                &curnPH1Z2[j+2*MAX_nSECTORS], &curnPH2Z2[j+2*MAX_nSECTORS], &curnPH3Z2[j+2*MAX_nSECTORS], &curnPH4Z2[j+2*MAX_nSECTORS]);
+    VMRouter<FullStubLayerPS,3>(&curStubsInLayerPS[j*MAX_nSTUBS+2*MAX_nSTUBS], &curAllStubsPS[j*MAX_nSTUBS+2*MAX_nSTUBS],
+                &curvmStubsPH1Z1[j*MAX_nSTUBS+2*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+2*MAX_nSTUBS],
+                &curvmStubsPH3Z1[j*MAX_nSTUBS+2*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+2*MAX_nSTUBS],
+                &curvmStubsPH1Z2[j*MAX_nSTUBS+2*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+2*MAX_nSTUBS],
+                &curvmStubsPH3Z2[j*MAX_nSTUBS+2*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+2*MAX_nSTUBS],
+                curnStubs[j+2],
+                &curnPH1Z1[j+2], &curnPH2Z1[j+2], &curnPH3Z1[j+2], &curnPH4Z1[j+2],
+                &curnPH1Z2[j+2], &curnPH2Z2[j+2], &curnPH3Z2[j+2], &curnPH4Z2[j+2]);
 
-    VMRouter<HLSFullStubLayer2S,4>(&curStubsInLayer2S[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS], &curAllStubs2S[j*MAX_nSTUBS+0*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+3*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z1[j*MAX_nSTUBS+3*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+3*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z1[j*MAX_nSTUBS+3*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+3*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z2[j*MAX_nSTUBS+3*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+3*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z2[j*MAX_nSTUBS+3*MAX_nSTUBS*MAX_nSECTORS],
-                curnStubs[j+3*MAX_nSECTORS],
-                &curnPH1Z1[j+3*MAX_nSECTORS], &curnPH2Z1[j+3*MAX_nSECTORS], &curnPH3Z1[j+3*MAX_nSECTORS], &curnPH4Z1[j+3*MAX_nSECTORS],
-                &curnPH1Z2[j+3*MAX_nSECTORS], &curnPH2Z2[j+3*MAX_nSECTORS], &curnPH3Z2[j+3*MAX_nSECTORS], &curnPH4Z2[j+3*MAX_nSECTORS]);
+    VMRouter<FullStubLayer2S,4>(&curStubsInLayer2S[j*MAX_nSTUBS+0*MAX_nSTUBS], &curAllStubs2S[j*MAX_nSTUBS+0*MAX_nSTUBS],
+                &curvmStubsPH1Z1[j*MAX_nSTUBS+3*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+3*MAX_nSTUBS],
+                &curvmStubsPH3Z1[j*MAX_nSTUBS+3*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+3*MAX_nSTUBS],
+                &curvmStubsPH1Z2[j*MAX_nSTUBS+3*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+3*MAX_nSTUBS],
+                &curvmStubsPH3Z2[j*MAX_nSTUBS+3*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+3*MAX_nSTUBS],
+                curnStubs[j+3],
+                &curnPH1Z1[j+3], &curnPH2Z1[j+3], &curnPH3Z1[j+3], &curnPH4Z1[j+3],
+                &curnPH1Z2[j+3], &curnPH2Z2[j+3], &curnPH3Z2[j+3], &curnPH4Z2[j+3]);
 
-    VMRouter<HLSFullStubLayer2S,5>(&curStubsInLayer2S[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS], &curAllStubs2S[j*MAX_nSTUBS+1*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+4*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z1[j*MAX_nSTUBS+4*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+4*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z1[j*MAX_nSTUBS+4*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+4*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z2[j*MAX_nSTUBS+4*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+4*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z2[j*MAX_nSTUBS+4*MAX_nSTUBS*MAX_nSECTORS],
-                curnStubs[j+4*MAX_nSECTORS],
-                &curnPH1Z1[j+4*MAX_nSECTORS], &curnPH2Z1[j+4*MAX_nSECTORS], &curnPH3Z1[j+4*MAX_nSECTORS], &curnPH4Z1[j+4*MAX_nSECTORS],
-                &curnPH1Z2[j+4*MAX_nSECTORS], &curnPH2Z2[j+4*MAX_nSECTORS], &curnPH3Z2[j+4*MAX_nSECTORS], &curnPH4Z2[j+4*MAX_nSECTORS]);
+    VMRouter<FullStubLayer2S,5>(&curStubsInLayer2S[j*MAX_nSTUBS+1*MAX_nSTUBS], &curAllStubs2S[j*MAX_nSTUBS+1*MAX_nSTUBS],
+                &curvmStubsPH1Z1[j*MAX_nSTUBS+4*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+4*MAX_nSTUBS],
+                &curvmStubsPH3Z1[j*MAX_nSTUBS+4*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+4*MAX_nSTUBS],
+                &curvmStubsPH1Z2[j*MAX_nSTUBS+4*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+4*MAX_nSTUBS],
+                &curvmStubsPH3Z2[j*MAX_nSTUBS+4*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+4*MAX_nSTUBS],
+                curnStubs[j+4],
+                &curnPH1Z1[j+4], &curnPH2Z1[j+4], &curnPH3Z1[j+4], &curnPH4Z1[j+4],
+                &curnPH1Z2[j+4], &curnPH2Z2[j+4], &curnPH3Z2[j+4], &curnPH4Z2[j+4]);
 
-    VMRouter<HLSFullStubLayer2S,6>(&curStubsInLayer2S[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS], &curAllStubs2S[j*MAX_nSTUBS+2*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+5*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z1[j*MAX_nSTUBS+5*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+5*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z1[j*MAX_nSTUBS+5*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+5*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH2Z2[j*MAX_nSTUBS+5*MAX_nSTUBS*MAX_nSECTORS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+5*MAX_nSTUBS*MAX_nSECTORS], &curvmStubsPH4Z2[j*MAX_nSTUBS+5*MAX_nSTUBS*MAX_nSECTORS],
-                curnStubs[j+5*MAX_nSECTORS],
-                &curnPH1Z1[j+5*MAX_nSECTORS], &curnPH2Z1[j+5*MAX_nSECTORS], &curnPH3Z1[j+5*MAX_nSECTORS], &curnPH4Z1[j+5*MAX_nSECTORS],
-                &curnPH1Z2[j+5*MAX_nSECTORS], &curnPH2Z2[j+5*MAX_nSECTORS], &curnPH3Z2[j+5*MAX_nSECTORS], &curnPH4Z2[j+5*MAX_nSECTORS]);
+    VMRouter<FullStubLayer2S,6>(&curStubsInLayer2S[j*MAX_nSTUBS+2*MAX_nSTUBS], &curAllStubs2S[j*MAX_nSTUBS+2*MAX_nSTUBS],
+                &curvmStubsPH1Z1[j*MAX_nSTUBS+5*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+5*MAX_nSTUBS],
+                &curvmStubsPH3Z1[j*MAX_nSTUBS+5*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+5*MAX_nSTUBS],
+                &curvmStubsPH1Z2[j*MAX_nSTUBS+5*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+5*MAX_nSTUBS],
+                &curvmStubsPH3Z2[j*MAX_nSTUBS+5*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+5*MAX_nSTUBS],
+                curnStubs[j+5],
+                &curnPH1Z1[j+5], &curnPH2Z1[j+5], &curnPH3Z1[j+5], &curnPH4Z1[j+5],
+                &curnPH1Z2[j+5], &curnPH2Z2[j+5], &curnPH3Z2[j+5], &curnPH4Z2[j+5]);
   }
 }
 

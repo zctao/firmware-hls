@@ -1,8 +1,8 @@
 // VMRouter test bench
-#include "HLSConstants.hh"
-#include "HLSFullStubLayerPS.hh"
-#include "HLSFullStubLayer2S.hh"
-#include "HLSReducedStubLayer.hh"
+#include "Constants.hh"
+#include "FullStubLayerPS.hh"
+#include "FullStubLayer2S.hh"
+#include "ReducedStubLayer.hh"
 #include "VMRouterDispatcher.hh"
 #include "ap_int.h"
 #include <vector>
@@ -17,7 +17,9 @@
 
 using namespace std;
 
-void PrintRouted(HLSReducedStubLayer vmStubsPHXZX[MAX_nSTUBS*MAX_nSECTORS*MAX_nEVENTS], ReducedIndex nStubs[MAX_nSECTORS*MAX_nEVENTS], string outFileString)
+// top level test for one sector
+
+void PrintRouted(ReducedStubLayer vmStubsPHXZX[MAX_nSTUBS*MAX_nSECTORS*MAX_nEVENTS], ReducedIndex nStubs[MAX_nSECTORS*MAX_nEVENTS], string outFileString)
 {
   ReducedZ_Layer redZ;
   ReducedPhi_Layer redPhi;
@@ -77,31 +79,31 @@ void PrintRouted(HLSReducedStubLayer vmStubsPHXZX[MAX_nSTUBS*MAX_nSECTORS*MAX_nE
 int main()
 {
   // ****** DECLARE ALL ARRAY VARIABLES ******
-  HLSFullStubLayerPS stubsInLayerPS[MAX_nSTUBS*MAX_nSECTORS*MAX_nINNERRS*MAX_nEVENTS];
-  HLSFullStubLayerPS allStubsPS[MAX_nSTUBS*MAX_nSECTORS*MAX_nINNERRS*MAX_nEVENTS];
-  HLSFullStubLayer2S stubsInLayer2S[MAX_nSTUBS*MAX_nSECTORS*MAX_nOUTERRS*MAX_nEVENTS];
-  HLSFullStubLayer2S allStubs2S[MAX_nSTUBS*MAX_nSECTORS*MAX_nOUTERRS*MAX_nEVENTS];
-  HLSReducedStubLayer vmStubsPH1Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
-  HLSReducedStubLayer vmStubsPH2Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
-  HLSReducedStubLayer vmStubsPH3Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
-  HLSReducedStubLayer vmStubsPH4Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
-  HLSReducedStubLayer vmStubsPH1Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
-  HLSReducedStubLayer vmStubsPH2Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
-  HLSReducedStubLayer vmStubsPH3Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
-  HLSReducedStubLayer vmStubsPH4Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
+  FullStubLayerPS stubsInLayerPS[MAX_nSTUBS*MAX_nSECTORS*MAX_nINNERRS*MAX_nEVENTS];
+  FullStubLayerPS allStubsPS[MAX_nSTUBS*MAX_nSECTORS*MAX_nINNERRS*MAX_nEVENTS];
+  FullStubLayer2S stubsInLayer2S[MAX_nSTUBS*MAX_nSECTORS*MAX_nOUTERRS*MAX_nEVENTS];
+  FullStubLayer2S allStubs2S[MAX_nSTUBS*MAX_nSECTORS*MAX_nOUTERRS*MAX_nEVENTS];
+  ReducedStubLayer vmStubsPH1Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
+  ReducedStubLayer vmStubsPH2Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
+  ReducedStubLayer vmStubsPH3Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
+  ReducedStubLayer vmStubsPH4Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
+  ReducedStubLayer vmStubsPH1Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
+  ReducedStubLayer vmStubsPH2Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
+  ReducedStubLayer vmStubsPH3Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
+  ReducedStubLayer vmStubsPH4Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
 
-  HLSFullStubLayerPS curStubsInLayerPS[MAX_nSTUBS*MAX_nSECTORS*MAX_nINNERRS];
-  HLSFullStubLayerPS curAllStubsPS[MAX_nSTUBS*MAX_nSECTORS*MAX_nINNERRS];
-  HLSFullStubLayer2S curStubsInLayer2S[MAX_nSTUBS*MAX_nSECTORS*MAX_nOUTERRS];
-  HLSFullStubLayer2S curAllStubs2S[MAX_nSTUBS*MAX_nSECTORS*MAX_nOUTERRS];
-  HLSReducedStubLayer curvmStubsPH1Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
-  HLSReducedStubLayer curvmStubsPH2Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
-  HLSReducedStubLayer curvmStubsPH3Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
-  HLSReducedStubLayer curvmStubsPH4Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
-  HLSReducedStubLayer curvmStubsPH1Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
-  HLSReducedStubLayer curvmStubsPH2Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
-  HLSReducedStubLayer curvmStubsPH3Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
-  HLSReducedStubLayer curvmStubsPH4Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
+  FullStubLayerPS curStubsInLayerPS[MAX_nSTUBS*MAX_nSECTORS*MAX_nINNERRS];
+  FullStubLayerPS curAllStubsPS[MAX_nSTUBS*MAX_nSECTORS*MAX_nINNERRS];
+  FullStubLayer2S curStubsInLayer2S[MAX_nSTUBS*MAX_nSECTORS*MAX_nOUTERRS];
+  FullStubLayer2S curAllStubs2S[MAX_nSTUBS*MAX_nSECTORS*MAX_nOUTERRS];
+  ReducedStubLayer curvmStubsPH1Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
+  ReducedStubLayer curvmStubsPH2Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
+  ReducedStubLayer curvmStubsPH3Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
+  ReducedStubLayer curvmStubsPH4Z1[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
+  ReducedStubLayer curvmStubsPH1Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
+  ReducedStubLayer curvmStubsPH2Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
+  ReducedStubLayer curvmStubsPH3Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
+  ReducedStubLayer curvmStubsPH4Z2[MAX_nSTUBS*MAX_nSECTORS*MAX_nREGIONS];
 
   ReducedIndex nPH1Z1[MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
   ReducedIndex nPH2Z1[MAX_nSECTORS*MAX_nREGIONS*MAX_nEVENTS];
@@ -220,6 +222,7 @@ int main()
 
 
   // ****** LOOP OVER ALL EVENTS, SENDING EACH EVENT TO VMROUTERDISPATCHER ******
+  // Each call to VMRouterDispatcher covers _ONE_ sector
   int curnStubs[MAX_nSECTORS*MAX_nREGIONS];
   for (int i=0; i<MAX_nEVENTS; i++)
   {
@@ -302,8 +305,6 @@ int main()
     }
   }
   return allPass;
-
-//return 0;
 }
 
 

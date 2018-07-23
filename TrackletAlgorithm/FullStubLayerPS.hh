@@ -3,10 +3,10 @@
 #include <cstdio>
 #pragma once
 #include "ap_int.h"
-#include "HLSConstants.hh"
+#include "Constants.hh"
 
 
-class HLSFullStubLayerPS
+class FullStubLayerPS
 {
 private:
   StubData data_;
@@ -17,10 +17,10 @@ private:
   FullPt_Layer_PS pt;
 #endif // FAT_CLASS
 public:
-  HLSFullStubLayerPS(StubData newdata):
+  FullStubLayerPS(StubData newdata):
     data_(newdata)
   {}
-  HLSFullStubLayerPS():
+  FullStubLayerPS():
     data_(0)
   {
   }
@@ -28,7 +28,7 @@ public:
   {
     return data_;
   }
-  HLSFullStubLayerPS(const FullZ_Layer_PS newZ, const FullPhi_Layer_PS newPhi, 
+  FullStubLayerPS(const FullZ_Layer_PS newZ, const FullPhi_Layer_PS newPhi,
 		     const FullR_Layer_PS newR, const FullPt_Layer_PS newPt)
   {
     AddStub(newZ, newPhi, newR, newPt);

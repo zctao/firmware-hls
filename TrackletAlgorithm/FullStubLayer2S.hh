@@ -1,11 +1,16 @@
-// This is the HLSFullStubLayer class, which contains, in essence the 36 bits of a full stub, with few other functions
+// This is the FullStubLayer class, which contains, in essence the 36 bits of a full stub, with few other functions
 #pragma once
 #include <cstdio>
 #include "ap_int.h"
-#include "HLSConstants.hh"
+#include "Constants.hh"
+
+#ifndef __SYNTHESIS
+#include <iostream>
+#include <iomanip>
+#endif // not __SYNTHESIS
 
 
-class HLSFullStubLayer2S
+class FullStubLayer2S
 {
 private:
   StubData data_;
@@ -16,10 +21,10 @@ private:
   FullPt_Layer_2S pt;
 #endif // FAT_CLASS
 public:
-  HLSFullStubLayer2S(StubData newdata):
+  FullStubLayer2S(StubData newdata):
     data_(newdata)
   {}
-  HLSFullStubLayer2S():
+  FullStubLayer2S():
     data_(0)
   {
   }
@@ -27,7 +32,7 @@ public:
   {
     return data_;
   }
-  HLSFullStubLayer2S(const FullZ_Layer_2S newZ, const FullPhi_Layer_2S newPhi,
+  FullStubLayer2S(const FullZ_Layer_2S newZ, const FullPhi_Layer_2S newPhi,
 		     const FullR_Layer_2S newR, const FullPt_Layer_2S newPt)
   {
     AddStub(newZ, newPhi, newR, newPt);
@@ -122,4 +127,7 @@ public:
     data_ = (data_ & maskPt ) | ( newPt.to_long() << ptShift);
 //    pt = newPt;
   }
+#ifndef __SYNTHESIS__
+  friend std::ostream & operator<<(std::ostream & o, const FullStubLayer2S & sl );
+#endif // not __SYNTHESIS__
 };
