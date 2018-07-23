@@ -41,6 +41,10 @@ public:
     data_ = newZ | (newPhi.to_long()<< 4) | (newR.to_long() << (4+3)) | 
       (newPt.to_long() << (4+3+2)) | (newIndex.to_long() << (4+3+2+3));
   }
+  ReducedStubData raw() const 
+  {
+    return data_;
+  }
   ReducedZ_Layer GetZ() const
   {
     ReducedZ_Layer tz = data_ & 0xFUL;
