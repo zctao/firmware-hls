@@ -8,29 +8,16 @@ struct AllProjData {
   bool        minusNeighbor;
   TCID        tracklet_index;
   AProjPHI    phi;
-  AProjZ      zder;
+  AProjZ      z;
   AProjPHIDER phider;
   AProjZDER   zder;
 };
 
-class AllProjections
+class AllProjections: public MemoryBase<AllProjData, MemDepth>
 {
 public:
 
   AllProjections(){}
-  ~AllProjections(){}
-
-  // getter
-  AllProjData* getAllProj() const {return allproj_;}
-  //AllProjPHI getphi();
-
-  // setter
-  void setAllProj(AllProjData aproj, int i) {allproj_[i] = aproj;}
-  //void setAllProj();
-
-private:
-
-  AllProjData allproj_[MemDepth];
 
 }
 

@@ -2,6 +2,7 @@
 #define VMPROJECTIONS_HH
 
 #include "Constants.hh"
+#include "MemoryBase.hh"
 
 struct VMProjData {
   VMPID   index;
@@ -9,20 +10,11 @@ struct VMProjData {
   VMPZBIN zbin;
 };
 
-class VMProjections
+class VMProjections: public MemoryBase<VMProjData, MemDepth>
 {
 public:
   
   VMProjections(){}
-  ~VMProjections(){}
-
-  VMProjData* getVMProj() const {return vmproj_;}
-
-  void setVMProj(VMProjData ivmproj, int i) {vmproj_[i] = ivmproj;}
-
-private:
-
-  VMProjData vmproj_[MemDepth];
 
 };
 
