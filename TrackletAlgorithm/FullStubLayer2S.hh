@@ -4,11 +4,6 @@
 #include "ap_int.h"
 #include "Constants.hh"
 
-#ifndef __SYNTHESIS
-#include <iostream>
-#include <iomanip>
-#endif // not __SYNTHESIS
-
 
 class FullStubLayer2S
 {
