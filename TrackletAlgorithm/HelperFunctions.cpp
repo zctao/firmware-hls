@@ -1,10 +1,7 @@
 
 #ifndef __SYNTHESIS__
-#include <ostream>
 
-#include "FullStubLayer2S.hh"
-#include "FullStubLayerPS.hh"
-#include "ReducedStubLayer.hh"
+#include "HelperFunctions.hh"
 
 std::ostream & operator<<(std::ostream & o, const FullStubLayer2S & sl )
 {
@@ -12,8 +9,7 @@ std::ostream & operator<<(std::ostream & o, const FullStubLayer2S & sl )
     << "raw data: 0x" << std::hex << sl.raw() << std::dec
     << ", pt, r, phi, z " 
     << sl.GetPt() << ", " << sl.GetR() << ", "
-    << sl.GetPhi() << ", " << sl.GetZ() 
-    << std::endl;
+    << sl.GetPhi() << ", " << sl.GetZ() ;
   
   return o;
 
@@ -26,8 +22,7 @@ std::ostream & operator<<(std::ostream & o, const FullStubLayerPS & sl )
     << "raw data: 0x" << std::hex << sl.raw() << std::dec
     << ", pt, r, phi, z " 
     << sl.GetPt() << ", " << sl.GetR() << ", "
-    << sl.GetPhi() << ", " << sl.GetZ() 
-    << std::endl;
+    << sl.GetPhi() << ", " << sl.GetZ() ;
   
   return o;
 
@@ -40,8 +35,7 @@ std::ostream & operator<<(std::ostream & o, const ReducedStubLayer & sl )
     << ", pt, r, phi, z, index: " 
     << sl.GetPt() << ", " << sl.GetR() << ", "
     << sl.GetPhi() << ", " << sl.GetZ() << ", "
-    << sl.GetIndex()
-    << std::endl;
+    << sl.GetIndex() ;
   
   return o;
 
