@@ -25,8 +25,8 @@ public:
 	  // check which input memories are not empty
 	  //bool mem_hasdata_arr[nTProjMem];
 	  ap_uint<nTProjMem> mem_hasdata = 0;
-	  // need to unroll the loop
 	  HASDATA_LOOP: for (int imem = 0; imem < nTProjMem; ++imem) {
+#pragma HLS unroll
 		  if (numbersin_[imem > 0]) {
 			  //mem_hasdata_arr[imem] = 1;
 			  mem_hasdata += (1<<imem);
@@ -39,6 +39,7 @@ public:
 	  unsigned int imem = 0;
 	  unsigned int addr_next = 0;
 	  PROC_LOOP: for (int i = 0; i < nMaxProc; ++i) {
+#pragma HLS PIPELINE II=1
 
 		  // read inputs
 		  unsigned int addr = addr_next;
@@ -49,12 +50,118 @@ public:
 		  TProjData tproj = read_mem(imem, addr);
 
 		  // routing
+		  // inner barrel for now
 
+		  TProjPHI iphiproj = tproj.phi;
+		  TProjZ izproj = tproj.z;
+
+		  int nbitsphi = iphiproj.length();
+		  ap_uint<4> iphi = iphiproj>>(nbitsphi-4)-2; // top 4 bits minus 2
+		  assert(iphi>=0 and iphi<=11);
+
+		  // vmproj index
+		  VMPID index = i;
+
+		  // vmproj phi
+		  // https://github.com/cms-tracklet/fpga_emulation_longVM/blob/master/FPGALayerProjection.hh#L51-L57
+		  VMPPHI vmphi = iphiproj.range(nbitsphi-3,nbitsphi-5)^4;
+
+		  // vmproj z
+		  ap_uint<MEBinsBits> zbin1 = (1<<(MEBinsBits-1))+(((izproj>>(izproj.length()-MEBinsBits-2))-2)>>2);
+		  ap_uint<MEBinsBits> zbin2 = (1<<(MEBinsBits-1))+(((izproj>>(izproj.length()-MEBinsBits-2))+2)>>2);
+		  if (zbin1 >= (1<<MEBinsBits)) zbin1 = 0;
+		  if (zbin2 >= (1<<MEBinsBits)) zbin2 = (1<<MEBinsBits)-1;
+
+		  VMPZBIN finez = ((1<<(MEBinsBits+2))+(izproj>>(izproj.length()-(MEBinsBits+3))))-(zbin1<<3);
+
+		  /*
+		  int nbitsz = izproj.length();
+		  ap_int<MEBinsBits> pre_zbin1 = (izproj.range(nbitsz-1, nbitsz-MEBinsBits-2)+1)>>2;
+		  ap_int<MEBinsBits> pre_zbin2 = (izproj.range(nbitsz-1, nbitsz-MEBinsBits-2)-1)>>2;
+		  */
+
+		  VMProjData vmproj = {index, vmphi, finez};
+
+		  // all projections
+		  AllProjData allproj = {
+		  				  tproj.plusNeighbor,
+		  				  tproj.minusNeighbor,
+		  				  tproj.phi,
+		  				  tproj.z,
+		  				  tproj.phider,
+		  				  tproj.zder
+		  		  };
 
 		  // write outputs
+		  //allproj_ -> add_mem(allproj);
+		  *(allproj_+i) = allproj;
 
-	  }
-  }
+		  switch (iphi)
+		  {
+		  case 0:
+			  //vmprojphi1_ -> add_mem(vmproj);
+			  *(vmprojphi1_+iVMP1_) = vmproj;
+			  iVMP1_++;
+			  break;
+		  case 1:
+			  //vmprojphi2_ -> add_mem(vmproj);
+			  *(vmprojphi2_+iVMP2_) = vmproj;
+			  iVMP2_++;
+		  	  break;
+		  case 2:
+			  //vmprojphi3_ -> add_mem(vmproj);
+			  *(vmprojphi3_+iVMP3_) = vmproj;
+			  iVMP3_++;
+			  break;
+		  case 3:
+			  //vmprojphi4_ -> add_mem(vmproj);
+			  *(vmprojphi4_+iVMP4_) = vmproj;
+			  iVMP4_++;
+		  	  break;
+		  case 4:
+			  //vmprojphi5_ -> add_mem(vmproj);
+			  *(vmprojphi5_+iVMP5_) = vmproj;
+			  iVMP5_++;
+			  break;
+		  case 5:
+			  //vmprojphi6_ -> add_mem(vmproj);
+			  *(vmprojphi6_+iVMP6_) = vmproj;
+			  iVMP6_++;
+		  	  break;
+		  case 6:
+			  //vmprojphi7_ -> add_mem(vmproj);
+			  *(vmprojphi7_+iVMP7_) = vmproj;
+			  iVMP7_++;
+			  break;
+		  case 7:
+			  //vmprojphi8_ -> add_mem(vmproj);
+			  *(vmprojphi8_+iVMP8_) = vmproj;
+			  iVMP8_++;
+		  	  break;
+		  case 8:
+			  //vmprojphi9_ -> add_mem(vmproj);
+			  *(vmprojphi9_+iVMP9_) = vmproj;
+			  iVMP9_++;
+			  break;
+		  case 9:
+			  //vmprojphi10_ -> add_mem(vmproj);
+			  *(vmprojphi10_+iVMP10_) = vmproj;
+			  iVMP10_++;
+		  	  break;
+		  case 10:
+			  //vmprojphi11_ -> add_mem(vmproj);
+			  *(vmprojphi11_+iVMP11_) = vmproj;
+			  iVMP11_++;
+			  break;
+		  case 11:
+			  //vmprojphi12_ -> add_mem(vmproj);
+			  *(vmprojphi12_+iVMP12_) = vmproj;
+			  iVMP12_++;
+		  	  break;
+		  }
+
+	  } // PROC_LOOP
+  } // execute()
 
   // move this to ProcessBase class?
   template<int nMEM>
@@ -66,7 +173,7 @@ public:
 	  imem = __builtin_ctz(mem_hasdata);
 	  ++addr;
 
-	  if (add >= *(numbersin+imem)) {  // All entries have been read out in memory[imem]
+	  if (addr >= *(numbersin+imem)) {  // All entries have been read out in memory[imem]
 		  // Prepare to read the next non-empty memory
 		  addr = 0;  // reset read address
 		  mem_hasdata -= (1<<imem);  // flip the lowest 1 bit to 0
@@ -248,6 +355,7 @@ private:
 
   // outputs
   AllProjData* allproj_;
+  unsigned int iAP_ = 0;
 
   VMProjData* vmprojphi1_;
   VMProjData* vmprojphi2_;
@@ -261,6 +369,21 @@ private:
   VMProjData* vmprojphi10_;
   VMProjData* vmprojphi11_;
   VMProjData* vmprojphi12_;
+
+  // not really necessary if inputproj_ were pointing to class inherited from MemoryBase
+  // TODO: reset logic needed
+  unsigned int iVMP1_ = 0;
+  unsigned int iVMP2_ = 0;
+  unsigned int iVMP3_ = 0;
+  unsigned int iVMP4_ = 0;
+  unsigned int iVMP5_ = 0;
+  unsigned int iVMP6_ = 0;
+  unsigned int iVMP7_ = 0;
+  unsigned int iVMP8_ = 0;
+  unsigned int iVMP9_ = 0;
+  unsigned int iVMP10_ = 0;
+  unsigned int iVMP11_ = 0;
+  unsigned int iVMP12_ = 0;
 
   /*
   // inputs
