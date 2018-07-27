@@ -1,6 +1,8 @@
 
 #include "ap_int.h"
 
+static const int TMUX = 6;
+static const int nMaxProc = TMUX * 6;
 static const int MemDepth = 64;
 
 typedef ap_uint<10> TCID;
