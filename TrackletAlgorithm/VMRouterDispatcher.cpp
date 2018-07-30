@@ -4,121 +4,147 @@
 #include "FullStubLayer2S.hh"
 #include "ReducedStubLayer.hh"
 #include "VMRouter.hh"
-#include <vector>
+
+
+#ifndef __SYNTHESIS__
+#include <iostream>
+#endif // SYNTH
 
 // call for a single sector
-void VMRouterDispatcher(FullStubLayerPS curStubsInLayerPS[MAX_nSTUBS*MAX_nINNERRS],
-                        FullStubLayerPS curAllStubsPS[MAX_nSTUBS*MAX_nINNERRS],
-             			FullStubLayer2S curStubsInLayer2S[MAX_nSTUBS*MAX_nOUTERRS],
-                        FullStubLayer2S curAllStubs2S[MAX_nSTUBS*MAX_nOUTERRS],
-                        ReducedStubLayer curvmStubsPH1Z1[MAX_nSTUBS*MAX_nREGIONS],
-                        ReducedStubLayer curvmStubsPH2Z1[MAX_nSTUBS*MAX_nREGIONS],
-                        ReducedStubLayer curvmStubsPH3Z1[MAX_nSTUBS*MAX_nREGIONS],
-                        ReducedStubLayer curvmStubsPH4Z1[MAX_nSTUBS*MAX_nREGIONS],
-                        ReducedStubLayer curvmStubsPH1Z2[MAX_nSTUBS*MAX_nREGIONS],
-                        ReducedStubLayer curvmStubsPH2Z2[MAX_nSTUBS*MAX_nREGIONS],
-                        ReducedStubLayer curvmStubsPH3Z2[MAX_nSTUBS*MAX_nREGIONS],
-                        ReducedStubLayer curvmStubsPH4Z2[MAX_nSTUBS*MAX_nREGIONS],
-                        int curnStubs[MAX_nSECTORS*MAX_nREGIONS],
-                        ReducedIndex curnPH1Z1[MAX_nSECTORS*MAX_nREGIONS],
-                        ReducedIndex curnPH2Z1[MAX_nSECTORS*MAX_nREGIONS],
-                        ReducedIndex curnPH3Z1[MAX_nSECTORS*MAX_nREGIONS],
-                        ReducedIndex curnPH4Z1[MAX_nSECTORS*MAX_nREGIONS],
-                        ReducedIndex curnPH1Z2[MAX_nSECTORS*MAX_nREGIONS],
-                        ReducedIndex curnPH2Z2[MAX_nSECTORS*MAX_nREGIONS],
-                        ReducedIndex curnPH3Z2[MAX_nSECTORS*MAX_nREGIONS],
-                        ReducedIndex curnPH4Z2[MAX_nSECTORS*MAX_nREGIONS])
+void VMRouterDispatcher(
+			FullStubLayerPS & curStubsInLayerPSL1[MAX_nSTUBS],
+                        FullStubLayerPS & curAllStubsPSL1[MAX_nSTUBS],
+			FullStubLayerPS & curStubsInLayerPSL2[MAX_nSTUBS],
+                        FullStubLayerPS & curAllStubsPSL2[MAX_nSTUBS],
+			FullStubLayerPS & curStubsInLayerPSL3[MAX_nSTUBS],
+                        FullStubLayerPS & curAllStubsPSL3[MAX_nSTUBS],
+			FullStubLayer2S & curStubsInLayer2SL4[MAX_nSTUBS],
+                        FullStubLayer2S & curAllStubs2SL4[MAX_nSTUBS],
+			FullStubLayer2S & curStubsInLayer2SL5[MAX_nSTUBS],
+                        FullStubLayer2S & curAllStubs2SL5[MAX_nSTUBS],
+			FullStubLayer2S & curStubsInLayer2SL6[MAX_nSTUBS],
+                        FullStubLayer2S & curAllStubs2SL6[MAX_nSTUBS],
+                        ReducedStubLayer (&curvmStubsL1)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS],
+                        ReducedStubLayer (&curvmStubsL2)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS],
+			ReducedStubLayer (&curvmStubsL3)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS],
+			ReducedStubLayer (&curvmStubsL4)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS],
+			ReducedStubLayer (&curvmStubsL5)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS],
+                        ReducedStubLayer (&curvmStubsL6)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS],
+                        int (&curnStubs)[6],
+                        ReducedIndex (&curnL1)[kNumZRegions][kNumPhiRegions],
+			ReducedIndex (&curnL2)[kNumZRegions][kNumPhiRegions],
+			ReducedIndex (&curnL3)[kNumZRegions][kNumPhiRegions],
+                        ReducedIndex (&curnL4)[kNumZRegions][kNumPhiRegions],
+                        ReducedIndex (&curnL5)[kNumZRegions][kNumPhiRegions],
+                        ReducedIndex (&curnL6)[kNumZRegions][kNumPhiRegions])
+
 {
-  #pragma HLS ARRAY_PARTITION variable=curStubsInLayerPS block factor=MAX_nSECTORS*MAX_nINNERRS
-  #pragma HLS DEPENDENCE variable=curStubsInLayerPS inter false
-  #pragma HLS ARRAY_PARTITION variable=curAllStubsPS block factor=MAX_nSECTORS*MAX_nINNERRS
-  #pragma HLS DEPENDENCE variable=curAllStubsPS inter false
-  #pragma HLS ARRAY_PARTITION variable=curStubsInLayer2S block factor=MAX_nSECTORS*MAX_nOUTERRS
-  #pragma HLS DEPENDENCE variable=curStubsInLayer2S inter false
-  #pragma HLS ARRAY_PARTITION variable=curAllStubs2S block factor=MAX_nSECTORS*MAX_nOUTERRS
-  #pragma HLS DEPENDENCE variable=curAllStubs2S inter false
-  #pragma HLS ARRAY_PARTITION variable=curvmStubsPH1Z1 block factor=MAX_nSECTORS*MAX_nREGIONS
-  #pragma HLS DEPENDENCE variable=curvmStubsPH1Z1 inter false
-  #pragma HLS ARRAY_PARTITION variable=curvmStubsPH2Z1 block factor=MAX_nSECTORS*MAX_nREGIONS
-  #pragma HLS DEPENDENCE variable=curvmStubsPH2Z1 inter false
-  #pragma HLS ARRAY_PARTITION variable=curvmStubsPH3Z1 block factor=MAX_nSECTORS*MAX_nREGIONS
-  #pragma HLS DEPENDENCE variable=curvmStubsPH3Z1 inter false
-  #pragma HLS ARRAY_PARTITION variable=curvmStubsPH4Z1 block factor=MAX_nSECTORS*MAX_nREGIONS
-  #pragma HLS DEPENDENCE variable=curvmStubsPH4Z1 inter false
-  #pragma HLS ARRAY_PARTITION variable=curvmStubsPH1Z2 block factor=MAX_nSECTORS*MAX_nREGIONS
-  #pragma HLS DEPENDENCE variable=curvmStubsPH1Z2 inter false
-  #pragma HLS ARRAY_PARTITION variable=curvmStubsPH2Z2 block factor=MAX_nSECTORS*MAX_nREGIONS
-  #pragma HLS DEPENDENCE variable=curvmStubsPH2Z2 inter false
-  #pragma HLS ARRAY_PARTITION variable=curvmStubsPH3Z2 block factor=MAX_nSECTORS*MAX_nREGIONS
-  #pragma HLS DEPENDENCE variable=curvmStubsPH3Z2 inter false
-  #pragma HLS ARRAY_PARTITION variable=curvmStubsPH4Z2 block factor=MAX_nSECTORS*MAX_nREGIONS
-  #pragma HLS DEPENDENCE variable=curvmStubsPH4Z2 inter false
-  #pragma HLS ARRAY_PARTITION variable=curnStubs complete
-  #pragma HLS ARRAY_PARTITION variable=curnPH1Z1 complete
-  #pragma HLS ARRAY_PARTITION variable=curnPH2Z1 complete
-  #pragma HLS ARRAY_PARTITION variable=curnPH3Z1 complete
-  #pragma HLS ARRAY_PARTITION variable=curnPH4Z1 complete
-  #pragma HLS ARRAY_PARTITION variable=curnPH1Z2 complete
-  #pragma HLS ARRAY_PARTITION variable=curnPH2Z2 complete
-  #pragma HLS ARRAY_PARTITION variable=curnPH3Z2 complete
-  #pragma HLS ARRAY_PARTITION variable=curnPH4Z2 complete
 
-  for (int j=1; j<2; ++j) // HACK
-  {
-    #pragma HLS UNROLL
-    VMRouter<FullStubLayerPS,1>(&curStubsInLayerPS[j*MAX_nSTUBS+0*MAX_nSTUBS], &curAllStubsPS[j*MAX_nSTUBS+0*MAX_nSTUBS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+0*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+0*MAX_nSTUBS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+0*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+0*MAX_nSTUBS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+0*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+0*MAX_nSTUBS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+0*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+0*MAX_nSTUBS],
-                curnStubs[j+0],
-                &curnPH1Z1[j+0], &curnPH2Z1[j+0], &curnPH3Z1[j+0], &curnPH4Z1[j+0],
-                &curnPH1Z2[j+0], &curnPH2Z2[j+0], &curnPH3Z2[j+0], &curnPH4Z2[j+0]);
 
-    VMRouter<FullStubLayerPS,2>(&curStubsInLayerPS[j*MAX_nSTUBS+1*MAX_nSTUBS], &curAllStubsPS[j*MAX_nSTUBS+1*MAX_nSTUBS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+1*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+1*MAX_nSTUBS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+1*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+1*MAX_nSTUBS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+1*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+1*MAX_nSTUBS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+1*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+1*MAX_nSTUBS],
-                curnStubs[j+1],
-                &curnPH1Z1[j+1], &curnPH2Z1[j+1], &curnPH3Z1[j+1], &curnPH4Z1[j+1],
-                &curnPH1Z2[j+1], &curnPH2Z2[j+1], &curnPH3Z2[j+1], &curnPH4Z2[j+1]);
+  // PS Layers
+  // Layer 1 - L1
+  // static ReducedStubLayer curvmStubsL1[kNumZRegions][kNumPhiRegions][MAX_nSTUBS];
+  // static ReducedIndex curnL1[kNumZRegions][kNumPhiRegions];
 
-    VMRouter<FullStubLayerPS,3>(&curStubsInLayerPS[j*MAX_nSTUBS+2*MAX_nSTUBS], &curAllStubsPS[j*MAX_nSTUBS+2*MAX_nSTUBS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+2*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+2*MAX_nSTUBS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+2*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+2*MAX_nSTUBS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+2*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+2*MAX_nSTUBS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+2*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+2*MAX_nSTUBS],
-                curnStubs[j+2],
-                &curnPH1Z1[j+2], &curnPH2Z1[j+2], &curnPH3Z1[j+2], &curnPH4Z1[j+2],
-                &curnPH1Z2[j+2], &curnPH2Z2[j+2], &curnPH3Z2[j+2], &curnPH4Z2[j+2]);
+#ifndef __SYNTHESIS__
+  std::cout << "constructor 1" << std::endl;
+#endif
 
-    VMRouter<FullStubLayer2S,4>(&curStubsInLayer2S[j*MAX_nSTUBS+0*MAX_nSTUBS], &curAllStubs2S[j*MAX_nSTUBS+0*MAX_nSTUBS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+3*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+3*MAX_nSTUBS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+3*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+3*MAX_nSTUBS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+3*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+3*MAX_nSTUBS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+3*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+3*MAX_nSTUBS],
-                curnStubs[j+3],
-                &curnPH1Z1[j+3], &curnPH2Z1[j+3], &curnPH3Z1[j+3], &curnPH4Z1[j+3],
-                &curnPH1Z2[j+3], &curnPH2Z2[j+3], &curnPH3Z2[j+3], &curnPH4Z2[j+3]);
-
-    VMRouter<FullStubLayer2S,5>(&curStubsInLayer2S[j*MAX_nSTUBS+1*MAX_nSTUBS], &curAllStubs2S[j*MAX_nSTUBS+1*MAX_nSTUBS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+4*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+4*MAX_nSTUBS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+4*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+4*MAX_nSTUBS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+4*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+4*MAX_nSTUBS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+4*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+4*MAX_nSTUBS],
-                curnStubs[j+4],
-                &curnPH1Z1[j+4], &curnPH2Z1[j+4], &curnPH3Z1[j+4], &curnPH4Z1[j+4],
-                &curnPH1Z2[j+4], &curnPH2Z2[j+4], &curnPH3Z2[j+4], &curnPH4Z2[j+4]);
-
-    VMRouter<FullStubLayer2S,6>(&curStubsInLayer2S[j*MAX_nSTUBS+2*MAX_nSTUBS], &curAllStubs2S[j*MAX_nSTUBS+2*MAX_nSTUBS],
-                &curvmStubsPH1Z1[j*MAX_nSTUBS+5*MAX_nSTUBS], &curvmStubsPH2Z1[j*MAX_nSTUBS+5*MAX_nSTUBS],
-                &curvmStubsPH3Z1[j*MAX_nSTUBS+5*MAX_nSTUBS], &curvmStubsPH4Z1[j*MAX_nSTUBS+5*MAX_nSTUBS],
-                &curvmStubsPH1Z2[j*MAX_nSTUBS+5*MAX_nSTUBS], &curvmStubsPH2Z2[j*MAX_nSTUBS+5*MAX_nSTUBS],
-                &curvmStubsPH3Z2[j*MAX_nSTUBS+5*MAX_nSTUBS], &curvmStubsPH4Z2[j*MAX_nSTUBS+5*MAX_nSTUBS],
-                curnStubs[j+5],
-                &curnPH1Z1[j+5], &curnPH2Z1[j+5], &curnPH3Z1[j+5], &curnPH4Z1[j+5],
-                &curnPH1Z2[j+5], &curnPH2Z2[j+5], &curnPH3Z2[j+5], &curnPH4Z2[j+5]);
+   VMRouter<FullStubLayerPS> l1(
+				curStubsInLayerPSL1,
+				      &curAllStubsPSL1[MAX_nSTUBS],
+				      curvmStubsL1,
+				      curnL1,
+				      1
+				      );
+#ifndef __SYNTHESIS__
+  std::cout << "before execute" << std::endl;
+  for ( int i = 0; i < MAX_nSTUBS; ++i ) {
+	  std::cout << "input " << i << ": " << curStubsInLayerPSL1[i] << std::endl;
   }
+  for ( int i = 0; i < MAX_nSTUBS; ++i ){
+    int routeZ = 0; int routePhi = 3;
+	std::cout << __func__ << ": " 
+		  << "[" << routeZ << "][" << routePhi << "][" << i << "]: "
+		  <<  curvmStubsL1[routeZ][routePhi][i] << std::endl;
+  }
+  std::cout << "execute 1" << std::endl;
+#endif
+  l1.execute(curnStubs[0]);
+#ifndef __SYNTHESIS__
+  std::cout << "after execute" << std::endl;
+  for ( int i = 0; i < MAX_nSTUBS; ++i ){
+    int routeZ = 0; int routePhi = 3;
+	std::cout << __func__ << ": " 
+		  << "[" << routeZ << "][" << routePhi << "][" << i << "]: "
+		  <<  curvmStubsL1[routeZ][routePhi][i] << std::endl;
+  }
+#endif //SYNTHESIS
+  // Layer 2 - L2
+  // static ReducedStubLayer curvmStubsL2[kNumZRegions][kNumPhiRegions][MAX_nSTUBS];
+  // static ReducedIndex curnL2[kNumZRegions][kNumPhiRegions];
+
+  static VMRouter<FullStubLayerPS> l2(
+				      &curStubsInLayerPSL2[MAX_nSTUBS],
+				      &curAllStubsPSL2[MAX_nSTUBS],
+				      curvmStubsL2,
+				      curnL2,
+				      2
+				      );
+  l2.execute(curnStubs[1]);
+  // Layer 3 - L3
+  // static ReducedStubLayer curvmStubsL3[kNumZRegions][kNumPhiRegions][MAX_nSTUBS];
+  // static ReducedIndex curnL3[kNumZRegions][kNumPhiRegions];
+
+  static VMRouter<FullStubLayerPS> l3(
+				      &curStubsInLayerPSL3[MAX_nSTUBS],
+				      &curAllStubsPSL3[MAX_nSTUBS],
+				      curvmStubsL3,
+				      curnL3,
+				      3
+				      );
+  l3.execute(curnStubs[2]);
+  // 2S Layers
+  // Layer 4 - L4
+  // static ReducedStubLayer curvmStubsL4[kNumZRegions][kNumPhiRegions][MAX_nSTUBS];
+  // static ReducedIndex curnL4[kNumZRegions][kNumPhiRegions];
+
+  static VMRouter<FullStubLayer2S> l4(
+				      &curStubsInLayer2SL4[MAX_nSTUBS],
+				      &curAllStubs2SL4[MAX_nSTUBS],
+				      curvmStubsL4,
+				      curnL4,
+				      4
+				      );
+
+  l4.execute(curnStubs[3]);
+  // Layer 5 - L5
+  // static ReducedStubLayer curvmStubsL5[kNumZRegions][kNumPhiRegions][MAX_nSTUBS];
+  // static ReducedIndex curnL5[kNumZRegions][kNumPhiRegions];
+
+  static VMRouter<FullStubLayer2S> l5(
+				      &curStubsInLayer2SL5[MAX_nSTUBS],
+				      &curAllStubs2SL5[MAX_nSTUBS],
+				      curvmStubsL5,
+				      curnL5,
+				      5
+				      );
+
+  l5.execute(curnStubs[4]);
+  // Layer 6 - L6
+  // static ReducedStubLayer curvmStubsL6[kNumZRegions][kNumPhiRegions][MAX_nSTUBS];
+  // static ReducedIndex curnL6[kNumZRegions][kNumPhiRegions];
+
+  static VMRouter<FullStubLayer2S> l6(
+				      &curStubsInLayer2SL6[MAX_nSTUBS],
+				      &curAllStubs2SL6[MAX_nSTUBS],
+				      curvmStubsL6,
+				      curnL6,
+				      6
+				      );
+
+  l6.execute(curnStubs[5]);
+
+  return;
 }
 

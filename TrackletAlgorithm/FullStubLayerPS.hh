@@ -17,13 +17,17 @@ private:
   FullPt_Layer_PS pt;
 #endif // FAT_CLASS
 public:
-  FullStubLayerPS(StubData newdata):
+  FullStubLayerPS(const StubData & newdata):
     data_(newdata)
   {}
   FullStubLayerPS():
     data_(0)
   {
   }
+  // copy constructor
+  FullStubLayerPS(const FullStubLayerPS & rhs) :
+	  data_(rhs.raw())
+  {}
   StubData raw() const 
   {
     return data_;

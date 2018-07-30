@@ -1,84 +1,52 @@
-// First attempt at the VMRouter module
+// VMRouter module
 //
-// Assumptions:
-// Must be even-number layer
-// Must be PS-layer
 //
 #pragma once
-#define FAT_CLASS
+//#define FAT_CLASS
 #include "FullStubLayerPS.hh"
 #include "FullStubLayer2S.hh"
 #include "Constants.hh"
+
+#ifndef __SYNTHESIS__
+#include <iostream>
+#include "HelperFunctions.hh"
+#endif // SYNTHESIS
+
 #include "ap_int.h"
-#include <vector>
-#include <stdio.h>
-#include <bitset>
 
+const int kNumZRegions=2;
+const int kNumPhiRegions=4;
 
-template <class T, int N>
+template <class T>
 class VMRouter
 {
 private:
-  T *stubsInLayer_;
+  T (&stubsInLayer_)[MAX_nSTUBS];
   T *allStubs_;
-  ReducedStubLayer *vmStubsPH1Z1_;
-  ReducedStubLayer *vmStubsPH2Z1_;
-  ReducedStubLayer *vmStubsPH3Z1_;
-  ReducedStubLayer *vmStubsPH4Z1_;
-  ReducedStubLayer *vmStubsPH1Z2_;
-  ReducedStubLayer *vmStubsPH2Z2_;
-  ReducedStubLayer *vmStubsPH3Z2_;
-  ReducedStubLayer *vmStubsPH4Z2_;
-  const int nStubs_;
-  ReducedIndex *nPH1Z1_; ReducedIndex *nPH2Z1_;
-  ReducedIndex *nPH3Z1_; ReducedIndex *nPH4Z1_;
-  ReducedIndex *nPH1Z2_; ReducedIndex *nPH2Z2_;
-  ReducedIndex *nPH3Z2_; ReducedIndex *nPH4Z2_;
+  ReducedStubLayer (& rVMStubs_)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS];
+  ReducedIndex (& n_)[kNumZRegions][kNumPhiRegions]; // [z region][phi region]
+  const int Layer_;
 public:
   // constructor; just copy in the pointers to the input and output arrays
-  VMRouter(T *stubsInLayer,
+  VMRouter(T (&stubsInLayer)[MAX_nSTUBS],
            T *allStubs,
-           ReducedStubLayer *vmStubsPH1Z1,
-           ReducedStubLayer *vmStubsPH2Z1,
-           ReducedStubLayer *vmStubsPH3Z1,
-           ReducedStubLayer *vmStubsPH4Z1,
-           ReducedStubLayer *vmStubsPH1Z2,
-           ReducedStubLayer *vmStubsPH2Z2,
-           ReducedStubLayer *vmStubsPH3Z2,
-           ReducedStubLayer *vmStubsPH4Z2,
-           const int nStubs,
-           ReducedIndex *nPH1Z1, ReducedIndex *nPH2Z1,
-           ReducedIndex *nPH3Z1, ReducedIndex *nPH4Z1,
-           ReducedIndex *nPH1Z2, ReducedIndex *nPH2Z2,
-           ReducedIndex *nPH3Z2, ReducedIndex *nPH4Z2
+           ReducedStubLayer (&rVMStubs)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS],
+	   ReducedIndex (&n)[kNumZRegions][kNumPhiRegions],
+	   int layer
 	   ):
-  stubsInLayer_(stubsInLayer),
+    stubsInLayer_(stubsInLayer),
     allStubs_(allStubs),
-    vmStubsPH1Z1_(vmStubsPH1Z1),
-    vmStubsPH2Z1_(vmStubsPH2Z1),
-    vmStubsPH3Z1_(vmStubsPH3Z1),
-    vmStubsPH4Z1_(vmStubsPH4Z1),
-    vmStubsPH1Z2_(vmStubsPH1Z2),
-    vmStubsPH2Z2_(vmStubsPH2Z2),
-    vmStubsPH3Z2_(vmStubsPH3Z2),
-    vmStubsPH4Z2_(vmStubsPH4Z2),
-    nStubs_(nStubs),
-    nPH1Z1_(nPH1Z1),
-    nPH2Z1_(nPH2Z1),
-    nPH3Z1_(nPH3Z1),
-    nPH4Z1_(nPH4Z1),
-    nPH1Z2_(nPH1Z2),
-    nPH2Z2_(nPH2Z2),
-    nPH3Z2_(nPH3Z2),
-    nPH4Z2_(nPH4Z2)
+    rVMStubs_(rVMStubs),
+    n_(n),
+    Layer_(layer)
   {}
   // doesn't this need to know about BX somewhere?
-  void execute()
+  void execute(const int nStubs)
   {
     ReducedIndex index = 0;
   STUBLOOP: for (int i=0; i<MAX_nSTUBS; ++i) {
 #pragma HLS PIPELINE II=1
-      if (i < nStubs_) {
+      if (i < nStubs) {
         // Extract stub parameters
         // Calculate reduced-format parameters.
         // Calculate routing parameters
@@ -86,47 +54,64 @@ public:
         ReducedPhi_Layer redPhi;
         ReducedR_Layer redR;
         ReducedPt_Layer redPt;
-        ap_uint<2> routePhi;
-        ap_uint<1> routeZ;
-        if (N==1 || N==2 || N==3) { // PS layers
-          FullZ_Layer_PS curZ = stubsInLayer_[i].GetZ();
-          FullPhi_Layer_PS curPhi = stubsInLayer_[i].GetPhi();
-          FullR_Layer_PS curR = stubsInLayer_[i].GetR();
-          FullPt_Layer_PS curPt = stubsInLayer_[i].GetPt();
+        int routePhi;
+        int routeZ;
+	T currStub(stubsInLayer_[i]); // single read
+#ifndef __SYNTHESIS
+	std::cout << __func__ << ":" << __LINE__
+		  << "-> " << currStub << std::endl;
+#endif // SYNTHESIS
+        if (Layer_==1 || Layer_==2 || Layer_==3) { // PS layers
+          FullZ_Layer_PS curZ = currStub.GetZ();
+          FullPhi_Layer_PS curPhi = currStub.GetPhi();
+          FullR_Layer_PS curR = currStub.GetR();
+          FullPt_Layer_PS curPt = currStub.GetPt();
+	  std::cout << "curr values: " << curZ << ", " << curPhi << ", " << curR << ", " << curPt
+		    << std::endl;
           redPt = curPt;
-          redZ = curZ.range(5+4,5);
-          redR = curR.range(5+3,5);
+          redZ = curZ.range(5+3,5);
+          redR = curR.range(5+1,5);
           routeZ = curZ[9];
-          if (N==2){
-            redPhi = curPhi(9+6,9);
-            routePhi = (curPhi >> 12 ) & 0x3U;
-            routePhi = curPhi(12+2,2);
+          if (Layer_==2){
+            redPhi = curPhi.range(9+2,9);
+            //routePhi = (curPhi >> 12 ) & 0x3U;
+            routePhi = curPhi(12+1,12);
           } else {
             redPhi = (curPhi >> 9) ^ 0x4U; // why is this OR'd?
             routePhi = (((curPhi >> 11) - 1) >> 1) & 0x3U;
           }
         }
-        else if (N==4 || N==5 || N==6) { // 2S layers
-          FullZ_Layer_2S curZ = stubsInLayer_[i].GetZ();
-          FullPhi_Layer_2S curPhi = stubsInLayer_[i].GetPhi();
-          FullR_Layer_2S curR = stubsInLayer_[i].GetR();
-          FullPt_Layer_2S curPt = stubsInLayer_[i].GetPt();
+        else if (Layer_==4 || Layer_==5 || Layer_==6) { // 2S layers
+          FullZ_Layer_2S curZ = currStub.GetZ();
+          FullPhi_Layer_2S curPhi = currStub.GetPhi();
+          FullR_Layer_2S curR = currStub.GetR();
+          FullPt_Layer_2S curPt = currStub.GetPt();
           redPt = curPt;
-          redZ = curZ.range(4+1,1);
-          redR = curR.range(2+6,2);
+          redZ = curZ.range(3+1,1);
+          redR = curR.range(1+6,6);
           routeZ = curZ[5];
-          if (N==5){
+          if (Layer_==5){
             redPhi = (curPhi >> 12) ^ 0x4U; // why is this an OR?
             routePhi = (((curPhi >> 14) - 1) >> 1) & 0x3U;
           } else {
-            redPhi = curPhi.range(12+3,3);
-            routePhi = curPhi.range(15+2,15);
+            redPhi = curPhi.range(12+2,3);
+            routePhi = curPhi.range(15+1,15);
           }
         }
 
         // Rewrite stub parameters to new stub in allStubs
-        allStubs_[i].AddStub(stubsInLayer_[i].raw());
+        allStubs_[i].AddStub(currStub.raw());
 
+	int cnt = n_[routeZ][routePhi];
+	rVMStubs_[routeZ][routePhi][cnt].AddStub(redZ, redPhi, redR, redPt, index);
+#ifndef __SYNTHESIS__
+	std::cout << __func__ << ": " 
+		  << "[" << routeZ << "][" << routePhi << "][" << cnt << "]: "
+		  <<  rVMStubs_[routeZ][routePhi][cnt] << std::endl;
+	n_[routeZ][routePhi] = cnt + 1;
+	++index;  // below has protection for this to wrap?
+#endif // SYNTHESIS
+#if 0
         // Route stubs
         switch (routeZ) {
         case 0:
@@ -173,10 +158,13 @@ public:
         if (index==63)  
           index--;  // what vodoo is this?
         ++index;
-      } 
+#endif // if 0
+      } // if nstubs
       else 
         break;
-    }
+      } // for loop
+    //std::cout << __func__ << ": " <<  rVMStubs_[0][0][1] << std::endl;
+
   } // end void execute()
 };
 
