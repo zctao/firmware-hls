@@ -16,7 +16,21 @@ class ProjectionRouter //: public ProcessBase<nMaxProc>
 public:
 
   // constructor
-  ProjectionRouter(){}
+  ProjectionRouter(){
+	  iAP_ = 0;
+	  iVMP1_ = 0;
+	  iVMP2_ = 0;
+	  iVMP3_ = 0;
+	  iVMP4_ = 0;
+	  iVMP5_ = 0;
+	  iVMP6_ = 0;
+	  iVMP7_ = 0;
+	  iVMP8_ = 0;
+	  iVMP9_ = 0;
+	  iVMP10_ = 0;
+	  iVMP11_ = 0;
+	  iVMP12_ = 0;
+  }
   ~ProjectionRouter(){}
 
   //
@@ -355,7 +369,7 @@ private:
 
   // outputs
   AllProjData* allproj_;
-  unsigned int iAP_ = 0;
+  unsigned int iAP_;
 
   VMProjData* vmprojphi1_;
   VMProjData* vmprojphi2_;
@@ -372,18 +386,18 @@ private:
 
   // not really necessary if inputproj_ were pointing to class inherited from MemoryBase
   // TODO: reset logic needed
-  unsigned int iVMP1_ = 0;
-  unsigned int iVMP2_ = 0;
-  unsigned int iVMP3_ = 0;
-  unsigned int iVMP4_ = 0;
-  unsigned int iVMP5_ = 0;
-  unsigned int iVMP6_ = 0;
-  unsigned int iVMP7_ = 0;
-  unsigned int iVMP8_ = 0;
-  unsigned int iVMP9_ = 0;
-  unsigned int iVMP10_ = 0;
-  unsigned int iVMP11_ = 0;
-  unsigned int iVMP12_ = 0;
+  unsigned int iVMP1_;
+  unsigned int iVMP2_;
+  unsigned int iVMP3_;
+  unsigned int iVMP4_;
+  unsigned int iVMP5_;
+  unsigned int iVMP6_;
+  unsigned int iVMP7_;
+  unsigned int iVMP8_;
+  unsigned int iVMP9_;
+  unsigned int iVMP10_;
+  unsigned int iVMP11_;
+  unsigned int iVMP12_;
 
   /*
   // inputs

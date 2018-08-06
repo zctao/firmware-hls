@@ -1,3 +1,5 @@
+#ifndef CONSTANTS_HH
+#define CONSTANTS_HH
 
 #include "ap_int.h"
 
@@ -25,3 +27,5 @@ const int MEBinsBits = 3;
 typedef ap_uint<7> VMPID;
 typedef ap_uint<3> VMPPHI;
 typedef ap_uint<MEBinsBits+1> VMPZBIN;
+
+#endif

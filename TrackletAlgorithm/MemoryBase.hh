@@ -15,12 +15,12 @@ public:
   unsigned int getEntries() {return nentries_;}
   unsigned int getDepth() {return Depth;}
 
-  const DataStruct* get_mem() const {return dataarray_;}
+  DataStruct* get_mem() {return dataarray_;}
 
   void add_mem(DataStruct data)
   {
-	  if (nentries <= Depth)
-		  dataarray_[nentries++] = data;
+	  if (nentries_ <= Depth)
+		  dataarray_[nentries_++] = data;
   }
 
   /*
@@ -35,7 +35,7 @@ protected:
 
   DataStruct dataarray_[Depth];
 
-  unsigned int nentries_ = 0;
+  unsigned int nentries_;
 
   //const int isector_;
   //int bx_;
