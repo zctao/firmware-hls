@@ -17,10 +17,14 @@ public:
 
   DataStruct* get_mem() {return dataarray_;}
 
-  void add_mem(DataStruct data)
+  bool add_mem(DataStruct data)
   {
-	  if (nentries_ <= Depth)
+	  if (nentries_ <= Depth) {
 		  dataarray_[nentries_++] = data;
+		  return true;
+	  }
+	  else
+		  return false;
   }
 
   /*
@@ -30,6 +34,20 @@ public:
 	  nentries_ = nEntries;
   }
   */
+
+#ifndef __SYNTHESIS__
+#include <iostream>
+  virtual void print_entry(int i) const {}
+
+  void print_mem() const
+  {
+	  for (int i = 0; i < nentries_; ++i) {
+  		  std::cout << i << " ";
+  		  print_entry(i);
+  	  }
+  }
+
+#endif
 
 protected:
 
