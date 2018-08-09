@@ -36,7 +36,7 @@ void TrackletProcessing(/*input link stream?*/)
 			   &TPROJ_L5L6C_L3PHI3, &TPROJ_L5L6D_L3PHI3,
 			   &TPROJ_L5L6E_L3PHI3, &TPROJ_L5L6F_L3PHI3);
   PR_L1L2_L3PHI3.addOutputs(&AP_L1L2_L3PHI3,
-			   0, 0, 0, 0, 0, 0, 0, 0, // or nullptr?
+			   //0, 0, 0, 0, 0, 0, 0, 0, // or nullptr?
 			   &VMPROJ_L1L2_L3PHI9, &VMPROJ_L1L2_L3PHI10,
 			   &VMPROJ_L1L2_L3PHI11, &VMPROJ_L1L2_L3PHI12);
 

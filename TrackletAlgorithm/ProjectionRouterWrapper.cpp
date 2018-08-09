@@ -23,7 +23,7 @@ void ProjectionRouterWrapper(
 			     VMProjData outvmprojphi1[MemDepth],
 			     VMProjData outvmprojphi2[MemDepth],
 			     VMProjData outvmprojphi3[MemDepth],
-			     VMProjData outvmprojphi4[MemDepth],
+			     VMProjData outvmprojphi4[MemDepth]/*,
 			     VMProjData outvmprojphi5[MemDepth],
 			     VMProjData outvmprojphi6[MemDepth],
 			     VMProjData outvmprojphi7[MemDepth],
@@ -31,7 +31,7 @@ void ProjectionRouterWrapper(
 			     VMProjData outvmprojphi9[MemDepth],
 			     VMProjData outvmprojphi10[MemDepth],
 			     VMProjData outvmprojphi11[MemDepth],
-			     VMProjData outvmprojphi12[MemDepth]
+			     VMProjData outvmprojphi12[MemDepth]*/
 			     )
 {
   static ProjectionRouter aPR;
@@ -41,10 +41,9 @@ void ProjectionRouterWrapper(
 		inprojnumber1, inprojnumber2, inprojnumber3, inprojnumber4,
 		inprojnumber5, inprojnumber6, inprojnumber7, inprojnumber8);
   aPR.addOutputs(outallproj,
-		 outvmprojphi1, outvmprojphi2, outvmprojphi3, 
-		 outvmprojphi4, outvmprojphi5, outvmprojphi6, 
-		 outvmprojphi7, outvmprojphi8, outvmprojphi9, 
-		 outvmprojphi10, outvmprojphi11, outvmprojphi12);
+		 outvmprojphi1, outvmprojphi2, outvmprojphi3, outvmprojphi4/*,
+		 outvmprojphi5, outvmprojphi6, outvmprojphi7, outvmprojphi8,
+		 outvmprojphi9, outvmprojphi10, outvmprojphi11, outvmprojphi12*/);
 
   aPR.execute();
 }

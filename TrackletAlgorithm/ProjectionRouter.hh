@@ -21,7 +21,7 @@ public:
 	  iVMP1_ = 0;
 	  iVMP2_ = 0;
 	  iVMP3_ = 0;
-	  iVMP4_ = 0;
+	  iVMP4_ = 0;/*
 	  iVMP5_ = 0;
 	  iVMP6_ = 0;
 	  iVMP7_ = 0;
@@ -29,7 +29,7 @@ public:
 	  iVMP9_ = 0;
 	  iVMP10_ = 0;
 	  iVMP11_ = 0;
-	  iVMP12_ = 0;
+	  iVMP12_ = 0;*/
   }
   ~ProjectionRouter(){}
 
@@ -63,22 +63,20 @@ public:
 
 		  TProjData tproj = read_mem(imem, addr);
 
-		  // routing
-		  // inner barrel for now
-
 		  TProjPHI iphiproj = tproj.phi;
 		  TProjZ izproj = tproj.z;
+		  TProjPHIDER iphider = tproj.phider;
 
-		  int nbitsphi = iphiproj.length();
-		  ap_uint<4> iphi = iphiproj>>(nbitsphi-4)-2; // top 4 bits minus 2
-		  assert(iphi>=0 and iphi<=11);
+		  // routing
+		  ap_uint<5> iphi5 = iphiproj>>(iphiproj.length()-5);  // top 5 bits of phi
+
+		  // inner barrel non-hourglass for now
+		  assert(iphi5>=4 and iphi5<=27);
+		  ap_uint<2> iphi = ((iphi5-4)>>1)&3;
+		  assert(iphi>=0 and iphi<=3);
 
 		  // vmproj index
 		  VMPID index = i;
-
-		  // vmproj phi
-		  // https://github.com/cms-tracklet/fpga_emulation_longVM/blob/master/FPGALayerProjection.hh#L51-L57
-		  VMPPHI vmphi = iphiproj.range(nbitsphi-3,nbitsphi-5)^4;
 
 		  // vmproj z
 		  ap_uint<MEBinsBits> zbin1 = (1<<(MEBinsBits-1))+(((izproj>>(izproj.length()-MEBinsBits-2))-2)>>2);
@@ -86,15 +84,17 @@ public:
 		  if (zbin1 >= (1<<MEBinsBits)) zbin1 = 0;
 		  if (zbin2 >= (1<<MEBinsBits)) zbin2 = (1<<MEBinsBits)-1;
 
-		  VMPZBIN finez = ((1<<(MEBinsBits+2))+(izproj>>(izproj.length()-(MEBinsBits+3))))-(zbin1<<3);
+		  VMPZBIN zbin = (zbin1, zbin2);
+		  VMPFINEZ finez = ((1<<(MEBinsBits+2))+(izproj>>(izproj.length()-(MEBinsBits+3))))-(zbin1<<3);
 
-		  /*
-		  int nbitsz = izproj.length();
-		  ap_int<MEBinsBits> pre_zbin1 = (izproj.range(nbitsz-1, nbitsz-MEBinsBits-2)+1)>>2;
-		  ap_int<MEBinsBits> pre_zbin2 = (izproj.range(nbitsz-1, nbitsz-MEBinsBits-2)-1)>>2;
-		  */
+		  // vmproj irinv
+		  VMPRINV rinv = 16 + iphider>>(iphider.length()-5);
+		  assert(rinv >=0 and rinv < 32);
 
-		  VMProjData vmproj = {index, vmphi, finez};
+		  // PS seed
+		  bool psseed = false;  // FIXME
+
+		  VMProjData vmproj = {index, zbin, finez, rinv, psseed};
 
 		  // all projections
 		  AllProjData allproj = {
@@ -132,7 +132,7 @@ public:
 			  *(vmprojphi4_+iVMP4_) = vmproj;
 			  iVMP4_++;
 		  	  break;
-		  case 4:
+		  /*case 4:
 			  //vmprojphi5_ -> add_mem(vmproj);
 			  *(vmprojphi5_+iVMP5_) = vmproj;
 			  iVMP5_++;
@@ -171,7 +171,7 @@ public:
 			  //vmprojphi12_ -> add_mem(vmproj);
 			  *(vmprojphi12_+iVMP12_) = vmproj;
 			  iVMP12_++;
-		  	  break;
+		  	  break;*/
 		  }
 
 	  } // PROC_LOOP
@@ -254,7 +254,7 @@ public:
 		 VMProjections* vmproj1,
 		 VMProjections* vmproj2,
 		 VMProjections* vmproj3,
-		 VMProjections* vmproj4,
+		 VMProjections* vmproj4/*,
 		 VMProjections* vmproj5,
 		 VMProjections* vmproj6,
 		 VMProjections* vmproj7,
@@ -262,7 +262,7 @@ public:
 		 VMProjections* vmproj9,
 		 VMProjections* vmproj10,
 		 VMProjections* vmproj11,
-		 VMProjections* vmproj12
+		 VMProjections* vmproj12*/
 		 )
   {
     allproj_ = allprojection->get_mem();
@@ -270,7 +270,7 @@ public:
     vmprojphi1_ = vmproj1->get_mem();
     vmprojphi2_ = vmproj2->get_mem();
     vmprojphi3_ = vmproj3->get_mem();
-    vmprojphi4_ = vmproj4->get_mem();
+    vmprojphi4_ = vmproj4->get_mem();/*
     vmprojphi5_ = vmproj5->get_mem();
     vmprojphi6_ = vmproj6->get_mem();
     vmprojphi7_ = vmproj7->get_mem();
@@ -278,7 +278,7 @@ public:
     vmprojphi9_ = vmproj9->get_mem();
     vmprojphi10_ = vmproj10->get_mem();
     vmprojphi11_ = vmproj11->get_mem();
-    vmprojphi12_ = vmproj12->get_mem();
+    vmprojphi12_ = vmproj12->get_mem();*/
   }
   
   // overload 
@@ -324,7 +324,7 @@ public:
 		 VMProjData* vmproj1,
 		 VMProjData* vmproj2,
 		 VMProjData* vmproj3,
-		 VMProjData* vmproj4,
+		 VMProjData* vmproj4/*,
 		 VMProjData* vmproj5,
 		 VMProjData* vmproj6,
 		 VMProjData* vmproj7,
@@ -332,7 +332,7 @@ public:
 		 VMProjData* vmproj9,
 		 VMProjData* vmproj10,
 		 VMProjData* vmproj11,
-		 VMProjData* vmproj12
+		 VMProjData* vmproj12*/
 		 )
   {
     allproj_ = allprojection;
@@ -340,7 +340,7 @@ public:
     vmprojphi1_ = vmproj1;
     vmprojphi2_ = vmproj2;
     vmprojphi3_ = vmproj3;
-    vmprojphi4_ = vmproj4;
+    vmprojphi4_ = vmproj4;/*
     vmprojphi5_ = vmproj5;
     vmprojphi6_ = vmproj6;
     vmprojphi7_ = vmproj7;
@@ -348,12 +348,15 @@ public:
     vmprojphi9_ = vmproj9;
     vmprojphi10_ = vmproj10;
     vmprojphi11_ = vmproj11;
-    vmprojphi12_ = vmproj12;
+    vmprojphi12_ = vmproj12;*/
   }
 
 
 private:
   
+  //int layer_;
+  //int disk_;
+
   // inputs
   TProjData* inputproj1_;
   TProjData* inputproj2_;
@@ -374,7 +377,7 @@ private:
   VMProjData* vmprojphi1_;
   VMProjData* vmprojphi2_;
   VMProjData* vmprojphi3_;
-  VMProjData* vmprojphi4_;
+  VMProjData* vmprojphi4_;/*
   VMProjData* vmprojphi5_;
   VMProjData* vmprojphi6_;
   VMProjData* vmprojphi7_;
@@ -382,14 +385,14 @@ private:
   VMProjData* vmprojphi9_;
   VMProjData* vmprojphi10_;
   VMProjData* vmprojphi11_;
-  VMProjData* vmprojphi12_;
+  VMProjData* vmprojphi12_;*/
 
   // not really necessary if inputproj_ were pointing to class inherited from MemoryBase
   // TODO: reset logic needed
   unsigned int iVMP1_;
   unsigned int iVMP2_;
   unsigned int iVMP3_;
-  unsigned int iVMP4_;
+  unsigned int iVMP4_;/*
   unsigned int iVMP5_;
   unsigned int iVMP6_;
   unsigned int iVMP7_;
@@ -397,7 +400,7 @@ private:
   unsigned int iVMP9_;
   unsigned int iVMP10_;
   unsigned int iVMP11_;
-  unsigned int iVMP12_;
+  unsigned int iVMP12_;*/
 
   /*
   // inputs
