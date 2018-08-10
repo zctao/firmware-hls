@@ -4,11 +4,13 @@
 #include "ProjectionRouter.hh"
 
 void ProjectionRouterWrapper(
-		TProjData, TProjData, TProjData, TProjData, TProjData, TProjData, TProjData, TProjData,
+		TProjData*, TProjData*, TProjData*, TProjData*, TProjData*, TProjData*, TProjData*, TProjData*,
 		unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int,
 	    // more
-		AllProjData,
-	    VMProjData, VMProjData, VMProjData, VMProjData, VMProjData, VMProjData,
-		VMProjData, VMProjData, VMProjData, VMProjData, VMProjData, VMProjData);
+		AllProjData*,
+	    VMProjData*, VMProjData*, VMProjData*, VMProjData*/*,
+		VMProjData*, VMProjData*, VMProjData*, VMProjData*,
+		VMProjData*, VMProjData*, VMProjData*, VMProjData* */
+		);
 
 #endif

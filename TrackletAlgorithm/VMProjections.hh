@@ -24,8 +24,6 @@ public:
   
   VMProjections(){}
 
-#ifndef __SYNTHESIS__
-#include <iostream>
   // overload base class add_mem()
   using MemoryBase<VMProjData, MemDepth>::add_mem;
   // add memory from data string
@@ -44,18 +42,21 @@ public:
 	  return add_mem(vmproj);
   }
 
+#ifndef __SYNTHESIS__
+#include <iostream>
   // print memory contents
-  void print_entry(int i) const
+  void print_data(const VMProjData& vmprojdata) const
   {
 	  VMProj vmproj =
-			  (dataarray_[i].index,
-					  (dataarray_[i].zbin,
-							  (dataarray_[i].finez,
-									  (dataarray_[i].rinv,dataarray_[i].PSseed)
+			  (vmprojdata.index,
+					  (vmprojdata.zbin,
+							  (vmprojdata.finez,
+									  (vmprojdata.rinv,vmprojdata.PSseed)
 			)));
 
 	  std::cout << std::hex << vmproj << std::endl;
   }
+
 #endif
 
 };

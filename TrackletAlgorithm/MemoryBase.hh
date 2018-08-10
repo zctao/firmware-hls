@@ -37,7 +37,12 @@ public:
 
 #ifndef __SYNTHESIS__
 #include <iostream>
-  virtual void print_entry(int i) const {}
+  virtual void print_data(const DataStruct&) const {}
+
+  void print_entry(int i) const
+  {
+	  print_data(dataarray_[i]);
+  }
 
   void print_mem() const
   {

@@ -27,8 +27,6 @@ public:
 
   AllProjections(){}
 
-#ifndef __SYNTHESIS__
-#include <iostream>
   // overload base class add_mem()
   using MemoryBase<AllProjData, MemDepth>::add_mem;
   // add memory from data string
@@ -49,16 +47,18 @@ public:
 	  return add_mem(aproj);
   }
 
+#ifndef __SYNTHESIS__
+#include <iostream>
   // print memory contents
-  void print_entry(int i) const
+  void print_data(const AllProjData& aprojdata) const
   {
 	  AllProj aproj =
-			  (dataarray_[i].plusNeighbor,
-			  (dataarray_[i].minusNeighbor,
-					  (dataarray_[i].tracklet_index,
-							  (dataarray_[i].phi,
-									  (dataarray_[i].z,
-											  (dataarray_[i].phider,dataarray_[i].zder)
+			  (aprojdata.plusNeighbor,
+			  (aprojdata.minusNeighbor,
+					  (aprojdata.tracklet_index,
+							  (aprojdata.phi,
+									  (aprojdata.z,
+											  (aprojdata.phider,aprojdata.zder)
 			)))));
 
 	  std::cout << std::hex << aproj << std::endl;

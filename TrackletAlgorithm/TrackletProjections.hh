@@ -27,8 +27,6 @@ public:
   
   TrackletProjections(){}
 
-#ifndef __SYNTHESIS__
-#include <iostream>
   // overload base class add_mem()
   using MemoryBase<TProjData, MemDepth>::add_mem;
   // add memory from data string
@@ -49,21 +47,29 @@ public:
 	  return add_mem(tproj);
   }
 
+#ifndef __SYNTHESIS__
+#include <iostream>
   // print memory contents
-  void print_entry(int i) const
+  void print_data(const TProjData& tprojdata) const
   {
 	  TProj tproj =
-			  (dataarray_[i].plusNeighbor,
-			  (dataarray_[i].minusNeighbor,
-					  (dataarray_[i].tracklet_index,
-							  (dataarray_[i].phi,
-									  (dataarray_[i].z,
-											  (dataarray_[i].phider,dataarray_[i].zder)
+			  (tprojdata.plusNeighbor,
+			  (tprojdata.minusNeighbor,
+					  (tprojdata.tracklet_index,
+							  (tprojdata.phi,
+									  (tprojdata.z,
+											  (tprojdata.phider,tprojdata.zder)
 			)))));
 
 	  std::cout << std::hex << tproj << std::endl;
   }
-
+/*
+  void print_data(const TProjData& tproj) const
+  {
+	  std::cout << "tproj: " << tproj.plusNeighbor << " " << tproj.minusNeighbor << " "
+			  	<< tproj.phi << " " << tproj.z << " " << tproj.phider << " " << tproj.zder << std::endl;
+  }
+*/
 #endif
 
 };
