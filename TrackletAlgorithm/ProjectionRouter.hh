@@ -36,12 +36,13 @@ public:
   //
   void execute()
   {
+	  //std::cout << "execute" << std::endl;
 	  // check which input memories are not empty
 	  //bool mem_hasdata_arr[nTProjMem];
 	  ap_uint<nTProjMem> mem_hasdata = 0;
 	  HASDATA_LOOP: for (int imem = 0; imem < nTProjMem; ++imem) {
 #pragma HLS unroll
-		  if (numbersin_[imem > 0]) {
+		  if (numbersin_[imem] > 0) {
 			  //mem_hasdata_arr[imem] = 1;
 			  mem_hasdata += (1<<imem);
 		  }
@@ -54,7 +55,6 @@ public:
 	  unsigned int addr_next = 0;
 	  PROC_LOOP: for (int i = 0; i < nMaxProc; ++i) {
 #pragma HLS PIPELINE II=1
-
 		  // read inputs
 		  unsigned int addr = addr_next;
 		  bool validin = get_mem_read_addr<nTProjMem>(imem, addr_next, mem_hasdata, numbersin_);
@@ -84,22 +84,32 @@ public:
 		  if (zbin1 >= (1<<MEBinsBits)) zbin1 = 0;
 		  if (zbin2 >= (1<<MEBinsBits)) zbin2 = (1<<MEBinsBits)-1;
 
-		  VMPZBIN zbin = (zbin1, zbin2);
-		  VMPFINEZ finez = ((1<<(MEBinsBits+2))+(izproj>>(izproj.length()-(MEBinsBits+3))))-(zbin1<<3);
+		  if (zbin1>=(1<<MEBinsBits)) zbin1=0; //note that zbin1 is unsigned
+		  if (zbin2>=(1<<MEBinsBits)) zbin2=(1<<MEBinsBits)-1;
+		  assert(zbin1<=zbin2);
+		  assert(zbin2-zbin1<=1);
+
+		  VMPZBIN zbin = (zbin1, zbin2!=zbin1);
+		  //fine vm z bits. Use 4 bits for fine position. starting at zbin 1
+		  // need to be careful about left shift of ap_(u)int
+		  VMPFINEZ finez = ((1<<(MEBinsBits+2))+(izproj>>(izproj.length()-(MEBinsBits+3))))-(zbin1,ap_uint<3>(0));
 
 		  // vmproj irinv
-		  VMPRINV rinv = 16 + iphider>>(iphider.length()-5);
+		  VMPRINV rinv = 16 + (iphider>>(iphider.length()-5));
 		  assert(rinv >=0 and rinv < 32);
 
 		  // PS seed
 		  bool psseed = false;  // FIXME
 
 		  VMProjData vmproj = {index, zbin, finez, rinv, psseed};
+		  //std::cout << "vmproj: " << vmproj.index << " " << vmproj.zbin << " " << vmproj.finez
+		  //		  << " " << vmproj.rinv << " " << vmproj.PSseed << std::endl;
 
 		  // all projections
 		  AllProjData allproj = {
 		  				  tproj.plusNeighbor,
 		  				  tproj.minusNeighbor,
+						  tproj.tracklet_index,
 		  				  tproj.phi,
 		  				  tproj.z,
 		  				  tproj.phider,
@@ -110,6 +120,7 @@ public:
 		  //allproj_ -> add_mem(allproj);
 		  *(allproj_+i) = allproj;
 
+		  //std::cout << "iphi: " << iphi << std::endl;
 		  switch (iphi)
 		  {
 		  case 0:
