@@ -11,6 +11,7 @@ typedef ap_int<11> AProjPHIDER;
 typedef ap_int<10> AProjZDER;
 typedef ap_uint<1+1+13+14+12+11+10> AllProj;
 
+/*
 struct AllProjData {
   bool        plusNeighbor;
   bool        minusNeighbor;
@@ -20,13 +21,24 @@ struct AllProjData {
   AProjPHIDER phider;
   AProjZDER   zder;
 };
+*/
 
-class AllProjections: public MemoryBase<AllProjData, MemDepth>
+class AllProjections: public MemoryBase<AllProj, MemDepth>
 {
 public:
 
   AllProjections(){}
 
+  // getter
+  static bool get_plusNeighbor(const AllProj data)       {return data.range(61,61);}
+  static bool get_minusNeighbor(const AllProj data)      {return data.range(60,60);}
+  static AProjTCID get_trackletIndex(const AllProj data) {return data.range(59,47);}
+  static AProjPHI get_phi(const AllProj data)            {return data.range(46,33);}
+  static AProjZ get_z(const AllProj data)                {return data.range(32,21);}
+  static AProjPHIDER get_phider(const AllProj data)      {return data.range(20,10);}
+  static AProjZDER get_zder(const AllProj data)          {return data.range(9,0);}
+
+  /*
   // overload base class add_mem()
   using MemoryBase<AllProjData, MemDepth>::add_mem;
   // add memory from data string
@@ -46,9 +58,11 @@ public:
 
 	  return add_mem(aproj);
   }
+*/
 
 #ifndef __SYNTHESIS__
 #include <iostream>
+  /*
   // print memory contents
   void print_data(const AllProjData& aprojdata) const
   {
@@ -63,6 +77,7 @@ public:
 
 	  std::cout << std::hex << aproj << std::endl;
   }
+*/
 
 #endif
 

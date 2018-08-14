@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
+#include <iterator>
 
 const int nevents = 20;  // number of events to run
 
@@ -22,8 +24,8 @@ vector<string> split(const string& s, char delimiter)
 	return tokens;
 }
 
-template<class DataStruct>
-void fillMemfromFile(DataStruct* memarray, ifstream& fin)
+template<class DataType>
+void fillMemfromFile(DataType* memarray, ifstream& fin)
 {
 
 	string line;
@@ -49,6 +51,13 @@ void fillMemfromFile(DataStruct* memarray, ifstream& fin)
 	}
 }
 
+template<class DataType, int depth>
+void fillMem(DataType result_mem[depth], DataType* mem_ptr)
+{
+	for (int i = 0; i < depth; ++i) {
+		result_mem[i] = *(mem_ptr+i);
+	}
+}
 
 int main()
 {
@@ -77,7 +86,7 @@ int main()
 	VMProjections outputvmproj11[nevents];
 	VMProjections outputvmproj12[nevents];
 
-	// read input files and fill input memories
+	// read input files
 	ifstream fin_tproj1;
 	ifstream fin_tproj2;
 	ifstream fin_tproj3;
@@ -105,11 +114,13 @@ int main()
 		return -1;
 	}
 
+	// fill memories from files
 	fillMemfromFile<TrackletProjections>(inputtproj1, fin_tproj1);
 	fillMemfromFile<TrackletProjections>(inputtproj2, fin_tproj2);
 	fillMemfromFile<TrackletProjections>(inputtproj3, fin_tproj3);
 	fillMemfromFile<TrackletProjections>(inputtproj4, fin_tproj4);
 
+	// close files
 	fin_tproj1.close();
 	fin_tproj2.close();
 	fin_tproj3.close();
@@ -124,30 +135,50 @@ int main()
 		(inputtproj4+ievt)->print_mem();
 		int numberin = (inputtproj4+ievt)->getEntries();
 
-		// output data array
-		AllProjData allprojout[MemDepth];
-		VMProjData vmproj9out[MemDepth];
-		VMProjData vmproj10out[MemDepth];
-		VMProjData vmproj11out[MemDepth];
-		VMProjData vmproj12out[MemDepth];
+		// input data array
+		// memories that are actually connected to the processing module
+		TProj tproj1in[MemDepth];
+		TProj tproj2in[MemDepth];
+		TProj tproj3in[MemDepth];
+		TProj tproj4in[MemDepth];
+		TProj tproj5in[MemDepth];
+		TProj tproj6in[MemDepth];
+		TProj tproj7in[MemDepth];
+		TProj tproj8in[MemDepth];
+		// fill input data arrays
+		fillMem<TProj, MemDepth>(tproj1in, (inputtproj1+ievt)->get_mem());
+		fillMem<TProj, MemDepth>(tproj2in, (inputtproj2+ievt)->get_mem());
+		fillMem<TProj, MemDepth>(tproj3in, (inputtproj3+ievt)->get_mem());
+		fillMem<TProj, MemDepth>(tproj4in, (inputtproj4+ievt)->get_mem());
+		fillMem<TProj, MemDepth>(tproj5in, (inputtproj5+ievt)->get_mem());
+		fillMem<TProj, MemDepth>(tproj6in, (inputtproj6+ievt)->get_mem());
+		fillMem<TProj, MemDepth>(tproj7in, (inputtproj7+ievt)->get_mem());
+		fillMem<TProj, MemDepth>(tproj8in, (inputtproj8+ievt)->get_mem());
 
-		//AllProjData* allprojout = (outputallproj+ievt)->get_mem();
-		//VMProjData* vmproj9out = (outputvmproj9+ievt)->get_mem();
-		//VMProjData* vmproj10out = (outputvmproj9+ievt)->get_mem();
-		//VMProjData* vmproj11out = (outputvmproj9+ievt)->get_mem();
-		//VMProjData* vmproj12out = (outputvmproj9+ievt)->get_mem();
+		// output memories that are actually connected to the processing module
+		AllProj allprojout[MemDepth];
+		VMProj vmproj9out[MemDepth];
+		VMProj vmproj10out[MemDepth];
+		VMProj vmproj11out[MemDepth];
+		VMProj vmproj12out[MemDepth];
+
+		//AllProj* allprojout = (outputallproj+ievt)->get_mem();
+		//VMProj* vmproj9out = (outputvmproj9+ievt)->get_mem();
+		//VMProj* vmproj10out = (outputvmproj9+ievt)->get_mem();
+		//VMProj* vmproj11out = (outputvmproj9+ievt)->get_mem();
+		//VMProj* vmproj12out = (outputvmproj9+ievt)->get_mem();
 
 		// Unit Under Test
 		// PR_L3L4_L1PHI3
 		ProjectionRouterWrapper(
-				(inputtproj1+ievt)->get_mem(),
-				(inputtproj2+ievt)->get_mem(),
-				(inputtproj3+ievt)->get_mem(),
-				(inputtproj4+ievt)->get_mem(),
-				(inputtproj5+ievt)->get_mem(),
-				(inputtproj6+ievt)->get_mem(),
-				(inputtproj7+ievt)->get_mem(),
-				(inputtproj8+ievt)->get_mem(),
+				tproj1in,
+				tproj2in,
+				tproj3in,
+				tproj4in,
+				tproj5in,
+				tproj6in,
+				tproj7in,
+				tproj8in,
 				(inputtproj1+ievt)->getEntries(),
 				(inputtproj2+ievt)->getEntries(),
 				(inputtproj3+ievt)->getEntries(),

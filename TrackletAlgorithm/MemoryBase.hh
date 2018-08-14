@@ -2,7 +2,7 @@
 #ifndef MEMORYBASE_HH
 #define MEMORYBASE_HH
 
-template <class DataStruct, unsigned int Depth>
+template <class DataType, unsigned int Depth>
 class MemoryBase{
 public:
   
@@ -15,9 +15,9 @@ public:
   unsigned int getEntries() {return nentries_;}
   unsigned int getDepth() {return Depth;}
 
-  DataStruct* get_mem() {return dataarray_;}
+  DataType* get_mem() {return dataarray_;}
 
-  bool add_mem(DataStruct data)
+  bool add_mem(DataType data)
   {
 	  if (nentries_ <= Depth) {
 		  dataarray_[nentries_++] = data;
@@ -25,6 +25,12 @@ public:
 	  }
 	  else
 		  return false;
+  }
+
+  bool add_mem(const char* datastr, int base = 16)
+  {
+	  DataType data(datastr, base);
+	  return add_mem(data);
   }
 
   /*
@@ -37,7 +43,12 @@ public:
 
 #ifndef __SYNTHESIS__
 #include <iostream>
-  virtual void print_data(const DataStruct&) const {}
+
+  // print memory contents
+  virtual void print_data(const DataType data) const
+  {
+	  std::cout << std::hex << data << std::endl;
+  }
 
   void print_entry(int i) const
   {
@@ -56,7 +67,7 @@ public:
 
 protected:
 
-  DataStruct dataarray_[Depth];
+  DataType dataarray_[Depth];
 
   unsigned int nentries_;
 

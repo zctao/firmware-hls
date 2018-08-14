@@ -10,6 +10,7 @@ typedef ap_int<4> VMPFINEZ;
 typedef ap_uint<5> VMPRINV;
 typedef ap_uint<7+MEBinsBits+1+4+5+1> VMProj;
 
+/*
 struct VMProjData {
   VMPID   index;
   VMPZBIN zbin;
@@ -17,13 +18,21 @@ struct VMProjData {
   VMPRINV rinv;
   bool PSseed;
 };
+*/
 
-class VMProjections: public MemoryBase<VMProjData, MemDepth>
+class VMProjections: public MemoryBase<VMProj, MemDepth>
 {
 public:
   
   VMProjections(){}
 
+  static VMPID get_index(const VMProj data) {return data.range(20,14);}
+  static VMPZBIN get_zbin(const VMProj data) {return data.range(13,10);}
+  static VMPFINEZ get_finez(const VMProj data) {return data.range(9,6);}
+  static VMPRINV get_rinv(const VMProj data) {return data.range(5,1);}
+  static bool get_PSseed(const VMProj data) {return data.range(0,0);}
+
+/*
   // overload base class add_mem()
   using MemoryBase<VMProjData, MemDepth>::add_mem;
   // add memory from data string
@@ -41,9 +50,11 @@ public:
 
 	  return add_mem(vmproj);
   }
+*/
 
 #ifndef __SYNTHESIS__
 #include <iostream>
+  /*
   // print memory contents
   void print_data(const VMProjData& vmprojdata) const
   {
@@ -56,6 +67,7 @@ public:
 
 	  std::cout << std::hex << vmproj << std::endl;
   }
+*/
 
 #endif
 
