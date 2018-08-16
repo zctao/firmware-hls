@@ -1,6 +1,6 @@
-#include "ProjectionRouterWrapper.h"
+#include "HLSProjectionRouter.h"
 
-void ProjectionRouterWrapper(
+void HLSProjectionRouter(
 			     TProj inprojdata1[MemDepth],
 			     TProj inprojdata2[MemDepth],
 			     TProj inprojdata3[MemDepth],
@@ -37,10 +37,14 @@ void ProjectionRouterWrapper(
 	//
 	TProj* inprojs[8] = {inprojdata1, inprojdata2, inprojdata3, inprojdata4,
 			inprojdata5, inprojdata6, inprojdata7, inprojdata8};
+#pragma HLS ARRAY_PARTITION variable=inprojs complete dim=1
+
 	unsigned int inprojnum[8] = {inprojnumber1, inprojnumber2, inprojnumber3, inprojnumber4,
 			inprojnumber5, inprojnumber6, inprojnumber7, inprojnumber8};
+#pragma HLS ARRAY_PARTITION variable=inprojnum complete dim=1
 
 	VMProj* vmprojs[4] = {outvmprojphi1, outvmprojphi2, outvmprojphi3, outvmprojphi4};
+#pragma HLS ARRAY_PARTITION variable=vmprojs complete dim=1
 
 	static ProjectionRouter aPR(
 			inprojs, inprojnum,

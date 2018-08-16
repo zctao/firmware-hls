@@ -3,7 +3,7 @@
 
 #include "ProjectionRouter.hh"
 
-void ProjectionRouterWrapper(
+void HLSProjectionRouter(
 		TProj*, TProj*, TProj*, TProj*, TProj*, TProj*, TProj*, TProj*,
 		unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int,
 	    // more

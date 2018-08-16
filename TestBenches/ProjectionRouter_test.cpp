@@ -1,5 +1,5 @@
 // ProjectionRouter test bench
-#include "ProjectionRouterWrapper.h"
+#include "HLSProjectionRouter.h"
 //#include "ProjectionRouter.hh"
 
 #include <iostream>
@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <iterator>
 
-const int nevents = 100;  // number of events to run
+const int nevents = 20;  // number of events to run
 
 using namespace std;
 
@@ -254,7 +254,7 @@ int main()
 
 		// Unit Under Test
 		// PR_L3L4_L1PHI3
-		ProjectionRouterWrapper(
+		HLSProjectionRouter(
 				tproj1in,
 				tproj2in,
 				tproj3in,
