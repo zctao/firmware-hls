@@ -47,8 +47,8 @@ void HLSProjectionRouter(
 #pragma HLS ARRAY_PARTITION variable=vmprojs complete dim=1
 
 	static ProjectionRouter aPR(
-			inprojs, inprojnum,
+			inprojs, //inprojnum,
 			outallproj, vmprojs);
   
-	aPR.execute();
+	aPR.execute(inprojnum);
 }

@@ -21,7 +21,7 @@ public:
   ProjectionRouter(
 		  // inputs
 		  TProj* tprojin[nTProjMem],
-		  unsigned int numberin[nTProjMem],
+		  //unsigned int numberin[nTProjMem],
 		  // outputs
 		  AllProj* allprojout,
 		  VMProj* vmprojout[4]
@@ -37,7 +37,13 @@ public:
 	  inputproj7_ = tprojin[6];
 	  inputproj8_ = tprojin[7];
 
-	  numbersin_ = numberin;
+	  //numbersin_ = numberin;
+	  /*
+	  for (int i=0; i<nTProjMem; i++) {
+#pragma HLS unroll
+		  numbersin_[i] = numberin[i];
+	  }
+	  */
 
 	  allproj_ = allprojout;
 	  vmprojphi1_ = vmprojout[0];
@@ -58,7 +64,7 @@ public:
   ~ProjectionRouter(){}
 
   // called for every event
-  void execute()
+  void execute(unsigned int numbersin[nTProjMem])
   {
 	  //std::cout << "execute" << std::endl;
 	  // check which input memories are not empty
@@ -66,7 +72,7 @@ public:
 	  ap_uint<nTProjMem> mem_hasdata = 0;
 	  HASDATA_LOOP: for (int imem = 0; imem < nTProjMem; ++imem) {
 #pragma HLS unroll
-		  if (numbersin_[imem] > 0) {
+		  if (numbersin[imem] > 0) {
 			  //mem_hasdata_arr[imem] = 1;
 			  mem_hasdata += (1<<imem);
 		  }
@@ -81,7 +87,7 @@ public:
 #pragma HLS PIPELINE II=1
 		  // read inputs
 		  unsigned int addr = addr_next;
-		  bool validin = get_mem_read_addr<nTProjMem>(imem, addr_next, mem_hasdata, numbersin_);
+		  bool validin = get_mem_read_addr<nTProjMem>(imem, addr_next, mem_hasdata, numbersin);
 
 		  if (not validin) continue;
 
@@ -222,7 +228,8 @@ private:
   TProj* inputproj8_;
   // more
 
-  unsigned int* numbersin_;
+  //unsigned int* numbersin_;
+  //unsigned int numbersin_[nTProjMem];
 
   // outputs
   AllProj* allproj_;
