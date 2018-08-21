@@ -4,7 +4,7 @@
 
 #include "Constants.hh"
 #include "ProcessBase.hh"
-
+//
 #include "TrackletProjections.hh"
 #include "AllProjections.hh"
 #include "VMProjections.hh"
@@ -64,7 +64,7 @@ public:
   ~ProjectionRouter(){}
 
   // called for every event
-  void execute(unsigned int numbersin[nTProjMem])
+  void execute(ap_uint<NBits_MemAddr> numbersin[nTProjMem])
   {
 	  //std::cout << "execute" << std::endl;
 	  // check which input memories are not empty
@@ -81,17 +81,18 @@ public:
 		  //}
 	  }
 
-	  unsigned int imem = 0;
-	  unsigned int addr_next = 0;
+	  // FIXME: nbits for imem depends on nTProjMem. Hard coded 3 here for nTProjMem=8
+	  ap_uint<3> imem = 0;
+	  ap_uint<NBits_MemAddr> addr_next = 0;
 	  PROC_LOOP: for (int i = 0; i < nMaxProc; ++i) {
 #pragma HLS PIPELINE II=1
 		  // read inputs
-		  unsigned int addr = addr_next;
-		  bool validin = get_mem_read_addr<nTProjMem>(imem, addr_next, mem_hasdata, numbersin);
+		  ap_uint<NBits_MemAddr> addr = addr_next;
+		  bool validin = get_mem_read_addr<3, NBits_MemAddr>(imem, addr_next, mem_hasdata, numbersin);
 
 		  if (not validin) continue;
 
-		  TProj tproj = read_mem(imem, addr);
+		  TProj tproj = read_mem<NBits_MemAddr>(imem, addr);
 		  //std::cout << "tproj " << tproj << std::endl;
 
 		  TProjPHI iphiproj = TrackletProjections::get_phi(tproj);
@@ -165,8 +166,9 @@ public:
   } // execute()
 
   // move this to ProcessBase class?
-  template<int nMEM>
-  bool get_mem_read_addr(unsigned int& imem, unsigned int& addr, ap_uint<nMEM>& mem_hasdata, unsigned int* numbersin)
+  template<int nbits_nMEM, int nbits_MemAddr>
+  bool get_mem_read_addr(ap_uint<nbits_nMEM>& imem, ap_uint<nbits_MemAddr>& addr,
+		  ap_uint<(1<<nbits_nMEM)>& mem_hasdata, ap_uint<nbits_MemAddr>* numbersin)
   {
 	  if (mem_hasdata == 0) return false;
 
@@ -183,7 +185,8 @@ public:
 	  return true;
   }
 
-  TProj read_mem(int imem, int addr)
+  template<int nbits_MemAddr>
+  TProj read_mem(ap_uint<3> imem, ap_uint<nbits_MemAddr> addr)
   {
 	  //return *(inputproj_[imem]+addr);
 	  //return inputproj_[imem][addr];

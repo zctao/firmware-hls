@@ -10,14 +10,14 @@ void HLSProjectionRouter(
 			     TProj inprojdata7[MemDepth],
 			     TProj inprojdata8[MemDepth],
 			     // more
-				 unsigned int inprojnumber1,
-				 unsigned int inprojnumber2,
-				 unsigned int inprojnumber3,
-				 unsigned int inprojnumber4,
-				 unsigned int inprojnumber5,
-				 unsigned int inprojnumber6,
-				 unsigned int inprojnumber7,
-				 unsigned int inprojnumber8,
+				 ap_uint<NBits_MemAddr> inprojnumber1,
+				 ap_uint<NBits_MemAddr> inprojnumber2,
+				 ap_uint<NBits_MemAddr> inprojnumber3,
+				 ap_uint<NBits_MemAddr> inprojnumber4,
+				 ap_uint<NBits_MemAddr> inprojnumber5,
+				 ap_uint<NBits_MemAddr> inprojnumber6,
+				 ap_uint<NBits_MemAddr> inprojnumber7,
+				 ap_uint<NBits_MemAddr> inprojnumber8,
 
 			     AllProj outallproj[MemDepth],
 			     VMProj outvmprojphi1[MemDepth],
@@ -39,7 +39,7 @@ void HLSProjectionRouter(
 			inprojdata5, inprojdata6, inprojdata7, inprojdata8};
 #pragma HLS ARRAY_PARTITION variable=inprojs complete dim=1
 
-	unsigned int inprojnum[8] = {inprojnumber1, inprojnumber2, inprojnumber3, inprojnumber4,
+	ap_uint<NBits_MemAddr> inprojnum[8] = {inprojnumber1, inprojnumber2, inprojnumber3, inprojnumber4,
 			inprojnumber5, inprojnumber6, inprojnumber7, inprojnumber8};
 #pragma HLS ARRAY_PARTITION variable=inprojnum complete dim=1
 
