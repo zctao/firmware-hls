@@ -3,7 +3,7 @@
 #define PROJECTIONROUTER_HH
 
 #include "Constants.hh"
-#include "ProcessBase.hh"
+//#include "ProcessBase.hh"
 //
 #include "TrackletProjections.hh"
 #include "AllProjections.hh"
@@ -18,7 +18,7 @@ class ProjectionRouter //: public ProcessBase<nMaxProc>
 public:
 
   // constructor
-	ProjectionRouter(){}
+	ProjectionRouter() {}
 	/*
   ProjectionRouter(
 		  // inputs
@@ -70,6 +70,15 @@ public:
 		  	  AllProj* allprojout, VMProj* vmprojout[4])
   {
 	  //std::cout << "execute" << std::endl;
+
+	  // initialization
+	  iAP_ = 0;
+
+	  for (int i=0; i<4; ++i) {  // FIXME?
+#pragma HLS unroll
+		  iVMP_[i] = 0;
+	  }
+
 	  // check which input memories are not empty
 	  //bool mem_hasdata_arr[nTProjMem];
 	  ap_uint<nTProjMem> mem_hasdata = 0;
@@ -145,7 +154,7 @@ public:
 
 		  // write outputs
 		  //*(allproj_+i) = aproj;
-		  allprojout[i] = aproj;
+		  *(allprojout+iAP_++) = aproj;
 
 		  //std::cout << "iphi: " << iphi << std::endl;
 		  assert(iphi>=0 and iphi<4);
@@ -247,14 +256,14 @@ private:
   // outputs
   //AllProj* allproj_;
   //AllProj allproj_[MemDepth];
-  unsigned int iAP_;
+  ap_uint<NBits_MemAddr> iAP_;
 
   //VMProj* vmprojphi1_;
   //VMProj* vmprojphi2_;
   //VMProj* vmprojphi3_;
   //VMProj* vmprojphi4_;
 
-  unsigned int iVMP_[4];
+  ap_uint<NBits_MemAddr> iVMP_[4];
 };
 
 #endif
