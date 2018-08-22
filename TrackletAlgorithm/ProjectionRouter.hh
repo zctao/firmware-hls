@@ -18,6 +18,8 @@ class ProjectionRouter //: public ProcessBase<nMaxProc>
 public:
 
   // constructor
+	ProjectionRouter(){}
+	/*
   ProjectionRouter(
 		  // inputs
 		  TProj* tprojin[nTProjMem],
@@ -38,12 +40,10 @@ public:
 	  inputproj8_ = tprojin[7];
 
 	  //numbersin_ = numberin;
-	  /*
-	  for (int i=0; i<nTProjMem; i++) {
-#pragma HLS unroll
-		  numbersin_[i] = numberin[i];
-	  }
-	  */
+	  //for (int i=0; i<nTProjMem; i++) {
+//#pragma HLS unroll
+	//	  numbersin_[i] = numberin[i];
+	  //}
 
 	  allproj_ = allprojout;
 	  vmprojphi1_ = vmprojout[0];
@@ -61,10 +61,13 @@ public:
 	  }
 	  //std::cout << "end of constructor" << std::endl;
   }
+*/
   ~ProjectionRouter(){}
 
   // called for every event
-  void execute(ap_uint<NBits_MemAddr> numbersin[nTProjMem])
+  //void execute(ap_uint<NBits_MemAddr> numbersin[nTProjMem])
+  void execute(TProj* tprojin[nTProjMem], ap_uint<NBits_MemAddr> numbersin[nTProjMem],
+		  	  AllProj* allprojout, VMProj* vmprojout[4])
   {
 	  //std::cout << "execute" << std::endl;
 	  // check which input memories are not empty
@@ -92,7 +95,8 @@ public:
 
 		  if (not validin) continue;
 
-		  TProj tproj = read_mem<NBits_MemAddr>(imem, addr);
+		  //TProj tproj = read_mem<NBits_MemAddr>(imem, addr);
+		  TProj tproj = *(tprojin[imem]+addr);
 		  //std::cout << "tproj " << tproj << std::endl;
 
 		  TProjPHI iphiproj = TrackletProjections::get_phi(tproj);
@@ -140,27 +144,32 @@ public:
 		  AllProj aproj = tproj;
 
 		  // write outputs
-		  *(allproj_+i) = aproj;
+		  //*(allproj_+i) = aproj;
+		  allprojout[i] = aproj;
 
 		  //std::cout << "iphi: " << iphi << std::endl;
 		  assert(iphi>=0 and iphi<4);
+
+		  *(vmprojout[iphi]+iVMP_[iphi]++) = vmproj;
+
 		  //*(vmprojphi_[iphi]+iVMP_[iphi]++) = vmproj;
+		  /*
 		  switch (iphi)
 		  {
 		  case 0:
-			  *(vmprojphi1_+iVMP_[0]++) = vmproj;
+			  *(vmprojout[0]+iVMP_[0]++) = vmproj;
 			  break;
 		  case 1:
-			  *(vmprojphi2_+iVMP_[1]++) = vmproj;
+			  *(vmprojout[1]+iVMP_[1]++) = vmproj;
 			  break;
 		  case 2:
-			  *(vmprojphi3_+iVMP_[2]++) = vmproj;
+			  *(vmprojout[2]+iVMP_[2]++) = vmproj;
 			  break;
 		  case 3:
-			  *(vmprojphi4_+iVMP_[3]++) = vmproj;
+			  *(vmprojout[3]+iVMP_[3]++) = vmproj;
 			  break;
 		  }
-
+		  */
 
 	  } // PROC_LOOP
   } // execute()
@@ -184,7 +193,7 @@ public:
 
 	  return true;
   }
-
+/*
   template<int nbits_MemAddr>
   TProj read_mem(ap_uint<3> imem, ap_uint<nbits_MemAddr> addr)
   {
@@ -213,35 +222,37 @@ public:
 		  return *(inputproj1_+addr);
 	  }
   }
-
+*/
   
 private:
 
   //int layer_;
   //int disk_;
 
+
   // inputs
-  TProj* inputproj1_;
-  TProj* inputproj2_;
-  TProj* inputproj3_;
-  TProj* inputproj4_;
-  TProj* inputproj5_;
-  TProj* inputproj6_;
-  TProj* inputproj7_;
-  TProj* inputproj8_;
+  //TProj* inputproj1_;
+  //TProj* inputproj2_;
+  //TProj* inputproj3_;
+  //TProj* inputproj4_;
+  //TProj* inputproj5_;
+  //TProj* inputproj6_;
+  //TProj* inputproj7_;
+  //TProj* inputproj8_;
   // more
 
   //unsigned int* numbersin_;
   //unsigned int numbersin_[nTProjMem];
 
   // outputs
-  AllProj* allproj_;
+  //AllProj* allproj_;
+  //AllProj allproj_[MemDepth];
   unsigned int iAP_;
 
-  VMProj* vmprojphi1_;
-  VMProj* vmprojphi2_;
-  VMProj* vmprojphi3_;
-  VMProj* vmprojphi4_;
+  //VMProj* vmprojphi1_;
+  //VMProj* vmprojphi2_;
+  //VMProj* vmprojphi3_;
+  //VMProj* vmprojphi4_;
 
   unsigned int iVMP_[4];
 };

@@ -46,9 +46,15 @@ void HLSProjectionRouter(
 	VMProj* vmprojs[4] = {outvmprojphi1, outvmprojphi2, outvmprojphi3, outvmprojphi4};
 #pragma HLS ARRAY_PARTITION variable=vmprojs complete dim=1
 
+	/*
 	static ProjectionRouter aPR(
 			inprojs, //inprojnum,
 			outallproj, vmprojs);
-  
+
 	aPR.execute(inprojnum);
+	*/
+
+	static ProjectionRouter aPR;
+	aPR.execute(inprojs, inprojnum, outallproj, vmprojs);
+
 }
