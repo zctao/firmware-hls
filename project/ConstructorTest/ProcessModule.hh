@@ -54,9 +54,9 @@ public:
 
 protected:
 
-	int *inputarr_;
-	int *outputarr_;
-	int *outputarr2_;
+	int *const inputarr_;
+	int *const outputarr_;
+	int *const outputarr2_;
 
 	unsigned int cnt_;
 	unsigned int cnt2_;
