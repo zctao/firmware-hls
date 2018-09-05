@@ -70,6 +70,7 @@ public:
   // called for every event
   void process(ap_uint<3> bx,
 			   TrackletProjections* tprojs[nTProjMem],
+			   ap_uint<3>& bx_o,
 			   AllProjections* allproj,
 			   VMProjections* vmprojs[4])
   {
@@ -107,7 +108,7 @@ public:
 	  if (not validin) continue;
 
 	  TProj tproj = tprojs[imem]->read_mem(bx, addr);
-	  //std::cout << "tproj " << tproj << std::endl;
+	  //std::cout << "tproj " << std::hex << tproj << std::endl;
 
 	  TProjPHI iphiproj = TrackletProjections::get_phi(tproj);
 	  TProjZ izproj = TrackletProjections::get_z(tproj);
@@ -158,6 +159,8 @@ public:
 
 	  assert(iphi>=0 and iphi<4);
 	  vmprojs[iphi]->write_mem(bx, vmproj);
+
+	  bx_o = bx;
 	  
 	} // PROC_LOOP
 	

@@ -10,7 +10,7 @@ public:
   MemoryBase()
   {
 #pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=1
-	//clear();
+	clear();
   }
 
   virtual ~MemoryBase(){}
@@ -26,13 +26,13 @@ public:
   unsigned int getDepth() const {return DEPTH;}
   unsigned int getnBX() const {return NBX;}
   
-  unsigned int getEntries(ap_uint<3> bx) const {return nentries_[bx];}
+  unsigned int getEntries(ap_uint<3> bx) const {return nentries_[bx%NBX];}
 
   DataType* get_mem() {return dataarray_;}
   
   DataType read_mem(ap_uint<3> ibx, unsigned int index) const // to be optimized
   {
-	return dataarray_[ibx][index];
+	return dataarray_[ibx%NBX][index];
   }
 
   bool write_mem(ap_uint<3> ibx, DataType data)
@@ -64,12 +64,12 @@ public:
 
   void print_entry(ap_uint<3> bx, unsigned int i) const
   {
-	print_data(dataarray_[bx][i]);
+	print_data(dataarray_[bx%NBX][i]);
   }
 
   void print_mem(ap_uint<3> bx) const
   {
-	for (int i = 0; i < nentries_[bx]; ++i) {
+	for (int i = 0; i < nentries_[bx%NBX]; ++i) {
 	  std::cout << bx << " " << i << " ";
 	  print_entry(bx,i);
 	}
@@ -78,7 +78,7 @@ public:
   void print_mem() const
   {
 	for (int ibx = 0; ibx < NBX; ++ibx) {
-	  for (int i = 0; i < nentries_[ibx]; ++i) {
+	  for (int i = 0; i < nentries_[ibx%NBX]; ++i) {
 		std::cout << ibx << " " << i << " ";
 		print_entry(ibx,i);
 	  }

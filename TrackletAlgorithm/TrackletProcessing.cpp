@@ -56,7 +56,7 @@ void TrackletProcessing
   };
   
   PR_L3L4_L1PHI3.process(bx_in, tprojs_pr_l3l4_l1phi3,
-                         allproj_pr_l3l4_l1phi3, vmprojs_pr_l3l4_l1phi3);
+                         bx_out, allproj_pr_l3l4_l1phi3, vmprojs_pr_l3l4_l1phi3);
 
   /////////////////////////////////////
   
