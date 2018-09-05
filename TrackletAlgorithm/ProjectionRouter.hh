@@ -85,11 +85,15 @@ public:
 	
   HASDATA_LOOP: for (int imem = 0; imem < nTProjMem; ++imem) {
 #pragma HLS unroll
-	  ap_uint<kNBits_MemAddr> numin = tprojs[imem]->getEntries(bx);
-	  numbersin[imem] = numin; 
+	  
+	  ap_uint<kNBits_MemAddr> numin = 0;
+	  if (tprojs[imem])
+		numin = tprojs[imem]->getEntries(bx);
+	  numbersin[imem] = numin;
+	  
 	  if (numin > 0) mem_hasdata += (1<<imem);
 	}
-
+	
 // FIXME: nbits for imem depends on nTProjMem. Hard coded 3 here for nTProjMem=8
 	ap_uint<3> imem = 0;
 	ap_uint<kNBits_MemAddr> addr_next = 0;
