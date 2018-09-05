@@ -18,8 +18,9 @@ public:
     for (int i = 0; i < kMaxProc; ++i) {
 #pragma HLS PIPELINE II = 1 enable_flush
       DataType din;
-      sdatain >> din;
-      memory.write_mem(din, bx);
+      if (sdatain.read_nb(din)) {
+        memory.write_mem(din, bx);
+      }
 	}
   }
 
