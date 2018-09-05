@@ -18,7 +18,10 @@ class ProjectionRouter //: public ProcessBase<nMaxProc>
 public:
 
   // constructor
-	ProjectionRouter() {}
+	ProjectionRouter(){
+	  //#pragma HLS ARRAY_PARTITION variable=iVMP_ complete dim=1
+	  //bx_ = 0;
+	}
 	/*
   ProjectionRouter(
 		  // inputs
@@ -65,11 +68,105 @@ public:
   ~ProjectionRouter(){}
 
   // called for every event
+  void process(ap_uint<3> bx,
+			   TrackletProjections* tprojs[nTProjMem],
+			   AllProjections* allproj,
+			   VMProjections* vmprojs[4])
+  {
+	//
+	//iAP_ = 0;
+	//iVMP_[0] = 0; iVMP_[1] = 0; iVMP_[2] = 0; iVMP_[3] = 0;
+
+	// logic for reading inputs
+	// check the number of entries in the input memories
+	ap_uint<nTProjMem> mem_hasdata = 0;
+	ap_uint<kNBits_MemAddr> numbersin[nTProjMem];
+#pragma HLS ARRAY_PARTITION variable=numbersin complete
+	
+  HASDATA_LOOP: for (int imem = 0; imem < nTProjMem; ++imem) {
+#pragma HLS unroll
+	  ap_uint<kNBits_MemAddr> numin = tprojs[imem]->getEntries(bx);
+	  numbersin[imem] = numin; 
+	  if (numin > 0) mem_hasdata += (1<<imem);
+	}
+
+// FIXME: nbits for imem depends on nTProjMem. Hard coded 3 here for nTProjMem=8
+	ap_uint<3> imem = 0;
+	ap_uint<kNBits_MemAddr> addr_next = 0;
+	
+  PROC_LOOP: for (int i = 0; i < kMaxProc; ++i) {
+#pragma HLS PIPELINE II=1
+	  // read inputs
+	  ap_uint<kNBits_MemAddr> addr = addr_next;
+	  bool validin = get_mem_read_addr<3, kNBits_MemAddr>(imem, addr_next, mem_hasdata, numbersin);
+
+	  if (not validin) continue;
+
+	  TProj tproj = tprojs[imem]->read_mem(bx, addr);
+	  //std::cout << "tproj " << tproj << std::endl;
+
+	  TProjPHI iphiproj = TrackletProjections::get_phi(tproj);
+	  TProjZ izproj = TrackletProjections::get_z(tproj);
+	  TProjPHIDER iphider = TrackletProjections::get_phider(tproj);
+
+	  // routing
+	  ap_uint<5> iphi5 = iphiproj>>(iphiproj.length()-5);  // top 5 bits of phi
+	  
+	  // inner barrel non-hourglass for now
+	  assert(iphi5>=4 and iphi5<=27);
+	  ap_uint<2> iphi = ((iphi5-4)>>1)&3;
+	  assert(iphi>=0 and iphi<=3);
+
+	  // vmproj index
+	  VMPID index = i;
+	  
+	  // vmproj z
+	  ap_uint<MEBinsBits> zbin1 = (1<<(MEBinsBits-1))+(((izproj>>(izproj.length()-MEBinsBits-2))-2)>>2);
+	  ap_uint<MEBinsBits> zbin2 = (1<<(MEBinsBits-1))+(((izproj>>(izproj.length()-MEBinsBits-2))+2)>>2);
+	  if (zbin1 >= (1<<MEBinsBits)) zbin1 = 0;
+	  if (zbin2 >= (1<<MEBinsBits)) zbin2 = (1<<MEBinsBits)-1;
+	  
+	  if (zbin1>=(1<<MEBinsBits)) zbin1=0; //note that zbin1 is unsigned
+	  if (zbin2>=(1<<MEBinsBits)) zbin2=(1<<MEBinsBits)-1;
+	  assert(zbin1<=zbin2);
+	  assert(zbin2-zbin1<=1);
+	  
+	  VMPZBIN zbin = (zbin1, zbin2!=zbin1);
+	  //fine vm z bits. Use 4 bits for fine position. starting at zbin 1
+	  // need to be careful about left shift of ap_(u)int
+	  VMPFINEZ finez = ((1<<(MEBinsBits+2))+(izproj>>(izproj.length()-(MEBinsBits+3))))-(zbin1,ap_uint<3>(0));
+	  
+	  // vmproj irinv
+	  VMPRINV rinv = 16 + (iphider>>(iphider.length()-5));
+	  assert(rinv >=0 and rinv < 32);
+	  
+	  // PS seed
+	  bool psseed = false;  // FIXME
+	  
+	  // Concatenation
+	  VMProj vmproj = ((((index, zbin), finez), rinv), psseed);
+	  
+	  // FIXME?
+	  AllProj aproj = tproj;
+
+	  // write outputs
+	  allproj->write_mem(bx, aproj);
+
+	  assert(iphi>=0 and iphi<4);
+	  vmprojs[iphi]->write_mem(bx, vmproj);
+	  
+	} // PROC_LOOP
+	
+  } // process
+
+  /* 
   //void execute(ap_uint<NBits_MemAddr> numbersin[nTProjMem])
-  void execute(TProj* tprojin[nTProjMem], ap_uint<NBits_MemAddr> numbersin[nTProjMem],
+  void execute(TProj* tprojin[nTProjMem], ap_uint<kNBits_MemAddr> numbersin[nTProjMem],
 		  	  AllProj* allprojout, VMProj* vmprojout[4])
   {
 	  //std::cout << "execute" << std::endl;
+
+	  std::cout << "bx " << bx_ << std::endl;
 
 	  // initialization
 	  iAP_ = 0;
@@ -95,12 +192,17 @@ public:
 
 	  // FIXME: nbits for imem depends on nTProjMem. Hard coded 3 here for nTProjMem=8
 	  ap_uint<3> imem = 0;
-	  ap_uint<NBits_MemAddr> addr_next = 0;
-	  PROC_LOOP: for (int i = 0; i < nMaxProc; ++i) {
+	  ap_uint<kNBits_MemAddr> addr_next = 0;
+	  PROC_LOOP: for (int i = 0; i < kMaxProc; ++i) {
 #pragma HLS PIPELINE II=1
 		  // read inputs
-		  ap_uint<NBits_MemAddr> addr = addr_next;
-		  bool validin = get_mem_read_addr<3, NBits_MemAddr>(imem, addr_next, mem_hasdata, numbersin);
+
+		  // TODO
+		  // top bit of read address depends on bx
+		  //ap_uint<NBits_MemAddr> addr = addr_next + (bx_,ap_uint<NBits_MemAddr-1>(0));
+
+		  ap_uint<kNBits_MemAddr> addr = addr_next;
+		  bool validin = get_mem_read_addr<3, kNBits_MemAddr>(imem, addr_next, mem_hasdata, numbersin);
 
 		  if (not validin) continue;
 
@@ -120,34 +222,7 @@ public:
 		  ap_uint<2> iphi = ((iphi5-4)>>1)&3;
 		  assert(iphi>=0 and iphi<=3);
 
-		  // vmproj index
-		  VMPID index = i;
-
-		  // vmproj z
-		  ap_uint<MEBinsBits> zbin1 = (1<<(MEBinsBits-1))+(((izproj>>(izproj.length()-MEBinsBits-2))-2)>>2);
-		  ap_uint<MEBinsBits> zbin2 = (1<<(MEBinsBits-1))+(((izproj>>(izproj.length()-MEBinsBits-2))+2)>>2);
-		  if (zbin1 >= (1<<MEBinsBits)) zbin1 = 0;
-		  if (zbin2 >= (1<<MEBinsBits)) zbin2 = (1<<MEBinsBits)-1;
-
-		  if (zbin1>=(1<<MEBinsBits)) zbin1=0; //note that zbin1 is unsigned
-		  if (zbin2>=(1<<MEBinsBits)) zbin2=(1<<MEBinsBits)-1;
-		  assert(zbin1<=zbin2);
-		  assert(zbin2-zbin1<=1);
-
-		  VMPZBIN zbin = (zbin1, zbin2!=zbin1);
-		  //fine vm z bits. Use 4 bits for fine position. starting at zbin 1
-		  // need to be careful about left shift of ap_(u)int
-		  VMPFINEZ finez = ((1<<(MEBinsBits+2))+(izproj>>(izproj.length()-(MEBinsBits+3))))-(zbin1,ap_uint<3>(0));
-
-		  // vmproj irinv
-		  VMPRINV rinv = 16 + (iphider>>(iphider.length()-5));
-		  assert(rinv >=0 and rinv < 32);
-
-		  // PS seed
-		  bool psseed = false;  // FIXME
-
-		  // Concatenation
-		  VMProj vmproj = ((((index, zbin), finez), rinv), psseed);
+		  VMProj vmproj = compute_vmproj(tproj);
 
 		  // FIXME?
 		  AllProj aproj = tproj;
@@ -162,27 +237,15 @@ public:
 		  *(vmprojout[iphi]+iVMP_[iphi]++) = vmproj;
 
 		  //*(vmprojphi_[iphi]+iVMP_[iphi]++) = vmproj;
-		  /*
-		  switch (iphi)
-		  {
-		  case 0:
-			  *(vmprojout[0]+iVMP_[0]++) = vmproj;
-			  break;
-		  case 1:
-			  *(vmprojout[1]+iVMP_[1]++) = vmproj;
-			  break;
-		  case 2:
-			  *(vmprojout[2]+iVMP_[2]++) = vmproj;
-			  break;
-		  case 3:
-			  *(vmprojout[3]+iVMP_[3]++) = vmproj;
-			  break;
-		  }
-		  */
 
 	  } // PROC_LOOP
-  } // execute()
 
+	  // next bunch crossing
+	  ++bx_;
+
+  } // execute()
+  */
+  
   // move this to ProcessBase class?
   template<int nbits_nMEM, int nbits_MemAddr>
   bool get_mem_read_addr(ap_uint<nbits_nMEM>& imem, ap_uint<nbits_MemAddr>& addr,
@@ -238,6 +301,7 @@ private:
   //int layer_;
   //int disk_;
 
+  //ap_uint<1> bx_;  // FIXME: more bits?
 
   // inputs
   //TProj* inputproj1_;
@@ -256,14 +320,14 @@ private:
   // outputs
   //AllProj* allproj_;
   //AllProj allproj_[MemDepth];
-  ap_uint<NBits_MemAddr> iAP_;
+  //ap_uint<kNBits_MemAddr> iAP_;
 
   //VMProj* vmprojphi1_;
   //VMProj* vmprojphi2_;
   //VMProj* vmprojphi3_;
   //VMProj* vmprojphi4_;
 
-  ap_uint<NBits_MemAddr> iVMP_[4];
+  //ap_uint<kNBits_MemAddr> iVMP_[4];
 };
 
 #endif

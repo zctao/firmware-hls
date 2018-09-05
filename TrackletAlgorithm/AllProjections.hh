@@ -23,11 +23,10 @@ struct AllProjData {
 };
 */
 
-class AllProjections: public MemoryBase<AllProj, MemDepth>
+//template<unsigned int bx=2, unsigned int memdepth=kMemDepth>
+class AllProjections: public MemoryBase<AllProj, 2, kMemDepth>
 {
 public:
-
-  AllProjections(){}
 
   // getter
   static bool get_plusNeighbor(const AllProj data)       {return data.range(61,61);}

@@ -20,11 +20,10 @@ struct VMProjData {
 };
 */
 
-class VMProjections: public MemoryBase<VMProj, MemDepth>
+//template<unsigned int bx=2, unsigned int memdepth=kMemDepth>
+class VMProjections: public MemoryBase<VMProj, 2, kMemDepth>
 {
 public:
-  
-  VMProjections(){}
 
   static VMPID get_index(const VMProj data) {return data.range(20,14);}
   static VMPZBIN get_zbin(const VMProj data) {return data.range(13,10);}

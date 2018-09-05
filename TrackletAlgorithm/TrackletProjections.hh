@@ -23,11 +23,10 @@ struct TProjData {
 };
 */
 
-class TrackletProjections: public MemoryBase<TProj, MemDepth>
+//template<unsigned int bx=2, unsigned int memdepth=kMemDepth>
+class TrackletProjections: public MemoryBase<TProj, 2, kMemDepth>
 {
 public:
-  
-  TrackletProjections(){}
 
   // getter
   static bool get_plusNeighbor(const TProj data)       {return data.range(61,61);}
