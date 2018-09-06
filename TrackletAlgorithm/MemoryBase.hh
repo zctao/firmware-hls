@@ -47,10 +47,10 @@ public:
 	  return false;
   }
   
-  bool write_mem(const char* datastr, ap_uint<3> bx=0, int base = 16)
+  bool write_mem(ap_uint<3> bx, const char* datastr, int base = 16)
   {
 	DataType data(datastr, base);
-	return write_mem(data, bx);
+	return write_mem(bx, data);
   }
 
 #ifndef __SYNTHESIS__

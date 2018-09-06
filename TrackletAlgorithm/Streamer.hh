@@ -19,7 +19,7 @@ public:
 #pragma HLS PIPELINE II = 1 enable_flush
       DataType din;
       if (sdatain.read_nb(din)) {
-        memory.write_mem(din, bx);
+        memory.write_mem(bx, din);
       }
 	}
   }
@@ -28,11 +28,14 @@ public:
   void mem2stream(ap_uint<3> bx, MemType& memory, hls::stream<DataType>& sdataout)
   {
     for (int i = 0; i < kMaxProc; ++i) {
-#pragma HLS PIPELINE II = 1 enable_flush  
-      DataType dout = memory.read_mem(bx, i);
-      sdataout << dout;
+#pragma HLS PIPELINE II = 1 enable_flush
+      if (i < memory.getEntries(bx)) {
+        DataType dout = memory.read_mem(bx, i);
+        sdataout << dout;
+      }
     }
   }
+  
 };
 
 #endif
