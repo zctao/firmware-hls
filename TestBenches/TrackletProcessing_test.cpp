@@ -8,7 +8,7 @@
 #include <iterator>
 #include <string>
 
-const int nevents = 20;  // number of events to run
+const int nevents = 100;  // number of events to run
 
 using namespace std;
 
@@ -28,7 +28,7 @@ template<class T>
 T parseLineMemPrints(const string& line, int base)
 {
     const string datastr = split(line, ' ').back();
-	// cout << datastr << endl;
+	//cout << datastr << endl;
 	T data(datastr.c_str(), base);
 
 	return data;
@@ -56,6 +56,8 @@ void fillStreamFromFile(hls::stream<T> (&streams)[nevents], const char* filename
 	string line;
 	int ievent = -1;
 
+	cout << filename << endl;
+	
 	while (getline(fin, line)) {
 		//cout << line << endl;
 		if (line.find("Event") != string::npos)
@@ -63,6 +65,10 @@ void fillStreamFromFile(hls::stream<T> (&streams)[nevents], const char* filename
 		else {
 			assert(ievent >= 0);
 			T data = parseLineMemPrints<T>(line, base);
+
+			cout << "Event " << dec << ievent << "  ";
+			cout << hex << data << endl;
+
 			streams[ievent].write(data);
 		}
 
@@ -85,24 +91,30 @@ int compareStreamWithFile(hls::stream<T> (&streams)[nevents], const char* filena
 
 	string line;
 	int ievent = -1;
-
+	
 	while(getline(fin, line)) {
 		//cout << line << endl;
-		if (line.find("Event") != string::npos)
+		if (line.find("Event") != string::npos) {
 			ievent++;
+		}
 		else {
 			assert(ievent >= 0);
 			// compare data read from file with that in stream
 			T data_expected = parseLineMemPrints<T>(line, base);	
-			T data_computed = streams[ievent].read();
+			T data_computed;
+			if(not streams[ievent].empty())
+				streams[ievent].read_nb(data_computed);
 
-			cout << data_expected << " " << data_computed << endl;
+			cout << "Event " << dec << ievent << "  " ;
+			cout << hex << data_expected << " " << data_computed << endl;
 			
 			if (data_expected != data_computed) {
 				cout << "ERROR! Expected and computed results are different!" << endl;
 				err_cnt++;
 			}
 		}
+
+		if (ievent >= nevents) break;
 	} // end of while
 
 	fin.close();
@@ -121,7 +133,9 @@ int main()
 	hls::stream<TProj> inputtproj5[nevents];
 	hls::stream<TProj> inputtproj6[nevents];
 	
-	// read input files and fill input streams
+	// Inputs
+	cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
+	cout << "Read input files and fill input streams" << endl;
 	fillStreamFromFile<TProj>(inputtproj1, "emData_PR/TrackletProjections_TPROJ_L3L4C_L1PHI3_04.dat");
 	fillStreamFromFile<TProj>(inputtproj2, "emData_PR/TrackletProjections_TPROJ_L3L4D_L1PHI3_04.dat");
 	fillStreamFromFile<TProj>(inputtproj3, "emData_PR/TrackletProjections_TPROJ_L3L4E_L1PHI3_04.dat");
@@ -138,9 +152,10 @@ int main()
 	hls::stream<VMProj> outputvmproj12[nevents];
 
 	/////////////////////////////////////
-	// loop over events
+	// Loop over events
+	cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
 	for (int ievt = 0; ievt < nevents; ++ievt) {
-		cout << "Event: " << dec << ievt << endl;
+		cout << "Processing event " << dec << ievt << " ..." << endl;
 
 		ap_uint<3> ibx = ievt;
 		ap_uint<3> obx;
@@ -162,7 +177,10 @@ int main()
 
 	}  // end of event loop
 
-	// Compare calculated outputs with those read from emulation printout
+	/////////////////////////////////////
+	// Output
+	cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
+	cout << "Compare computed results with the expected ones from emulation printouts" << endl;
 	// error counter
 	int err_count = 0;
 	
