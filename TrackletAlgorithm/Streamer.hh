@@ -15,11 +15,15 @@ public:
   template<class DataType, class MemType>
   void stream2mem(ap_uint<3> bx, hls::stream<DataType>& sdatain, MemType& memory)
   {
+    // reset memory first
+    memory.clear(bx);
+    
     for (int i = 0; i < kMaxProc; ++i) {
 #pragma HLS PIPELINE II = 1 enable_flush
       DataType din;
       if (sdatain.read_nb(din)) {
-        memory.write_mem(bx, din);
+        bool success = memory.write_mem(bx, din);
+        assert(success);
       }
 	}
   }
@@ -31,7 +35,9 @@ public:
 #pragma HLS PIPELINE II = 1 enable_flush
       if (i < memory.getEntries(bx)) {
         DataType dout = memory.read_mem(bx, i);
-        sdataout << dout;
+        //sdataout << dout;
+        bool success = sdataout.write_nb(dout);
+        assert(success);
       }
     }
   }

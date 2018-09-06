@@ -23,6 +23,8 @@ public:
 	}
   }
 
+  void clear(ap_uint<3> bx) {nentries_[bx%NBX] = 0;}
+
   unsigned int getDepth() const {return DEPTH;}
   unsigned int getnBX() const {return NBX;}
   
@@ -32,6 +34,7 @@ public:
   
   DataType read_mem(ap_uint<3> ibx, unsigned int index) const // to be optimized
   {
+	// TODO: check if valid
 	return dataarray_[ibx%NBX][index];
   }
 
@@ -50,6 +53,7 @@ public:
   bool write_mem(ap_uint<3> bx, const char* datastr, int base = 16)
   {
 	DataType data(datastr, base);
+	std::cout << "write_mem " << data << std::endl;
 	return write_mem(bx, data);
   }
 

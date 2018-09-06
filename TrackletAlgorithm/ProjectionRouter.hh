@@ -78,6 +78,14 @@ public:
 	//iAP_ = 0;
 	//iVMP_[0] = 0; iVMP_[1] = 0; iVMP_[2] = 0; iVMP_[3] = 0;
 
+	// reset
+  RESET_OUTMEM: for (int iout = 0; iout < 4; ++iout) {
+#pragma HLS unroll
+	  vmprojs[iout]->clear(bx);
+	}
+
+	allproj->clear(bx);
+	
 	// logic for reading inputs
 	// check the number of entries in the input memories
 	ap_uint<nTProjMem> mem_hasdata = 0;
