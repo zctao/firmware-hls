@@ -1,8 +1,9 @@
 #ifndef STREAMER_HH
 #define STREAMER_HH
 
-#include "hls_stream.h"
+#include <assert.h>
 
+#include "hls_stream.h"
 #include "Constants.hh"
 
 class Streamer

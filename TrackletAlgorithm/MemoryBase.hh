@@ -9,7 +9,7 @@ public:
   
   MemoryBase()
   {
-#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=1
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete
 	clear();
   }
 

@@ -11,8 +11,6 @@
 
 #include <assert.h>
 
-const int nTProjMem = 8;  // FIXME
-
 class ProjectionRouter //: public ProcessBase<nMaxProc>
 {
 public:
@@ -22,87 +20,81 @@ public:
 	  //#pragma HLS ARRAY_PARTITION variable=iVMP_ complete dim=1
 	  //bx_ = 0;
 	}
-	/*
-  ProjectionRouter(
-		  // inputs
-		  TProj* tprojin[nTProjMem],
-		  //unsigned int numberin[nTProjMem],
-		  // outputs
-		  AllProj* allprojout,
-		  VMProj* vmprojout[4]
-  ){
-	  //std::cout << "constructor" << std::endl;
-	  // connect input & output memories
-	  inputproj1_ = tprojin[0];
-	  inputproj2_ = tprojin[1];
-	  inputproj3_ = tprojin[2];
-	  inputproj4_ = tprojin[3];
-	  inputproj5_ = tprojin[4];
-	  inputproj6_ = tprojin[5];
-	  inputproj7_ = tprojin[6];
-	  inputproj8_ = tprojin[7];
 
-	  //numbersin_ = numberin;
-	  //for (int i=0; i<nTProjMem; i++) {
-//#pragma HLS unroll
-	//	  numbersin_[i] = numberin[i];
-	  //}
-
-	  allproj_ = allprojout;
-	  vmprojphi1_ = vmprojout[0];
-	  vmprojphi2_ = vmprojout[1];
-	  vmprojphi3_ = vmprojout[2];
-	  vmprojphi4_ = vmprojout[3];
-
-	  // initialize counters
-	  iAP_ = 0;
-
-	  for (int i=0; i<4; ++i) {  // FIXME?
-#pragma HLS unroll
-		  std::cout << "i = " << i << std::endl;
-		  iVMP_[i] = 0;
-	  }
-	  //std::cout << "end of constructor" << std::endl;
-  }
-*/
   ~ProjectionRouter(){}
 
   // called for every event
   void process(ap_uint<3> bx,
-			   TrackletProjections* tprojs[nTProjMem],
+			   TrackletProjections *const tproj1,
+			   TrackletProjections *const tproj2,
+			   TrackletProjections *const tproj3,
+			   TrackletProjections *const tproj4,
+			   TrackletProjections *const tproj5,
+			   TrackletProjections *const tproj6,
+			   TrackletProjections *const tproj7,
+			   TrackletProjections *const tproj8,
 			   ap_uint<3>& bx_o,
-			   AllProjections* allproj,
-			   VMProjections* vmprojs[4])
+			   AllProjections *const allproj,
+			   VMProjections *const vmproj1,
+			   VMProjections *const vmproj2,
+			   VMProjections *const vmproj3,
+			   VMProjections *const vmproj4
+  )
   {
-	//
-	//iAP_ = 0;
-	//iVMP_[0] = 0; iVMP_[1] = 0; iVMP_[2] = 0; iVMP_[3] = 0;
-
 	// reset
-  RESET_OUTMEM: for (int iout = 0; iout < 4; ++iout) {
-#pragma HLS unroll
-	  vmprojs[iout]->clear(bx);
-	}
-
-	allproj->clear(bx);
+	allproj->clear();
+	vmproj1->clear();
+	vmproj2->clear();
+	vmproj3->clear();
+	vmproj4->clear();
 	
 	// logic for reading inputs
 	// check the number of entries in the input memories
-	ap_uint<nTProjMem> mem_hasdata = 0;
-	ap_uint<kNBits_MemAddr> numbersin[nTProjMem];
+	ap_uint<8> mem_hasdata = 0;
+	ap_uint<kNBits_MemAddr> numbersin[8] = {0,0,0,0,0,0,0,0};
 #pragma HLS ARRAY_PARTITION variable=numbersin complete
 	
-  HASDATA_LOOP: for (int imem = 0; imem < nTProjMem; ++imem) {
-#pragma HLS unroll
-	  
-	  ap_uint<kNBits_MemAddr> numin = 0;
-	  if (tprojs[imem])
-		numin = tprojs[imem]->getEntries(bx);
-	  numbersin[imem] = numin;
-	  
-	  if (numin > 0) mem_hasdata += (1<<imem);
+	if (tproj1) {
+		ap_uint<kNBits_MemAddr> num1 = tproj1->getEntries(bx);
+		numbersin[0] = num1;
+		if (num1 > 0) mem_hasdata += (1<<0);
 	}
-	
+	if (tproj2) {
+		ap_uint<kNBits_MemAddr> num2 = tproj2->getEntries(bx);
+		numbersin[1] = num2;
+		if (num2 > 0) mem_hasdata += (1<<1);
+	}
+	if (tproj3) {
+		ap_uint<kNBits_MemAddr> num3 = tproj3->getEntries(bx);
+		numbersin[2] = num3;
+		if (num3 > 0) mem_hasdata += (1<<2);
+	}
+	if (tproj4) {
+		ap_uint<kNBits_MemAddr> num4 = tproj4->getEntries(bx);
+		numbersin[3] = num4;
+		if (num4 > 0) mem_hasdata += (1<<3);
+	}
+	if (tproj5) {
+		ap_uint<kNBits_MemAddr> num5 = tproj5->getEntries(bx);
+		numbersin[4] = num5;
+		if (num5 > 0) mem_hasdata += (1<<4);
+	}
+	if (tproj6) {
+		ap_uint<kNBits_MemAddr> num6 = tproj6->getEntries(bx);
+		numbersin[5] = num6;
+		if (num6 > 0) mem_hasdata += (1<<5);
+	}
+	if (tproj7) {
+		ap_uint<kNBits_MemAddr> num7 = tproj7->getEntries(bx);
+		numbersin[6] = num7;
+		if (num7 > 0) mem_hasdata += (1<<6);
+	}
+	if (tproj8) {
+		ap_uint<kNBits_MemAddr> num8 = tproj8->getEntries(bx);
+		numbersin[7] = num8;
+		if (num8 > 0) mem_hasdata += (1<<7);
+	}
+
 // FIXME: nbits for imem depends on nTProjMem. Hard coded 3 here for nTProjMem=8
 	ap_uint<3> imem = 0;
 	ap_uint<kNBits_MemAddr> addr_next = 0;
@@ -115,7 +107,37 @@ public:
 
 	  if (not validin) continue;
 
-	  TProj tproj = tprojs[imem]->read_mem(bx, addr);
+	  // read input memories
+	  TProj tproj = 0;
+
+	  switch (imem)
+	  {
+	  case 0:
+	  	  tproj = tproj1->read_mem(bx, addr);
+	  	  break;
+	  case 1:
+		  tproj = tproj2->read_mem(bx, addr);
+		  break;
+	  case 2:
+		  tproj = tproj3->read_mem(bx, addr);
+		  break;
+	  case 3:
+	  	  tproj = tproj4->read_mem(bx, addr);
+	  	  break;
+	  case 4:
+		  tproj = tproj5->read_mem(bx, addr);
+		  break;
+	  case 5:
+	  	  tproj = tproj6->read_mem(bx, addr);
+	  	  break;
+	  case 6:
+	  	  tproj = tproj7->read_mem(bx, addr);
+	  	  break;
+	  case 7:
+	  	  tproj = tproj8->read_mem(bx, addr);
+	  	  break;
+	  }
+
 	  //std::cout << "tproj " << std::hex << tproj << std::endl;
 
 	  TProjPHI iphiproj = TrackletProjections::get_phi(tproj);
@@ -166,100 +188,26 @@ public:
 	  allproj->write_mem(bx, aproj);
 
 	  assert(iphi>=0 and iphi<4);
-	  vmprojs[iphi]->write_mem(bx, vmproj);
+	  switch(iphi) {
+	  case 0:
+		  vmproj1->write_mem(bx, vmproj);
+		  break;
+	  case 1:
+		  vmproj2->write_mem(bx, vmproj);
+		  break;
+	  case 2:
+		  vmproj3->write_mem(bx, vmproj);
+		  break;
+	  case 3:
+		  vmproj4->write_mem(bx, vmproj);
+		  break;
+	  }
 
 	  bx_o = bx;
 	  
 	} // PROC_LOOP
 	
   } // process
-
-  /* 
-  //void execute(ap_uint<NBits_MemAddr> numbersin[nTProjMem])
-  void execute(TProj* tprojin[nTProjMem], ap_uint<kNBits_MemAddr> numbersin[nTProjMem],
-		  	  AllProj* allprojout, VMProj* vmprojout[4])
-  {
-	  //std::cout << "execute" << std::endl;
-
-	  std::cout << "bx " << bx_ << std::endl;
-
-	  // initialization
-	  iAP_ = 0;
-
-	  for (int i=0; i<4; ++i) {  // FIXME?
-#pragma HLS unroll
-		  iVMP_[i] = 0;
-	  }
-
-	  // check which input memories are not empty
-	  //bool mem_hasdata_arr[nTProjMem];
-	  ap_uint<nTProjMem> mem_hasdata = 0;
-	  HASDATA_LOOP: for (int imem = 0; imem < nTProjMem; ++imem) {
-#pragma HLS unroll
-		  if (numbersin[imem] > 0) {
-			  //mem_hasdata_arr[imem] = 1;
-			  mem_hasdata += (1<<imem);
-		  }
-		  //else {
-			  //mem_hasdata_arr[imem] = 0;
-		  //}
-	  }
-
-	  // FIXME: nbits for imem depends on nTProjMem. Hard coded 3 here for nTProjMem=8
-	  ap_uint<3> imem = 0;
-	  ap_uint<kNBits_MemAddr> addr_next = 0;
-	  PROC_LOOP: for (int i = 0; i < kMaxProc; ++i) {
-#pragma HLS PIPELINE II=1
-		  // read inputs
-
-		  // TODO
-		  // top bit of read address depends on bx
-		  //ap_uint<NBits_MemAddr> addr = addr_next + (bx_,ap_uint<NBits_MemAddr-1>(0));
-
-		  ap_uint<kNBits_MemAddr> addr = addr_next;
-		  bool validin = get_mem_read_addr<3, kNBits_MemAddr>(imem, addr_next, mem_hasdata, numbersin);
-
-		  if (not validin) continue;
-
-		  //TProj tproj = read_mem<NBits_MemAddr>(imem, addr);
-		  TProj tproj = *(tprojin[imem]+addr);
-		  //std::cout << "tproj " << tproj << std::endl;
-
-		  TProjPHI iphiproj = TrackletProjections::get_phi(tproj);
-		  TProjZ izproj = TrackletProjections::get_z(tproj);
-		  TProjPHIDER iphider = TrackletProjections::get_phider(tproj);
-
-		  // routing
-		  ap_uint<5> iphi5 = iphiproj>>(iphiproj.length()-5);  // top 5 bits of phi
-
-		  // inner barrel non-hourglass for now
-		  assert(iphi5>=4 and iphi5<=27);
-		  ap_uint<2> iphi = ((iphi5-4)>>1)&3;
-		  assert(iphi>=0 and iphi<=3);
-
-		  VMProj vmproj = compute_vmproj(tproj);
-
-		  // FIXME?
-		  AllProj aproj = tproj;
-
-		  // write outputs
-		  //*(allproj_+i) = aproj;
-		  *(allprojout+iAP_++) = aproj;
-
-		  //std::cout << "iphi: " << iphi << std::endl;
-		  assert(iphi>=0 and iphi<4);
-
-		  *(vmprojout[iphi]+iVMP_[iphi]++) = vmproj;
-
-		  //*(vmprojphi_[iphi]+iVMP_[iphi]++) = vmproj;
-
-	  } // PROC_LOOP
-
-	  // next bunch crossing
-	  ++bx_;
-
-  } // execute()
-  */
   
   // move this to ProcessBase class?
   template<int nbits_nMEM, int nbits_MemAddr>
@@ -280,36 +228,6 @@ public:
 
 	  return true;
   }
-/*
-  template<int nbits_MemAddr>
-  TProj read_mem(ap_uint<3> imem, ap_uint<nbits_MemAddr> addr)
-  {
-	  //return *(inputproj_[imem]+addr);
-	  //return inputproj_[imem][addr];
-
-	  switch (imem)
-	  {
-	  case 0:
-		  return *(inputproj1_+addr);
-	  case 1:
-		  return *(inputproj2_+addr);
-	  case 2:
-		  return *(inputproj3_+addr);
-	  case 3:
-	  	  return *(inputproj4_+addr);
-	  case 4:
-		  return *(inputproj5_+addr);
-	  case 5:
-		  return *(inputproj6_+addr);
-	  case 6:
-		  return *(inputproj7_+addr);
-	  case 7:
-		  return *(inputproj8_+addr);
-	  default:
-		  return *(inputproj1_+addr);
-	  }
-  }
-*/
   
 private:
 

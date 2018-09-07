@@ -159,22 +159,15 @@ int main()
 
 		ap_uint<3> ibx = ievt;
 		ap_uint<3> obx;
-		
-		hls::stream<TProj>* inprojs[6] = {
-			inputtproj1+ievt, inputtproj2+ievt, inputtproj3+ievt,
-			inputtproj4+ievt, inputtproj5+ievt, inputtproj6+ievt
-		};
 
-		hls::stream<VMProj>* outvmprojs[4] = {
-			outputvmproj9+ievt, outputvmproj10+ievt,
-			outputvmproj11+ievt, outputvmproj12+ievt
-		};
-		
 		// Unit Under Test
 		// PR_L3L4_L1PHI3
-		TrackletProcessing(ibx, inprojs,
-						   obx, outputallproj+ievt, outvmprojs);
-
+		TrackletProcessing(ibx, inputtproj1[ievt], inputtproj2[ievt], inputtproj3[ievt],
+						inputtproj4[ievt], inputtproj5[ievt], inputtproj6[ievt],
+						obx, outputallproj[ievt],
+						outputvmproj9[ievt], outputvmproj10[ievt],
+						outputvmproj11[ievt], outputvmproj12[ievt]
+				);
 	}  // end of event loop
 
 	/////////////////////////////////////
