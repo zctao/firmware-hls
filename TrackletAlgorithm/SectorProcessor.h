@@ -5,7 +5,7 @@
 #include "Streamer.hh"
 #include "ProjectionRouter.hh"
 
-void TrackletProcessing(ap_uint<3>,
+void SectorProcessor(ap_uint<3>,
 						hls::stream<TProj>&, hls::stream<TProj>&, hls::stream<TProj>&,
 						hls::stream<TProj>&, hls::stream<TProj>&, hls::stream<TProj>&,
 						ap_uint<3>,

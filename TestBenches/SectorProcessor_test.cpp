@@ -1,5 +1,5 @@
 // test bench
-#include "TrackletProcessing.h"
+#include "SectorProcessor.h"
 
 #include <iostream>
 #include <fstream>
@@ -162,7 +162,7 @@ int main()
 
 		// Unit Under Test
 		// PR_L3L4_L1PHI3
-		TrackletProcessing(ibx, inputtproj1[ievt], inputtproj2[ievt], inputtproj3[ievt],
+		SectorProcessor(ibx, inputtproj1[ievt], inputtproj2[ievt], inputtproj3[ievt],
 						inputtproj4[ievt], inputtproj5[ievt], inputtproj6[ievt],
 						obx, outputallproj[ievt],
 						outputvmproj9[ievt], outputvmproj10[ievt],

@@ -19,7 +19,7 @@ public:
   {
 	for (ap_uint<3> ibx=0; ibx<NBX; ++ibx) {
 #pragma HLS UNROLL
-	  nentries_[ibx] = 0;
+	  nentries_[ibx%NBX] = 0;
 	}
   }
 
@@ -92,9 +92,6 @@ public:
 #endif
 
 protected:
-
-  //const ap_uint<3> nBX_; // number of BXs the memory module keeps track of
-  //const unsigned int Depth_; // depth of memory block per BX
   
   DataType dataarray_[NBX][DEPTH];
   unsigned int nentries_[NBX]; 

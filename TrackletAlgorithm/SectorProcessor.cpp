@@ -1,6 +1,6 @@
-#include "TrackletProcessing.h"
+#include "SectorProcessor.h"
 
-void TrackletProcessing
+void SectorProcessor
 (// inputs
  ap_uint<3> bx_in,
  hls::stream<TProj>& input_stream1,
