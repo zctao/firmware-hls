@@ -15,6 +15,6 @@ create_clock -period 4 -name default
 #csim_design -compiler gcc
 #csynth_design
 #cosim_design
-#export_design -rtl verilog -format ip_catalog
+#export_design -rtl verilog -format syn_dcp
 
 #exit
