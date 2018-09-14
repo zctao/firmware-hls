@@ -18,7 +18,6 @@ void SectorProcessor
  hls::stream<VMProj>& output2_stream4
 )
 {
-  
   // Memory modules
   static TrackletProjections TPROJ_L3L4C_L1PHI3;
   static TrackletProjections TPROJ_L3L4D_L1PHI3;
@@ -61,13 +60,13 @@ void SectorProcessor
   
   // Stream out memories
   static Streamer outstreamer_allproj;
-  outstreamer_allproj.mem2stream(bx_out, AP_L3L4_L1PHI3, output_stream);
-
   static Streamer outstreamer_vmproj1, outstreamer_vmproj2;
   static Streamer outstreamer_vmproj3, outstreamer_vmproj4;
+
+  outstreamer_allproj.mem2stream(bx_out, AP_L3L4_L1PHI3, output_stream);
+  
   outstreamer_vmproj1.mem2stream(bx_out, VMPROJ_L3L4_L1PHI9, output2_stream1);
   outstreamer_vmproj2.mem2stream(bx_out, VMPROJ_L3L4_L1PHI10, output2_stream2);
   outstreamer_vmproj3.mem2stream(bx_out, VMPROJ_L3L4_L1PHI11, output2_stream3);
   outstreamer_vmproj4.mem2stream(bx_out, VMPROJ_L3L4_L1PHI12, output2_stream4);
-  
 }

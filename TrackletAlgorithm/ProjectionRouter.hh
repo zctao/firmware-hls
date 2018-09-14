@@ -41,6 +41,8 @@ public:
 			   VMProjections *const vmproj4
   )
   {
+#pragma HLS inline off
+	
 	// reset
 	allproj->clear();
 	vmproj1->clear();
@@ -185,8 +187,6 @@ public:
 	  AllProj aproj = tproj;
 
 	  // write outputs
-	  allproj->write_mem(bx, aproj);
-
 	  assert(iphi>=0 and iphi<4);
 	  switch(iphi) {
 	  case 0:
@@ -203,6 +203,8 @@ public:
 		  break;
 	  }
 
+	  allproj->write_mem(bx, aproj);
+	  
 	  bx_o = bx;
 	  
 	} // PROC_LOOP

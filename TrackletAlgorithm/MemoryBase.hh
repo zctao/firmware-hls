@@ -17,7 +17,7 @@ public:
 
   void clear()
   {
-	for (ap_uint<3> ibx=0; ibx<NBX; ++ibx) {
+  MEM_RST: for (ap_uint<3> ibx=0; ibx<NBX; ++ibx) {
 #pragma HLS UNROLL
 	  nentries_[ibx%NBX] = 0;
 	}
