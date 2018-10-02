@@ -63,7 +63,7 @@ public:
   // print memory contents
   virtual void print_data(const DataType data) const
   {
-	std::cout << std::hex << data << std::endl;
+	std::cout << std::hex << data.raw() << std::endl;
   }
 
   void print_entry(ap_uint<3> bx, unsigned int i) const

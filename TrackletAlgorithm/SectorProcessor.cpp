@@ -3,35 +3,35 @@
 void SectorProcessor
 (// inputs
  ap_uint<3> bx_in,
- hls::stream<TProj>& input_stream1,
- hls::stream<TProj>& input_stream2,
- hls::stream<TProj>& input_stream3,
- hls::stream<TProj>& input_stream4,
- hls::stream<TProj>& input_stream5,
- hls::stream<TProj>& input_stream6,
+ hls::stream<TProjData>& input_stream1,
+ hls::stream<TProjData>& input_stream2,
+ hls::stream<TProjData>& input_stream3,
+ hls::stream<TProjData>& input_stream4,
+ hls::stream<TProjData>& input_stream5,
+ hls::stream<TProjData>& input_stream6,
  // outputs
  ap_uint<3> bx_out,
- hls::stream<AllProj>& output_stream,
- hls::stream<VMProj>& output2_stream1,
- hls::stream<VMProj>& output2_stream2,
- hls::stream<VMProj>& output2_stream3,
- hls::stream<VMProj>& output2_stream4
+ hls::stream<AllProjData>& output_stream,
+ hls::stream<VMProjData>& output2_stream1,
+ hls::stream<VMProjData>& output2_stream2,
+ hls::stream<VMProjData>& output2_stream3,
+ hls::stream<VMProjData>& output2_stream4
 )
 {
   // Memory modules
-  static TrackletProjections TPROJ_L3L4C_L1PHI3;
-  static TrackletProjections TPROJ_L3L4D_L1PHI3;
-  static TrackletProjections TPROJ_L3L4E_L1PHI3;
-  static TrackletProjections TPROJ_L3L4F_L1PHI3;
-  static TrackletProjections TPROJ_D1L2B_L1PHI3;
-  static TrackletProjections TPROJ_L3L4_L1PHI3FromPlus;
+  static TrackletProjectionMemory TPROJ_L3L4C_L1PHI3;
+  static TrackletProjectionMemory TPROJ_L3L4D_L1PHI3;
+  static TrackletProjectionMemory TPROJ_L3L4E_L1PHI3;
+  static TrackletProjectionMemory TPROJ_L3L4F_L1PHI3;
+  static TrackletProjectionMemory TPROJ_D1L2B_L1PHI3;
+  static TrackletProjectionMemory TPROJ_L3L4_L1PHI3FromPlus;
 
-  static AllProjections AP_L3L4_L1PHI3;
+  static AllProjectionMemory AP_L3L4_L1PHI3;
 
-  static VMProjections VMPROJ_L3L4_L1PHI9;
-  static VMProjections VMPROJ_L3L4_L1PHI10;
-  static VMProjections VMPROJ_L3L4_L1PHI11;
-  static VMProjections VMPROJ_L3L4_L1PHI12;
+  static VMProjectionMemory VMPROJ_L3L4_L1PHI9;
+  static VMProjectionMemory VMPROJ_L3L4_L1PHI10;
+  static VMProjectionMemory VMPROJ_L3L4_L1PHI11;
+  static VMProjectionMemory VMPROJ_L3L4_L1PHI12;
 
   // Fill memories from input stream
   static Streamer instreamer1, instreamer2, instreamer3, instreamer4;

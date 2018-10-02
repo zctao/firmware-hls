@@ -25,20 +25,20 @@ public:
 
   // called for every event
   void process(ap_uint<3> bx,
-			   TrackletProjections *const tproj1,
-			   TrackletProjections *const tproj2,
-			   TrackletProjections *const tproj3,
-			   TrackletProjections *const tproj4,
-			   TrackletProjections *const tproj5,
-			   TrackletProjections *const tproj6,
-			   TrackletProjections *const tproj7,
-			   TrackletProjections *const tproj8,
+			   TrackletProjectionMemory *const tproj1,
+			   TrackletProjectionMemory *const tproj2,
+			   TrackletProjectionMemory *const tproj3,
+			   TrackletProjectionMemory *const tproj4,
+			   TrackletProjectionMemory *const tproj5,
+			   TrackletProjectionMemory *const tproj6,
+			   TrackletProjectionMemory *const tproj7,
+			   TrackletProjectionMemory *const tproj8,
 			   ap_uint<3>& bx_o,
-			   AllProjections *const allproj,
-			   VMProjections *const vmproj1,
-			   VMProjections *const vmproj2,
-			   VMProjections *const vmproj3,
-			   VMProjections *const vmproj4
+			   AllProjectionMemory *const allproj,
+			   VMProjectionMemory *const vmproj1,
+			   VMProjectionMemory *const vmproj2,
+			   VMProjectionMemory *const vmproj3,
+			   VMProjectionMemory *const vmproj4
   )
   {
 #pragma HLS inline off
@@ -110,7 +110,7 @@ public:
 	  if (not validin) continue;
 
 	  // read input memories
-	  TProj tproj = 0;
+	  TrackletProjection tproj;
 
 	  switch (imem)
 	  {
@@ -140,11 +140,11 @@ public:
 	  	  break;
 	  }
 
-	  //std::cout << "tproj " << std::hex << tproj << std::endl;
+	  //std::cout << "tproj " << std::hex << tproj.raw() << std::endl;
 
-	  TProjPHI iphiproj = TrackletProjections::get_phi(tproj);
-	  TProjZ izproj = TrackletProjections::get_z(tproj);
-	  TProjPHIDER iphider = TrackletProjections::get_phider(tproj);
+	  TProjPHI iphiproj = tproj.GetPhi();
+	  TProjZ izproj = tproj.GetZ();
+	  TProjPHIDER iphider = tproj.GetPhiDer();
 
 	  // routing
 	  ap_uint<5> iphi5 = iphiproj>>(iphiproj.length()-5);  // top 5 bits of phi
@@ -179,12 +179,11 @@ public:
 	  
 	  // PS seed
 	  bool psseed = false;  // FIXME
-	  
-	  // Concatenation
-	  VMProj vmproj = ((((index, zbin), finez), rinv), psseed);
-	  
-	  // FIXME?
-	  AllProj aproj = tproj;
+
+	  // VM Projection
+	  VMProjection vmproj(index, zbin, finez, rinv, psseed);
+
+	  AllProjection aproj(tproj.raw());
 
 	  // write outputs
 	  assert(iphi>=0 and iphi<4);

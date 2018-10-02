@@ -9,20 +9,93 @@ typedef ap_uint<14> AProjPHI;
 typedef ap_int<12> AProjZ;
 typedef ap_int<11> AProjPHIDER;
 typedef ap_int<10> AProjZDER;
-typedef ap_uint<1+1+13+14+12+11+10> AllProj;
+
+typedef ap_uint<1+1+13+14+12+11+10> AllProjData;
+
+// Data definition
+class AllProjection
+{
+private:
+  AllProjData data_;
+
+public:
+  AllProjection(AllProjData newdata):
+    data_(newdata)
+  {}
+
+  AllProjection(bool plusneighbor, bool minusneighbor, AProjTCID tcid,
+                AProjPHI phi, AProjZ z, AProjPHIDER phider, AProjZDER zder):
+    data_(((((((plusneighbor,minusneighbor),tcid),phi),z),phider),zder))
+  {}
+  
+  AllProjection():
+    data_(0)
+  {}
+
+  AllProjection(const char* datastr, int base = 16)
+  {
+    AllProjData newdata(datastr, base);
+    data_ = newdata;
+  }
+  
+  // copy constructor
+  AllProjection(const AllProjection& rhs):
+    data_(rhs.raw())
+  {}
+
+  AllProjData raw() const {return data_;}
+
+  // Getter
+  bool IsPlusNeighbor() const {return data_.range(61,61);}
+  bool IsMinusNeighbor() const {return data_.range(60,60);}
+  AProjTCID GetTrackletIndex() const {return data_.range(59,47);}
+  AProjPHI GetPhi() const {return data_.range(46,33);}
+  AProjZ GetZ() const {return data_.range(32,21);}
+  AProjPHIDER GetPhiDer() {return data_.range(20,10);}
+  AProjZDER GetZDer() {return data_.range(9,0);}
+
+  // Setter
+  void SetIsPlusNeighbor(bool isplusneighbor)
+  {
+    data_.range(61,61) = isplusneighbor;
+  }
+
+  void SetIsMinusNeighbor(bool isminusneighbor)
+  {
+    data_.range(60,60) = isminusneighbor;
+  }
+
+  void SetTrackletIndex(AProjTCID id)
+  {
+    data_.range(59,47) = id;
+  }
+
+  void SetPhi(AProjPHI phi)
+  {
+    data_.range(46,33) = phi;
+  }
+
+  void SetZ(AProjZ z)
+  {
+    data_.range(32,21) = z;
+  }
+
+  void SetPhiDer(AProjPHIDER phider)
+  {
+    data_.range(20,10) = phider;
+  }
+
+  void SetZDer(AProjZDER zder)
+  {
+    data_.range(9,0) = zder;
+  }
+  
+};
+
+// Memory definition
+typedef MemoryBase<AllProjection, 2, kMemDepth> AllProjectionMemory;
 
 /*
-struct AllProjData {
-  bool        plusNeighbor;
-  bool        minusNeighbor;
-  AProjTCID   tracklet_index;
-  AProjPHI    phi;
-  AProjZ      z;
-  AProjPHIDER phider;
-  AProjZDER   zder;
-};
-*/
-
 //template<unsigned int bx=2, unsigned int memdepth=kMemDepth>
 class AllProjections: public MemoryBase<AllProj, 2, kMemDepth>
 {
@@ -37,49 +110,7 @@ public:
   static AProjPHIDER get_phider(const AllProj data)      {return data.range(20,10);}
   static AProjZDER get_zder(const AllProj data)          {return data.range(9,0);}
 
-  /*
-  // overload base class add_mem()
-  using MemoryBase<AllProjData, MemDepth>::add_mem;
-  // add memory from data string
-  bool add_mem(const char* datastr, int base = 16)
-  {
-	  AllProj data(datastr, base);
-	  // convert to struct
-	  AllProjData aproj = {
-			  data.range(61,61), // plusNeighbor
-			  data.range(60,60), // minusNeighbor
-			  data.range(59,47), // TCID
-			  data.range(46,33), // phi
-			  data.range(32,21), // z
-			  data.range(20,10), // phider
-			  data.range(9,0)    // zder
-	  };
-
-	  return add_mem(aproj);
-  }
-*/
-
-#ifndef __SYNTHESIS__
-#include <iostream>
-  /*
-  // print memory contents
-  void print_data(const AllProjData& aprojdata) const
-  {
-	  AllProj aproj =
-			  (aprojdata.plusNeighbor,
-			  (aprojdata.minusNeighbor,
-					  (aprojdata.tracklet_index,
-							  (aprojdata.phi,
-									  (aprojdata.z,
-											  (aprojdata.phider,aprojdata.zder)
-			)))));
-
-	  std::cout << std::hex << aproj << std::endl;
-  }
-*/
-
-#endif
-
 };
+*/
 
 #endif

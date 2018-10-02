@@ -41,7 +41,7 @@ public:
   M2S_LOOP: for (int i = 0; i < kMaxProc; ++i) {
 #pragma HLS PIPELINE II = 1
       if (i < mem_entries) {
-        DataType dout = memory.read_mem(bx, i);
+        DataType dout = memory.read_mem(bx, i).raw();
         //sdataout << dout;
         bool success = sdataout.write_nb(dout);
         assert(success);

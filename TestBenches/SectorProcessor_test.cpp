@@ -126,30 +126,30 @@ int main()
 {
 	/////////////////////////////////////
 	// Containers for inputs
-	hls::stream<TProj> inputtproj1[nevents];
-	hls::stream<TProj> inputtproj2[nevents];
-	hls::stream<TProj> inputtproj3[nevents];
-	hls::stream<TProj> inputtproj4[nevents];
-	hls::stream<TProj> inputtproj5[nevents];
-	hls::stream<TProj> inputtproj6[nevents];
+	hls::stream<TProjData> inputtproj1[nevents];
+	hls::stream<TProjData> inputtproj2[nevents];
+	hls::stream<TProjData> inputtproj3[nevents];
+	hls::stream<TProjData> inputtproj4[nevents];
+	hls::stream<TProjData> inputtproj5[nevents];
+	hls::stream<TProjData> inputtproj6[nevents];
 	
 	// Inputs
 	cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
 	cout << "Read input files and fill input streams" << endl;
-	fillStreamFromFile<TProj>(inputtproj1, "emData_PR/TrackletProjections_TPROJ_L3L4C_L1PHI3_04.dat");
-	fillStreamFromFile<TProj>(inputtproj2, "emData_PR/TrackletProjections_TPROJ_L3L4D_L1PHI3_04.dat");
-	fillStreamFromFile<TProj>(inputtproj3, "emData_PR/TrackletProjections_TPROJ_L3L4E_L1PHI3_04.dat");
-	fillStreamFromFile<TProj>(inputtproj4, "emData_PR/TrackletProjections_TPROJ_L3L4F_L1PHI3_04.dat");
-	fillStreamFromFile<TProj>(inputtproj5, "emData_PR/TrackletProjections_TPROJ_D1L2B_L1PHI3_04.dat");
-	fillStreamFromFile<TProj>(inputtproj6, "emData_PR/TrackletProjections_TPROJ_L3L4_L1PHI3FromPlus_04.dat");
+	fillStreamFromFile<TProjData>(inputtproj1, "emData_PR/TrackletProjections_TPROJ_L3L4C_L1PHI3_04.dat");
+	fillStreamFromFile<TProjData>(inputtproj2, "emData_PR/TrackletProjections_TPROJ_L3L4D_L1PHI3_04.dat");
+	fillStreamFromFile<TProjData>(inputtproj3, "emData_PR/TrackletProjections_TPROJ_L3L4E_L1PHI3_04.dat");
+	fillStreamFromFile<TProjData>(inputtproj4, "emData_PR/TrackletProjections_TPROJ_L3L4F_L1PHI3_04.dat");
+	fillStreamFromFile<TProjData>(inputtproj5, "emData_PR/TrackletProjections_TPROJ_D1L2B_L1PHI3_04.dat");
+	fillStreamFromFile<TProjData>(inputtproj6, "emData_PR/TrackletProjections_TPROJ_L3L4_L1PHI3FromPlus_04.dat");
 
 	/////////////////////////////////////
 	// Containers for outputs
-	hls::stream<AllProj> outputallproj[nevents];
-	hls::stream<VMProj> outputvmproj9[nevents];
-	hls::stream<VMProj> outputvmproj10[nevents];
-	hls::stream<VMProj> outputvmproj11[nevents];
-	hls::stream<VMProj> outputvmproj12[nevents];
+	hls::stream<AllProjData> outputallproj[nevents];
+	hls::stream<VMProjData> outputvmproj9[nevents];
+	hls::stream<VMProjData> outputvmproj10[nevents];
+	hls::stream<VMProjData> outputvmproj11[nevents];
+	hls::stream<VMProjData> outputvmproj12[nevents];
 
 	/////////////////////////////////////
 	// Loop over events
@@ -178,19 +178,19 @@ int main()
 	int err_count = 0;
 	
     cout << "allprojections: " << endl;
-	err_count += compareStreamWithFile<AllProj>(outputallproj, "emData_PR/AllProj_AP_L3L4_L1PHI3_04.dat");
+	err_count += compareStreamWithFile<AllProjData>(outputallproj, "emData_PR/AllProj_AP_L3L4_L1PHI3_04.dat");
 
 	cout << "vmproj9: " << endl;
-	err_count += compareStreamWithFile<VMProj>(outputvmproj9, "emData_PR/VMProjections_VMPROJ_L3L4_L1PHI9_04.dat");
+	err_count += compareStreamWithFile<VMProjData>(outputvmproj9, "emData_PR/VMProjections_VMPROJ_L3L4_L1PHI9_04.dat");
 
 	cout << "vmproj10: " << endl;
-	err_count += compareStreamWithFile<VMProj>(outputvmproj10, "emData_PR/VMProjections_VMPROJ_L3L4_L1PHI10_04.dat");
+	err_count += compareStreamWithFile<VMProjData>(outputvmproj10, "emData_PR/VMProjections_VMPROJ_L3L4_L1PHI10_04.dat");
 
 	cout << "vmproj11: " << endl;
-	err_count += compareStreamWithFile<VMProj>(outputvmproj11, "emData_PR/VMProjections_VMPROJ_L3L4_L1PHI11_04.dat");
+	err_count += compareStreamWithFile<VMProjData>(outputvmproj11, "emData_PR/VMProjections_VMPROJ_L3L4_L1PHI11_04.dat");
 
 	cout << "vmproj12: " << endl;
-	err_count += compareStreamWithFile<VMProj>(outputvmproj12, "emData_PR/VMProjections_VMPROJ_L3L4_L1PHI12_04.dat");
+	err_count += compareStreamWithFile<VMProjData>(outputvmproj12, "emData_PR/VMProjections_VMPROJ_L3L4_L1PHI12_04.dat");
 
 	return err_count;
 }

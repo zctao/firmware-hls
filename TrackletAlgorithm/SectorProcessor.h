@@ -6,9 +6,9 @@
 #include "ProjectionRouter.hh"
 
 void SectorProcessor(ap_uint<3>,
-						hls::stream<TProj>&, hls::stream<TProj>&, hls::stream<TProj>&,
-						hls::stream<TProj>&, hls::stream<TProj>&, hls::stream<TProj>&,
+						hls::stream<TProjData>&, hls::stream<TProjData>&, hls::stream<TProjData>&,
+						hls::stream<TProjData>&, hls::stream<TProjData>&, hls::stream<TProjData>&,
 						ap_uint<3>,
-						hls::stream<AllProj>&,
-						hls::stream<VMProj>&, hls::stream<VMProj>&,
-						hls::stream<VMProj>&, hls::stream<VMProj>&);
+						hls::stream<AllProjData>&,
+						hls::stream<VMProjData>&, hls::stream<VMProjData>&,
+						hls::stream<VMProjData>&, hls::stream<VMProjData>&);
