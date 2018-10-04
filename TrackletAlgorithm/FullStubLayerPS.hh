@@ -90,5 +90,8 @@ public:
     const int ptShift = 12+14+7;
     data_ = (data_ & maskPt ) | ( newPt.to_long() << ptShift);
   }
+  void clear() {
+	  data_ = 0;
+  }
 };
 
