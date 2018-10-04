@@ -22,17 +22,17 @@ template <class T>
 class VMRouter
 {
 private:
-  T (&stubsInLayer_)[MAX_nSTUBS];
-  T *allStubs_;
-  ReducedStubLayer (& rVMStubs_)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS];
-  ReducedIndex (& n_)[kNumZRegions][kNumPhiRegions]; // [z region][phi region]
+  const T *const stubsInLayer_;
+  T *const allStubs_;
+  ReducedStubLayer (* rVMStubs_)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS];
+  ReducedIndex (* n_)[kNumZRegions][kNumPhiRegions]; // [z region][phi region]
   const int Layer_;
 public:
   // constructor; just copy in the pointers to the input and output arrays
-  VMRouter(T (&stubsInLayer)[MAX_nSTUBS],
-           T *allStubs,
-           ReducedStubLayer (&rVMStubs)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS],
-	   ReducedIndex (&n)[kNumZRegions][kNumPhiRegions],
+  VMRouter(T stubsInLayer[MAX_nSTUBS],
+           T allStubs[MAX_nSTUBS],
+           ReducedStubLayer rVMStubs[kNumZRegions][kNumPhiRegions][MAX_nSTUBS],
+	   ReducedIndex n[kNumZRegions][kNumPhiRegions],
 	   int layer
 	   ):
     stubsInLayer_(stubsInLayer),
