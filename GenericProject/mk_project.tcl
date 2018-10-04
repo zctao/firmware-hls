@@ -40,7 +40,7 @@ csynth_design
 open_solution "solution2"
 
 set_directive_dataflow TopLevel
-config_dataflow -depth 64
+config_dataflow -fifo_depth 64
 
 set_part  $part 
 create_clock -period $clockperiod -name default
