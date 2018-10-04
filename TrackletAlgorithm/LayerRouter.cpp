@@ -1,12 +1,12 @@
 // Layer Router
 // [wittich 8/10/2017]
-#include "HLSConstants.hh"
+#include "Constants.hh"
 #include "ap_int.h"
-#include "HLSFullStubLayerPS.hh"
+#include "FullStubLayerPS.hh"
 
 void LayerRouter(
-		 HLSFullStubLayerPS StubIn[64],
-		 HLSFullStubLayerPS StubOut[6][64]
+		 FullStubLayerPS StubIn[64],
+		 FullStubLayerPS StubOut[6][64]
 		 //		HLSFullStubLayerPS *StubOut1,
 		 //		HLSFullStubLayerPS *StubOut2,
 		 //		HLSFullStubLayerPS *StubOut3,
@@ -21,7 +21,7 @@ void LayerRouter(
     numberL[5-i] = (header >> (i*6) ) & 0x3F;
   } // parse first word
         
-  HLSFullStubLayerPS *activeOut = StubOut[0];
+  FullStubLayerPS *activeOut = StubOut[0];
   int active = 0;
   int layerCnt = 0;
   STUBLOOP: for (int i = 1; i < MAX_nSTUBS-1; ++i ) { // note start at 1!!!!!
