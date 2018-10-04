@@ -6,6 +6,7 @@
 #include "FullStubLayerPS.hh"
 #include "FullStubLayer2S.hh"
 #include "Constants.hh"
+#include "ReducedStubLayer.hh"
 
 #ifndef __SYNTHESIS__
 #include <iostream>
@@ -14,8 +15,8 @@
 
 #include "ap_int.h"
 
-const int kNumZRegions=2;
-const int kNumPhiRegions=4;
+constexpr int kNumZRegions=2;
+constexpr int kNumPhiRegions=4;
 
 template <class T>
 class VMRouter
@@ -57,7 +58,7 @@ public:
         int routePhi;
         int routeZ;
 	T currStub(stubsInLayer_[i]); // single read
-#ifndef __SYNTHESIS
+#ifndef __SYNTHESIS__
 	std::cout << __func__ << ":" << __LINE__
 		  << "-> " << currStub << std::endl;
 #endif // SYNTHESIS
