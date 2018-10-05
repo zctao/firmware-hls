@@ -1,14 +1,10 @@
-#include "TrackletProjections.hh"
+#include "VMStubs.h"
 #include "VMProjections.hh"
-#include "AllProjections.hh"
+#include "HLSCandidateMatches.hh"
 
 #include "Streamer.hh"
-#include "ProjectionRouter.hh"
 
 void SectorProcessor(ap_uint<3>,
-						hls::stream<TProj>&, hls::stream<TProj>&, hls::stream<TProj>&,
-						hls::stream<TProj>&, hls::stream<TProj>&, hls::stream<TProj>&,
-						ap_uint<3>,
-						hls::stream<AllProj>&,
-						hls::stream<VMProj>&, hls::stream<VMProj>&,
-						hls::stream<VMProj>&, hls::stream<VMProj>&);
+		     hls::stream<VMStub>&, hls::stream<VMProj>&,
+		     ap_uint<3>,
+		     hls::stream<CandMatch>&);

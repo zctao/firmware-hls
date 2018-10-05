@@ -1,6 +1,6 @@
 // Base class for memory modules
-#ifndef MEMORYBASE_HH
-#define MEMORYBASE_HH
+#ifndef MEMORYBASEBINNED_HH
+#define MEMORYBASEBINNED_HH
 
 #include <sstream>
 #include <vector>
@@ -9,17 +9,16 @@ using namespace std;
 
 
 template <class DataType, unsigned int NBX, unsigned int DEPTH>
-class MemoryBase{
+class MemoryBaseBinned{
 public:
   
-  MemoryBase()
+  MemoryBaseBinned()
   {
 #pragma HLS ARRAY_PARTITION variable=nentries_ complete
 	clear();
   }
 
-  virtual ~MemoryBase(){}
-
+  virtual ~MemoryBaseBinned(){}
 
   vector<string> split(const string& s, char delimiter)
   {
@@ -57,28 +56,34 @@ public:
 	return dataarray_[ibx%NBX][index];
   }
 
-  bool write_mem(ap_uint<3> ibx, DataType data)
-  {
-	//assert(ibx < NBX);
-	
-	if (nentries_[ibx%NBX] <= DEPTH) {
-	  dataarray_[ibx%NBX][nentries_[ibx%NBX]++] = data;
-	  return true;
-	}
-	else
-	  return false;
+  bool write_mem(ap_uint<3> ibx, ap_uint<3> slot, DataType data) {
+    //assert(ibx < NBX);
+    
+    if (nentries_[ibx%NBX].range((slot+1)*4-1,slot*4) < DEPTH) {
+      ap_uint<32> increment=1;
+      dataarray_[ibx%NBX][16*slot+nentries_[ibx%NBX].range((slot+1)*4-1,slot*4)] = data;
+      //cout <<"nentries : "<<hex<<nentries_[ibx%NBX]<<" "<<nentries_[ibx%NBX].range((slot+1)*4-1,slot*4) <<dec<<endl;
+      increment<<=(slot*4);
+      nentries_[ibx%NBX]+=increment;
+      return true;
+    }
+    else {
+      std::cout << "Warning out of range"<<std::endl;
+      return false;
+    }
   }
   
-  bool write_mem_line(ap_uint<3> bx, const std::string& line, int base = 16)
-  {
+  bool write_mem_line(ap_uint<3> bx, const std::string& line, int base = 16) {
 
-    assert(split(line, ' ').size()==3);
+ 
+    assert(split(line, ' ').size()==4);
     string datastr = split(line, ' ').back();
 
+    int slot=atoi(split(line, ' ').front().c_str());
 
     DataType data(datastr.c_str(), base);
-    //std::cout << "write_mem " << data << std::endl;
-    return write_mem(bx, data);
+    //std::cout << "write_mem slot data : " << slot<<" "<<data << std::endl;
+    return write_mem(bx, slot, data);
   }
 
 #ifndef __SYNTHESIS__
@@ -97,19 +102,20 @@ public:
 
   void print_mem(ap_uint<3> bx) const
   {
-	for (int i = 0; i < nentries_[bx%NBX]; ++i) {
-	  std::cout << bx << " " << i << " ";
-	  print_entry(bx,i);
-	}
+    for(int slot=0;slot<8;slot++) {
+      //std::cout << "slot "<<slot<<" entries "
+      //		<<nentries_[bx%NBX].range((slot+1)*4-1,slot*4)<<endl;
+      for (int i = 0; i < nentries_[bx%NBX].range((slot+1)*4-1,slot*4); ++i) {
+	std::cout << bx << " " << i << " ";
+	print_entry(bx,i+slot*16);
+      }
+    }
   }
 
   void print_mem() const
   {
 	for (int ibx = 0; ibx < NBX; ++ibx) {
-	  for (int i = 0; i < nentries_[ibx%NBX]; ++i) {
-		std::cout << ibx << " " << i << " ";
-		print_entry(ibx,i);
-	  }
+	  print_mem(ibx);
 	}
   }
 
@@ -118,7 +124,7 @@ public:
 protected:
   
   DataType dataarray_[NBX][DEPTH];
-  unsigned int nentries_[NBX]; 
+  ap_uint<32> nentries_[NBX]; 
 
   //const int isector_;
   //std::string name_;

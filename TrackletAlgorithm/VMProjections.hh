@@ -6,8 +6,8 @@
 
 typedef ap_uint<7> VMPID;
 typedef ap_uint<MEBinsBits+1> VMPZBIN;
-typedef ap_int<4> VMPFINEZ;
-typedef ap_uint<5> VMPRINV;
+typedef ap_uint<4> VMPFINEZ;
+typedef ap_uint<5> VMPBEND;
 typedef ap_uint<7+MEBinsBits+1+4+5+1> VMProj;
 
 /*
@@ -28,10 +28,11 @@ public:
   static VMPID get_index(const VMProj data) {return data.range(20,14);}
   static VMPZBIN get_zbin(const VMProj data) {return data.range(13,10);}
   static VMPFINEZ get_finez(const VMProj data) {return data.range(9,6);}
-  static VMPRINV get_rinv(const VMProj data) {return data.range(5,1);}
+  static VMPBEND get_bend(const VMProj data) {return data.range(5,1);}
   static bool get_PSseed(const VMProj data) {return data.range(0,0);}
 
-/*
+
+  /*
   // overload base class add_mem()
   using MemoryBase<VMProjData, MemDepth>::add_mem;
   // add memory from data string
@@ -49,7 +50,8 @@ public:
 
 	  return add_mem(vmproj);
   }
-*/
+
+  */
 
 #ifndef __SYNTHESIS__
 #include <iostream>
