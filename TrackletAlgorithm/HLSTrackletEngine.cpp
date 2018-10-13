@@ -8,9 +8,32 @@
 void readPtTable(bool table[32]){
 
   bool tmp[]=
-#include "TE_L1PHIE18_L2PHIC17_ptcut.txt"
+#include "../TestBenches/emData_TE/TE_L1PHIE18_L2PHIC17_ptcut.txt"
     
   for (int i=0;i<32;i++){
+    table[i]=tmp[i];
+  }
+
+}
+
+
+void readBendInnerTable(bool table[256]){
+
+  bool tmp[]=
+#include "../TestBenches/emData_TE/TE_L1PHIE18_L2PHIC17_stubptinnercut.txt"
+    
+  for (int i=0;i<256;i++){
+    table[i]=tmp[i];
+  }
+
+}
+
+void readBendOuterTable(bool table[256]){
+
+  bool tmp[]=
+#include "../TestBenches/emData_TE/TE_L1PHIE18_L2PHIC17_stubptoutercut.txt"
+    
+  for (int i=0;i<256;i++){
     table[i]=tmp[i];
   }
 
@@ -24,7 +47,7 @@ void HLSTrackletEngine(
 		       ap_uint<7> instubinnernumber,
 		       ap_uint<32> instubouternumber,
 		       StubPair outstubpair[kMemDepth],
-		       ap_uint<7>& outstubpairhnumber)
+		       ap_uint<7>& outstubpairnumber)
 {
 
 
@@ -32,38 +55,66 @@ void HLSTrackletEngine(
     " "<<instubouternumber<<dec<<std::endl;
 
   bool pttable[32];
-
   readPtTable(pttable);
+  
+  bool bendinnertable[256];
+  readBendInnerTable(bendinnertable);
+  
+  bool bendoutertable[256];
+  readBendOuterTable(bendoutertable);
+  
 
   for (unsigned int istubinner=0;istubinner<instubinnernumber;istubinner++) {
-    ap_uint<7> innerstubindex=VMStubTEInner::get_index(instubinnerdata[iproj]);
-    int innerstubzbin=VMStubTEInner::get_zbin(instubinnerdata[iproj]);
-    int innerstubfinez=VMStubTEInner::get_finez(instubinnerdata[iproj]);
-    ap_uint<2> innerstubfinephi=VMStubTEInner::get_finephi(instubinnerdata[iproj]);
-    int zdiffmax=VMStubTEInner::get_zdiffmax(instubinnerdata[iproj]);
-    int innerstubbend=VMStubTEInner::get_bend(instubinnerdata[iproj]);
-    int zfirst=innerstubzbin.range(3,1);
-    int zlast=zfirst+innerstubzbin.range(0,0);
-    assert(zlast<8);
-    for (unsigned int zbin=zfirst;zbin<=zlast;zbin++) {
-      nstubs=instubnumber.range((zbin+1)*4-1,zbin*4);
+    VMSTEIID innerstubindex=VMStubsTEInner::get_index(instubinnerdata[istubinner]);
+    VMSTEIBEND innerstubbend=VMStubsTEInner::get_bend(instubinnerdata[istubinner]);
+    VMSTEIFINEPHI innerstubfinephi=VMStubsTEInner::get_finephi(instubinnerdata[istubinner]);
+    VMSTEIZBITS innerstubzbits=VMStubsTEInner::get_zbits(instubinnerdata[istubinner]);
+    int zdiffmax=innerstubzbits.range(9,7);
+    int zbinfirst=innerstubzbits.range(2,0);
+    int start=innerstubzbits.range(6,4);
+    int last=start+innerstubzbits.range(3,3);
+
+    assert(last<8);
+    for (unsigned int ibin=start;ibin<=last;ibin++) {
+      int nstubs=instubouternumber.range((ibin+1)*4-1,ibin*4);
       for (unsigned int istubouter=0;istubouter<nstubs;istubouter++) {
-	VMPID outerstubindex=VMStubsTEOuter::get_index(instubouterdata[istubouter+16*zbin]);
-	VMPFINEZ outerstubfinez=VMStubsTEOuter::get_finez(instubouterdata[istubouter+16*zbin]);
-	ap_uint<2> outerstubfinephi=VMStubsTEOuter::get_finephi(instubouterdata[istubouter+16*zbin]);
-	VMPBEND outerstubbend=VMStubsTEOuter::get_bend(instubouterdata[istubouter+16*zbin]);
-	if (zbin!=zfirst) outerstubfinez+=8;
-	if ((zbin<innerstubfinez)||(zbin-innerstubfinez>zdiffmax)) {
+	VMSTEOID outerstubindex=VMStubsTEOuter::get_index(instubouterdata[istubouter+16*ibin]);
+	VMSTEOFINEPHI outerstubfinephi=VMStubsTEOuter::get_finephi(instubouterdata[istubouter+16*ibin]);
+	VMSTEOBEND outerstubbend=VMStubsTEOuter::get_bend(instubouterdata[istubouter+16*ibin]);
+	VMSTEOFINEZ outerstubfinez=VMStubsTEOuter::get_finez(instubouterdata[istubouter+16*ibin]);
+
+	int zbin=outerstubfinez;
+
+	if (start!=ibin) zbin+=8;
+	if ((zbin<zbinfirst)||(zbin-zbinfirst>zdiffmax)) {
 	  continue;
 	}
+
+
 	ap_uint<5> ptindex=innerstubfinephi.concat(outerstubfinephi);
+
 	if (!pttable[ptindex]) {
 	  continue;
 	}
+
+	ap_uint<8> bendinnerindex=ptindex.concat(innerstubbend);
+
+	if (!bendinnertable[bendinnerindex]) {
+	  continue;
+	}
+
+	ap_uint<8> bendouterindex=ptindex.concat(outerstubbend);
+
+	if (!bendoutertable[bendouterindex]) {
+	  continue;
+	}
+
 	outstubpair[outstubpairnumber]=innerstubindex.concat(outerstubindex);
-	outstubpairhnumber++;  
+	outstubpairnumber++;  
       }
     }
   }
+
+  std::cout << "Done in HLSTrackletEngine"<<std::endl;
 
 }

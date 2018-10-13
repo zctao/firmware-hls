@@ -1,7 +1,9 @@
 #ifndef TRACKLETENGINEWRAPPER_H
 #define TRACKLETENGINEWRAPPER_H
 
-//#include "MatchEngine.hh"
+#include "VMStubsTEInner.hh"
+#include "VMStubsTEOuter.hh"
+#include "StubPairs.hh"
 
 class CandMatch;
 

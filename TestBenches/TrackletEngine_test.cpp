@@ -1,8 +1,8 @@
 // ProjectionRouter test bench
-#include "HLSMatchEngine.h"
-#include "CandidateMatches.hh"
-#include "VMStubs.hh"
-#include "VMProjections.hh"
+#include "HLSTrackletEngine.h"
+#include "StubPairs.hh"
+#include "VMStubsTEInner.hh"
+#include "VMStubsTEOuter.hh"
 #include "hls_math.h"
 
 #include <iostream>
@@ -78,8 +78,8 @@ int main()
 	ifstream fin_vmstubsinner;
 	ifstream fin_vmstubsouter;
 
-	fin_vmstubsinner.open("emData_TE/VMStubs_VMSTE_L1PHIE20n1_04.dat");
-	fin_vmstubsouter.open("emData_TE/VMStubs_VMSTE_L2PHIE20n1_04.dat");
+	fin_vmstubsinner.open("emData_TE/VMStubs_VMSTE_L1PHIE18n2_04.dat");
+	fin_vmstubsouter.open("emData_TE/VMStubs_VMSTE_L2PHIC17n4_04.dat");
 	if (!fin_vmstubsinner) {
 		cerr << "Cannot open fin_vmstubsinner. Abort." << endl;
 		return -1;
@@ -91,7 +91,7 @@ int main()
 
 	// fill memories from files
 	fillMemfromFile<VMStubsTEInner>(inputvmstubsinner, fin_vmstubsinner);
-	fillMemfromFile<VMStubsTEouter>(inputvmstubsouter, fin_vmstubsouter);
+	fillMemfromFile<VMStubsTEOuter>(inputvmstubsouter, fin_vmstubsouter);
 
 	// close files
 	fin_vmstubsinner.close();
@@ -100,8 +100,8 @@ int main()
 	/////////////////////////////////////
 	// emulation output to be compared with
 	ifstream fout_stubpairs;
-	fout_stubpairs.open("emData_TE/StubPairs_SP_L1PHIE20_04.dat");
-
+	fout_stubpairs.open("emData_TE/StubPairs_SP_L1PHIE18_L2PHIC17_04.dat");
+	assert(fout_stubpairs.good());
 
 	fillMemfromFile<StubPairs>(outputstubpairs, fout_stubpairs);
 
@@ -125,21 +125,21 @@ int main()
 
 		// input data array
 		// memories that are actually connected to the processing module
-		VMStubMEInner vmstubsinnner[kMemDepth];
-		VMStubMEOuter vmstubsouter[kMemDepth];
+		VMStubTEInner vmstubsinner[kMemDepth];
+		VMStubTEOuter vmstubsouter[kMemDepth];
 
 		// fill input data arrays
-		fillMem<VMStub, kMemDepth>(vmstubsinner, (inputvmstubsinner+ievt)->get_mem(ievt));
-		fillMem<VMProj, kMemDepth>(vmstubsouter, (inputvmstubsouter+ievt)->get_mem(ievt));
+		fillMem<VMStubTEInner, kMemDepth>(vmstubsinner, (inputvmstubsinner+ievt)->get_mem(ievt));
+		fillMem<VMStubTEOuter, kMemDepth>(vmstubsouter, (inputvmstubsouter+ievt)->get_mem(ievt));
 
 		// output memories that are actually connected to the processing module
-		StubPairs stubpairsout[kMemDepth];
+		StubPair stubpairsout[kMemDepth];
 		ap_uint<7> nstubpairs=0;
 
 		// Unit Under Test
 		// PR_L3L4_L1PHI3
 		HLSTrackletEngine(
-			       vmstubsinnner,
+			       vmstubsinner,
 			       vmstubsouter,
 			       (inputvmstubsinner+ievt)->getEntries(ievt),
 			       (inputvmstubsouter+ievt)->getEntries(ievt),
@@ -149,13 +149,19 @@ int main()
 
 		// compare calculated outputs with those read from emulation printout
 		// allprojections
-		cout << "Number of stub pairs : "<<nstubpairs<<endl;
+		cout << "Number of stub pairs : "<<nstubpairs<<" "
+		     <<(outputstubpairs+ievt)->getEntries(ievt)<<endl;
+
+		if (nstubpairs!=(outputstubpairs+ievt)->getEntries(ievt)) {
+		  cout << "ERROR: Number of stub pairs don't agree"<<endl;
+		  err_count++;
+		}
 		for (int j = 0; j < nstubpairs; ++j) {
 			assert(j < kMemDepth);
 			StubPair stubpair_expected = (outputstubpairs+ievt)->read_mem(ievt,j);
 			StubPair stubpair_computed = stubpairsout[j];
 			if (stubpair_expected != stubpair_computed) {
-			  cout << "ERROR! Expected and computed results are different for j="<<j << endl;
+			  cout << "ERROR: Expected and computed results are different for j="<<j << endl;
 				err_count++;
 			}
 		}

@@ -4,20 +4,22 @@
 #include "Constants.hh"
 #include "MemoryBaseBinned.hh"
 
-typedef ap_uint<7> VMPID;
-typedef ap_uint<4> VMPFINEZ;
-typedef ap_uint<3> VMBEND;
-typedef ap_uint<7+4+3> VMStubMEOuter;
+typedef ap_uint<7> VMSTEOID;
+typedef ap_uint<4> VMSTEOFINEZ;
+typedef ap_uint<3> VMSTEOFINEPHI;
+typedef ap_uint<3> VMSTEOBEND;
+typedef ap_uint<7+4+3+3> VMStubTEOuter;
 
 
 //template<unsigned int bx=2, unsigned int memdepth=kMemDepth>
-class VMStubsMEOuter: public MemoryBaseBinned<VMStubMEOuter, 2, kMemDepth>
+class VMStubsTEOuter: public MemoryBaseBinned<VMStubTEOuter, 2, kMemDepth>
 {
 public:
 
-  static VMPID get_index(const VMStubMEOuter data) {return data.range(13,7);}
-  static VMPFINEZ get_finez(const VMStubMEOuter data) {return data.range(3,0);}
-  static VMPBEND get_bend(const VMSTubMEOuter data) {return data.range(6,4);}
+  static VMSTEOID get_index(const VMStubTEOuter data) {return data.range(15,9);}
+  static VMSTEOBEND get_bend(const VMStubTEOuter data) {return data.range(8,6);}
+  static VMSTEOFINEPHI get_finephi(const VMStubTEOuter data) {return data.range(5,3);}
+  static VMSTEOFINEZ get_finez(const VMStubTEOuter data) {return data.range(2,0);}
 
 #ifndef __SYNTHESIS__
 #include <iostream>

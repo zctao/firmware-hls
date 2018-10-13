@@ -4,21 +4,20 @@
 #include "Constants.hh"
 #include "MemoryBase.hh"
 
-typedef ap_uint<7> VMPID;
-typedef ap_uint<MEBinsBits+1> VMPZBIN;
-typedef ap_uint<4> VMPFINEZ;
-typedef ap_uint<5> VMPBEND;
-typedef ap_uint<7+MEBinsBits+1+4+5+1> VMStubMEInner;
+typedef ap_uint<7> VMSTEIID;
+typedef ap_uint<3> VMSTEIBEND;
+typedef ap_uint<2> VMSTEIFINEPHI;
+typedef ap_uint<10> VMSTEIZBITS;
+typedef ap_uint<7+3+2+10> VMStubTEInner;
 
-class VMStubsMEInner: public MemoryBase<VMStubMEInner, 2, kMemDepth>
+class VMStubsTEInner: public MemoryBase<VMStubTEInner, 2, kMemDepth>
 {
 public:
 
-  static VMPID get_index(const VMStubMEInner data) {return data.range(20,14);}
-  static VMPZBIN get_zbin(const VMStubMEInner data) {return data.range(13,10);}
-  static VMPFINEZ get_finez(const VMStubMEInner data) {return data.range(9,6);}
-  static VMPBEND get_bend(const VMStubMEInner data) {return data.range(5,1);}
-  static bool get_PSseed(const VMStubMEInner data) {return data.range(0,0);}
+  static VMSTEIID get_index(const VMStubTEInner data) {return data.range(21,15);}
+  static VMSTEIBEND get_bend(const VMStubTEInner data) {return data.range(14,12);}
+  static VMSTEIFINEPHI get_finephi(const VMStubTEInner data) {return data.range(11,10);}
+  static VMSTEIZBITS get_zbits(const VMStubTEInner data) {return data.range(9,0);}
 
 
 
