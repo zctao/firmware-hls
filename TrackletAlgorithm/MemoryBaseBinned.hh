@@ -37,16 +37,23 @@ public:
   {
 	for (ap_uint<3> ibx=0; ibx<NBX; ++ibx) {
 #pragma HLS UNROLL
-	  nentries_[ibx%NBX] = 0;
+	  clear(ibx);
 	}
   }
 
-  void clear(ap_uint<3> bx) {nentries_[bx%NBX] = 0;}
+  void clear(ap_uint<3> bx) {
+    for(unsigned int zbin=0;zbin<8;zbin++) {
+      nentries_[bx%NBX][zbin] = 0;}
+  }
 
   unsigned int getDepth() const {return DEPTH;}
   unsigned int getnBX() const {return NBX;}
   
-  unsigned int getEntries(ap_uint<3> bx) const {return nentries_[bx%NBX];}
+  void getEntries(ap_uint<3> bx, ap_uint<4> nentries[8]) const {
+    for (unsigned int zbin=0;zbin<8;zbin++) {
+      nentries[zbin]=nentries_[bx%NBX][zbin];
+    }
+  }
 
   DataType* get_mem(ap_uint<3> bx) {return dataarray_[bx%NBX];}
   
@@ -59,12 +66,10 @@ public:
   bool write_mem(ap_uint<3> ibx, ap_uint<3> slot, DataType data) {
     //assert(ibx < NBX);
     
-    if (nentries_[ibx%NBX].range((slot+1)*4-1,slot*4) < DEPTH) {
-      ap_uint<32> increment=1;
-      dataarray_[ibx%NBX][16*slot+nentries_[ibx%NBX].range((slot+1)*4-1,slot*4)] = data;
+    if (nentries_[ibx%NBX][slot] < DEPTH) {
+      dataarray_[ibx%NBX][16*slot+nentries_[ibx%NBX][slot]] = data;
       //cout <<"nentries : "<<hex<<nentries_[ibx%NBX]<<" "<<nentries_[ibx%NBX].range((slot+1)*4-1,slot*4) <<dec<<endl;
-      increment<<=(slot*4);
-      nentries_[ibx%NBX]+=increment;
+      nentries_[ibx%NBX][slot]++;
       return true;
     }
     else {
@@ -105,7 +110,7 @@ public:
     for(int slot=0;slot<8;slot++) {
       //std::cout << "slot "<<slot<<" entries "
       //		<<nentries_[bx%NBX].range((slot+1)*4-1,slot*4)<<endl;
-      for (int i = 0; i < nentries_[bx%NBX].range((slot+1)*4-1,slot*4); ++i) {
+      for (int i = 0; i < nentries_[bx%NBX][slot]; ++i) {
 	std::cout << bx << " " << i << " ";
 	print_entry(bx,i+slot*16);
       }
@@ -124,7 +129,7 @@ public:
 protected:
   
   DataType dataarray_[NBX][DEPTH];
-  ap_uint<32> nentries_[NBX]; 
+  ap_uint<4> nentries_[NBX][8]; 
 
   //const int isector_;
   //std::string name_;

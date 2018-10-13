@@ -45,14 +45,17 @@ void HLSTrackletEngine(
 		       VMStubTEOuter instubouterdata[kMemDepth],
 		       // more
 		       ap_uint<7> instubinnernumber,
-		       ap_uint<32> instubouternumber,
+		       ap_uint<4> instubouternumber[8],
 		       StubPair outstubpair[kMemDepth],
 		       ap_uint<7>& outstubpairnumber)
 {
 
 
-  std::cout << "In HLSTrackletEngine "<<hex<<instubinnernumber<<
-    " "<<instubouternumber<<dec<<std::endl;
+  std::cout << "In HLSTrackletEngine "<<hex<<instubinnernumber;
+  for (unsigned int zbin=0;zbin<8;zbin++){
+    std::cout<<" "<<instubouternumber[zbin];
+  }
+  std::cout<<dec<<std::endl;
 
   bool pttable[32];
   readPtTable(pttable);
@@ -76,7 +79,7 @@ void HLSTrackletEngine(
 
     assert(last<8);
     for (unsigned int ibin=start;ibin<=last;ibin++) {
-      int nstubs=instubouternumber.range((ibin+1)*4-1,ibin*4);
+      int nstubs=instubouternumber[ibin];
       for (unsigned int istubouter=0;istubouter<nstubs;istubouter++) {
 	VMSTEOID outerstubindex=VMStubsTEOuter::get_index(instubouterdata[istubouter+16*ibin]);
 	VMSTEOFINEPHI outerstubfinephi=VMStubsTEOuter::get_finephi(instubouterdata[istubouter+16*ibin]);

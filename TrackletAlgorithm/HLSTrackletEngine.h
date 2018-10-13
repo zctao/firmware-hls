@@ -9,7 +9,7 @@ class CandMatch;
 
 void HLSTrackletEngine(
 		VMStubTEInner instubinnerdata[kMemDepth], VMStubTEOuter instubouterdata[kMemDepth],
-		ap_uint<7>, ap_uint<32>,
+		ap_uint<7> ninnerstubs, ap_uint<4> nouterstubs[8],
 	    // more
 		StubPair outstubpairdata[kMemDepth], ap_uint<7>&
 		);

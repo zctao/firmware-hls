@@ -113,16 +113,6 @@ int main()
 	for (int ievt = 0; ievt < nevents; ++ievt) {
 		cout << "Event: " << dec << ievt << endl;
 
-		//cout << "Input:" << endl;
-		if ((inputvmstubs+ievt)->getEntries(ievt) > 0) {
-		  //cout << "inputvmstub: ";
-		  //	(inputvmstubs+ievt)->print_mem();
-		}
-		if ((inputvmprojs+ievt)->getEntries(ievt) > 0) {
-		  //cout << "inputvmproj: ";
-		  //	(inputvmprojs+ievt)->print_mem();
-		}
-
 		// input data array
 		// memories that are actually connected to the processing module
 		VMStub vmstubin[kMemDepth];
@@ -136,12 +126,15 @@ int main()
 		CandidateMatch candmatchout[kMemDepth];
 		ap_uint<7> ncandmatch=0;
 
+		ap_uint<4> binentries[8];
+		(inputvmstubs+ievt)->getEntries(ievt,binentries);
+
 		// Unit Under Test
 		// PR_L3L4_L1PHI3
 		HLSMatchEngine(
 			       vmstubin,
 			       vmprojin,
-			       (inputvmstubs+ievt)->getEntries(ievt),
+			       binentries,
 			       (inputvmprojs+ievt)->getEntries(ievt),
 			       candmatchout,
 			       ncandmatch
@@ -149,7 +142,8 @@ int main()
 
 		// compare calculated outputs with those read from emulation printout
 		// allprojections
-		cout << "Number of candidate matches : "<<ncandmatch<<endl;
+		cout << "Number of candidate matches : "<<ncandmatch<<" "
+		     <<(outputcandmatches+ievt)->getEntries(ievt)<<endl;
 		for (int j = 0; j < ncandmatch; ++j) {
 			assert(j < kMemDepth);
 			//if (j==0) cout << "candmatches: " << endl;

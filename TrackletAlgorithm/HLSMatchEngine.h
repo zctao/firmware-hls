@@ -7,7 +7,7 @@ class CandMatch;
 
 void HLSMatchEngine(
 		VMStub instubdata[kMemDepth], VMProj inprojdata[kMemDepth],
-		ap_uint<32>, ap_uint<7>,
+		ap_uint<4> stubentries[8], ap_uint<7> nproj,
 	    // more
 		CandidateMatch outcanddata[kMemDepth], ap_uint<7>&
 		);

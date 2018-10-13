@@ -7,11 +7,11 @@
 
 void readTable(bool table[256]){
 
-  //ifstream in;
-  //in.open("emData_ME/METable_ME_L1PHIE20.dat");
+  bool tmp[256]=
+#include "emData_ME/METable_ME_L1PHIE20.dat"
+
   for (int i=0;i<256;i++){
-    table[i]=true;
-    //in >> table[i];
+    table[i]=tmp[i];
   }
 
 }
@@ -21,7 +21,7 @@ void HLSMatchEngine(
 			     VMStub instubdata[kMemDepth],
 			     VMProj inprojdata[kMemDepth],
 			     // more
-			     ap_uint<32> instubnumber,
+			     ap_uint<4> instubnumber[8],
 			     ap_uint<7> inprojnumber,
 			     CandidateMatch outcandmatch[kMemDepth],
 			     ap_uint<7>& outcandmatchnumber)
@@ -66,7 +66,8 @@ void HLSMatchEngine(
       zlast=zfirst+projzbin.range(0,0);
       assert(zlast<8);
       zbin=zfirst;
-      nstubs=instubnumber.range((zbin+1)*4-1,zbin*4);
+      nstubs=instubnumber[zbin];
+      //std::cout << "zfirst zlast : "<<zfirst<<" "<<zlast<<std::endl;
     }
     if (nstubs>0) {
       //std::cout << "zbin nstubs "<<zbin<<" "<<nstubs<<std::endl;
@@ -78,6 +79,8 @@ void HLSMatchEngine(
       //	  <<" "<<stubfinez 
       //	  <<" "<<stubbend 
       //	  <<endl;
+      //std::cout << "projindex stubindex zbin istub : "<<projindex<<" "<<stubindex<<" "
+      //		<<" "<<zbin<<" "<<istub<<std::endl;
       int idz=stubfinez-projfinez;
       if (zbin!=zfirst) idz+=8;
       bool pass=hls::abs(idz)<=5;
@@ -85,7 +88,11 @@ void HLSMatchEngine(
 	pass=hls::abs(idz)<=2;
       }
       int index=stubbend+projbend*8;
-      
+
+      //if (pass){
+      //std::cout << "index table[index] : "<<index<<" "<<table[index]<<std::endl;
+      //}
+
       if (pass&&table[index]) {
 	CandidateMatch cmatch=projindex;
 	cmatch=(cmatch<<7)+stubindex;
@@ -96,10 +103,10 @@ void HLSMatchEngine(
       //	  <<pass<<" "<<table[index]<<" "<<projbend<<std::endl;
       //std::cout << "stubfinez projfinez "<<stubfinez<<" "<<projfinez<<endl;
     }
-    if ((istub++)>=nstubs) {
+    if ((++istub)>=nstubs) {
       istub=0;
       if ((zbin++)<=zlast) {
-	nstubs=instubnumber.range((zbin+1)*4-1,zbin*4);
+	nstubs=instubnumber[zbin];
       }
     }
   }
