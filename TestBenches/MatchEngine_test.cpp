@@ -30,7 +30,6 @@ int main() {
   // declare output memory array to be filled by hls simulation
   CandidateMatches outputcandmatches;
 
-
   // open input files
   ifstream fin_vmstub("emData_ME/VMStubs_VMSME_L1PHIE20n1_04.dat");
   ifstream fin_vmproj("emData_ME/VMProjections_VMPROJ_L1PHIE20_04.dat");
@@ -39,7 +38,6 @@ int main() {
   assert(fin_vmstub.good());
   assert(fin_vmproj.good());
   assert(fin_candmatch.good());
-
 
   // loop over events
   for (int ievt = 0; ievt < nevents; ++ievt) {

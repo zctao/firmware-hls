@@ -22,8 +22,11 @@ void HLSMatchEngine(const ap_uint<3> bx,
 		    const VMProjections& inprojdata,
 		    CandidateMatches& outcandmatch){
 
-  std::cout << "In HLSMatchEngine "<<hex<<
-    " "<<inprojdata.getEntries(bx)<<dec<<std::endl;
+  std::cout << "In HLSMatchEngine #proj ="<<hex<<inprojdata.getEntries(bx)<<" #stubs=";
+  for (unsigned int zbin=0;zbin<8;zbin++){
+    std::cout <<" "<<instubdata.getEntries(bx,zbin);
+  }
+  std::cout<<dec<<std::endl;
 
   bool table[256];
 

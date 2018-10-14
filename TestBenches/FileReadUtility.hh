@@ -15,6 +15,8 @@ void readEventFromFile(DataType& memarray, std::ifstream& fin, int ievt){
     getline(fin, line);
   }
 
+  memarray.clear(ievt);
+
   while (getline(fin, line)) {
     
     if (!fin.good()) {

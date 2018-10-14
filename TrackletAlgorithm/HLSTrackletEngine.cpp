@@ -47,7 +47,7 @@ void HLSTrackletEngine(
 		       StubPairs& outstubpair) {
 
 
-  std::cout << "In HLSTrackletEngine "<<hex<<instubinnerdata.getEntries(bx);
+  std::cout << "In HLSTrackletEngine "<<instubinnerdata.getEntries(bx);
   for (unsigned int zbin=0;zbin<8;zbin++){
     std::cout<<" "<<instubouterdata.getEntries(bx,zbin);
   }
@@ -62,6 +62,7 @@ void HLSTrackletEngine(
   bool bendoutertable[256];
   readBendOuterTable(bendoutertable);
   
+  outstubpair.clear(bx);
 
   for (unsigned int istubinner=0;istubinner<instubinnerdata.getEntries(bx);istubinner++) {
     VMSTEIID innerstubindex=VMStubsTEInner::get_index(instubinnerdata.read_mem(bx,istubinner));
@@ -72,6 +73,8 @@ void HLSTrackletEngine(
     int zbinfirst=innerstubzbits.range(2,0);
     int start=innerstubzbits.range(6,4);
     int last=start+innerstubzbits.range(3,3);
+
+    //std::cout << "start last "<<start<<" "<<last<<std::endl;
 
     assert(last<8);
     for (unsigned int ibin=start;ibin<=last;ibin++) {
@@ -89,6 +92,7 @@ void HLSTrackletEngine(
 	  continue;
 	}
 
+	//std::cout << "ibin istubouter "<<ibin<<" "<<istubouter<<std::endl;
 
 	ap_uint<5> ptindex=innerstubfinephi.concat(outerstubfinephi);
 
