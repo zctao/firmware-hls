@@ -3,13 +3,14 @@
 #define MATCHENGINE_HH
 
 #include "Constants.hh"
+#include "VMProjections.hh"
+#include "VMStubs.hh"
+#include "CandidateMatches.hh"
 //#include "ProcessBase.hh"
 //
 //#include "TrackletProjections.hh"
 //#include "AllProjections.hh"
-#include "VMProjections.hh"
-#include "VMStubs.hh"
-#include "CandidateMatches.hh"
+
 
 #include <assert.h>
 

@@ -18,7 +18,7 @@ public:
 	clear();
   }
 
-  virtual ~MemoryBase(){}
+  ~MemoryBase(){}
 
 
   vector<string> split(const string& s, char delimiter)
@@ -83,6 +83,29 @@ public:
 
 #ifndef __SYNTHESIS__
 #include <iostream>
+
+  //compare memory content in two memories for the specified bx
+  int compare(const MemoryBase& otherMem, ap_uint<3> bx) {
+
+    int err_count=0;
+
+    cout << "Number objects in memory : "<<getEntries(bx%NBX)<<" "
+	 <<otherMem.getEntries(bx)<<endl;
+    
+    if (getEntries(bx)!=otherMem.getEntries(bx%NBX)) {
+      cout << "ERROR: Number of objects in memory do not agree"<<endl;
+      err_count++;
+    }
+    for (int j = 0; j < getEntries(bx&NBX); ++j) {
+      assert(j < kMemDepth);
+      if (read_mem(bx&NBX,j) != otherMem.read_mem(bx&NBX,j)) {
+	cout << "ERROR: Expected and computed results are different for j="<<j << endl;
+	err_count++;
+      }
+    }
+    return err_count;
+  }
+    
 
   // print memory contents
   virtual void print_data(const DataType data) const

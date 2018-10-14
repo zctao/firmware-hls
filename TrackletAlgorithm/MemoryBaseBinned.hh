@@ -18,7 +18,7 @@ public:
 	clear();
   }
 
-  virtual ~MemoryBaseBinned(){}
+  ~MemoryBaseBinned(){}
 
   vector<string> split(const string& s, char delimiter)
   {
@@ -53,6 +53,10 @@ public:
     for (unsigned int zbin=0;zbin<8;zbin++) {
       nentries[zbin]=nentries_[bx%NBX][zbin];
     }
+  }
+
+  ap_uint<4>  getEntries(ap_uint<3> bx, ap_uint<3> zbin) const {
+    return nentries_[bx%NBX][zbin];
   }
 
   DataType* get_mem(ap_uint<3> bx) {return dataarray_[bx%NBX];}

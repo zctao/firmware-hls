@@ -1,15 +1,17 @@
-#ifndef MATCHENGINEWRAPPER_H
-#define MATCHENGINEWRAPPER_H
+#ifndef HLSMATCHENGINE_H
+#define HLSMATCHENGINE_H
 
-#include "MatchEngine.hh"
+#include "Constants.hh"
+#include "VMProjections.hh"
+#include "VMStubs.hh"
+#include "CandidateMatches.hh"
 
 class CandMatch;
 
-void HLSMatchEngine(
-		VMStub instubdata[kMemDepth], VMProj inprojdata[kMemDepth],
-		ap_uint<4> stubentries[8], ap_uint<7> nproj,
-	    // more
-		CandidateMatch outcanddata[kMemDepth], ap_uint<7>&
-		);
+void HLSMatchEngine(const ap_uint<3> bx,
+		    const VMStubs& instubdata, 
+		    const VMProjections& inprojdata,
+		    CandidateMatches& outcanddata
+		    );
 
 #endif
