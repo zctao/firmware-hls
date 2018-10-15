@@ -17,6 +17,9 @@
 constexpr int kNumZRegions=2;
 constexpr int kNumPhiRegions=4;
 
+constexpr int kNumReducedStubLayers=kNumZRegions*kNumPhiRegions*MAX_nSTUBS;
+constexpr int kNumReducedIndex=kNumZRegions*kNumPhiRegions;
+
 template <class T>
 class VMRouter
 {
@@ -24,15 +27,15 @@ private:
   const T *const stubsInLayer_;
   T *const allStubs_;
   // pointer to multi-dimensional arrays.
-  ReducedStubLayer (* rVMStubs_)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS];
-  ReducedIndex (* n_)[kNumZRegions][kNumPhiRegions]; // [z region][phi region]
+  ReducedStubLayer  *rVMStubs_;
+  ReducedIndex *n_; // [z region][phi region]
   const int Layer_;
 public:
   // constructor; just copy in the pointers to the input and output arrays
   VMRouter(T stubsInLayer[MAX_nSTUBS],
            T allStubs[MAX_nSTUBS],
-           ReducedStubLayer (*rVMStubs)[kNumZRegions][kNumPhiRegions][MAX_nSTUBS],
-           ReducedIndex (*n)[kNumZRegions][kNumPhiRegions],
+           ReducedStubLayer rVMStubs[kNumReducedStubLayers],
+           ReducedIndex n[kNumReducedIndex],
            int layer
            ):
   stubsInLayer_(stubsInLayer),
@@ -67,8 +70,10 @@ public:
         FullPhi_Layer_PS curPhi = currStub.GetPhi();
         FullR_Layer_PS curR = currStub.GetR();
         FullPt_Layer_PS curPt = currStub.GetPt();
+#ifndef __SYNTHESIS__
         std::cout << "curr values: " << curZ << ", " << curPhi << ", " << curR << ", " << curPt
         << std::endl;
+#endif // SYNTHESIS
         redPt = curPt;
         redZ = curZ.range(5+3,5);
         redR = curR.range(5+1,5);
@@ -103,14 +108,14 @@ public:
       // Rewrite stub parameters to new stub in allStubs
       allStubs_[i].AddStub(currStub.raw());
       
-      int cnt = n_[routeZ][routePhi]->to_int();
-      rVMStubs_[routeZ][routePhi][cnt]->AddStub(redZ, redPhi, redR, redPt, index);
+      auto cnt = n_[routeZ*routePhi].to_int();
+      rVMStubs_[routeZ*routePhi*cnt].AddStub(redZ, redPhi, redR, redPt, index);
 #ifndef __SYNTHESIS__
       std::cout << __func__ << ": "
       << "[" << routeZ << "][" << routePhi << "][" << cnt << "]: "
-      <<  rVMStubs_[routeZ][routePhi][cnt] << std::endl;
+      <<  rVMStubs_[routeZ*routePhi*cnt] << std::endl;
 #endif // SYNTHESIS
-      (*n_[routeZ][routePhi]) = cnt + 1;
+      n_[routeZ*routePhi] = cnt + 1;
       ++index;  // below has protection for this to wrap?
 #if 0
       // Route stubs
@@ -162,7 +167,7 @@ public:
 #endif // if 0
     } // if nstubs
     else
-      break;
+      continue;
   } // for loop
     //std::cout << __func__ << ": " <<  rVMStubs_[0][0][1] << std::endl;
     
