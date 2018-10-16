@@ -1,4 +1,4 @@
-open_project -reset ConstructorTest
+open_project -reset InheritanceTest
 set_top InheritanceTest
 add_files InheritanceTest/InheritanceTest.cc
 add_files -tb -cflags "-std=c++11"  InheritanceTest/InheritanceTest_tb.cc
