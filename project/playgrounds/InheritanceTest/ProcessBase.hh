@@ -42,14 +42,14 @@ public:
 	
 	virtual ~ProcessBase(){};
 
-	virtual void process(// input memories
-						 int inmem1[32], int inmem2[32],
-						 int inmem3[32], int inmem4[32],
-						 int inmem5[32], int inmem6[32],
-						 int inmem7[32], int inmem8[32],
-						 ap_uint<5> numbersin[8],
-						 // output memories
-						 int outmem1[32], int outmem2[32])
+	void process(// input memories
+				 int (&inmem1)[32], int (&inmem2)[32],
+				 int (&inmem3)[32], int (&inmem4)[32],
+				 int (&inmem5)[32], int (&inmem6)[32],
+				 int (&inmem7)[32], int (&inmem8)[32],
+				 ap_uint<5> (&numbersin)[8],
+				 // output memories
+				 int (&outmem1)[32], int (&outmem2)[32])
 	{	
 #pragma HLS ARRAY_PARTITION variable=numbersin complete
 
@@ -90,7 +90,56 @@ public:
 		
 	}
 
-	void init(ap_uint<5> numbersin[8])
+	// exactly the same as the function above except it is virtual
+	virtual void process_virtual(// input memories
+						 int (&inmem1)[32], int (&inmem2)[32],
+						 int (&inmem3)[32], int (&inmem4)[32],
+						 int (&inmem5)[32], int (&inmem6)[32],
+						 int (&inmem7)[32], int (&inmem8)[32],
+						 ap_uint<5> (&numbersin)[8],
+						 // output memories
+						 int (&outmem1)[32], int (&outmem2)[32])
+	{	
+#pragma HLS ARRAY_PARTITION variable=numbersin complete
+
+		std::cout << "ProcessBase::process(virtual)" << std::endl;
+		
+		init(numbersin);
+		
+		// processing loop: 32 steps
+		for (int i = 0; i < 32; ++i) {
+#pragma HLS PIPELINE II=1
+
+			///////////////////
+			// read input data
+			int inputdata;
+			bool validin = read_input_mems(inputdata,
+										   inmem1, inmem2, inmem3, inmem4,
+										   inmem5, inmem6, inmem7, inmem8,
+										   numbersin);
+			if (not validin) continue;
+
+			///////////////////
+			// do something 
+			int foo = inputdata;
+			int bar = foo * 5;
+
+			///////////////////
+			// write to output
+			switch (foo%2) {
+			case 0:
+				outmem1[outcnt_++] = bar;
+				break;
+			case 1:
+				outmem2[outcnt2_++] = bar;
+				break;
+			}
+			
+		} // end of processing loop
+		
+	}
+
+	void init(ap_uint<5> (&numbersin)[8])
 	{
 		read_imem_ = 0;
 		read_addr_ = 0;
@@ -107,11 +156,11 @@ public:
 	
 	// priority encoder for reading the 8 input memories
 	bool read_input_mems(int &datain,
-						 int mem1[32], int mem2[32],
-						 int mem3[32], int mem4[32],
-						 int mem5[32], int mem6[32],
-						 int mem7[32], int mem8[32],
-						 ap_uint<5> nentries[8])
+						 int (&mem1)[32], int (&mem2)[32],
+						 int (&mem3)[32], int (&mem4)[32],
+						 int (&mem5)[32], int (&mem6)[32],
+						 int (&mem7)[32], int (&mem8)[32],
+						 ap_uint<5> (&nentries)[8])
 	{
 		if (mem_hasdata_ == 0) return false;
 

@@ -55,7 +55,8 @@ int main() {
 
 	// dump output array contents
 	cout << "outmem1" << "\t" << "outmem2" << endl;
-	for (int i = 0; i < 32; ++i) {
+	int nentries = std::min(32, int(nmem1+nmem2+nmem3+nmem4+nmem5+nmem6+nmem7+nmem8));
+	for (int i = 0; i < nentries; ++i) {
 		cout << outmem1[i] << "\t" << outmem2[i] << endl;
 	}
 

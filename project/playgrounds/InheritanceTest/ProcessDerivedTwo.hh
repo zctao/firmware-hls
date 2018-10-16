@@ -9,6 +9,7 @@ public:
 
 	ProcessDerivedTwo() : ProcessBase() {}
 	ProcessDerivedTwo(int nlayer, int ndisk, int phi) : ProcessBase(nlayer, ndisk, phi){}
+	~ProcessDerivedTwo(){}
 
 	// redefine init();
 	void init()
@@ -24,7 +25,7 @@ public:
 		mem_hasdata_ = 0;
 
 		// dummy init. should never be called.
-		assert(0);
+		//assert(0);
 	}
 };
 
