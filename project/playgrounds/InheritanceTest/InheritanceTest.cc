@@ -30,7 +30,7 @@ void InheritanceTest(int (&inputmem1)[32], int (&inputmem2)[32],
 	/*
 	// Test 3: Inheritance (2)
 	// A dummy inheritance. Call process defined in the base class
-	ProcessDerivedTwo aProcDerv2;
+	static ProcessDerivedTwo aProcDerv2;
 	//aProcDerv2.process_virtual(   // unsynthesizable
 	aProcDerv2.process(				   
 					   inputmem1, inputmem2, inputmem3, inputmem4,
