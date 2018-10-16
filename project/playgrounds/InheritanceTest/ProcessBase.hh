@@ -43,13 +43,13 @@ public:
 	virtual ~ProcessBase(){};
 
 	void process(// input memories
-				 int (&inmem1)[32], int (&inmem2)[32],
-				 int (&inmem3)[32], int (&inmem4)[32],
-				 int (&inmem5)[32], int (&inmem6)[32],
-				 int (&inmem7)[32], int (&inmem8)[32],
-				 ap_uint<5> (&numbersin)[8],
+				 int inmem1[32], int inmem2[32],
+				 int inmem3[32], int inmem4[32],
+				 int inmem5[32], int inmem6[32],
+				 int inmem7[32], int inmem8[32],
+				 ap_uint<5> numbersin[8],
 				 // output memories
-				 int (&outmem1)[32], int (&outmem2)[32])
+				 int outmem1[32], int outmem2[32])
 	{	
 #pragma HLS ARRAY_PARTITION variable=numbersin complete
 
@@ -92,13 +92,13 @@ public:
 
 	// exactly the same as the function above except it is virtual
 	virtual void process_virtual(// input memories
-						 int (&inmem1)[32], int (&inmem2)[32],
-						 int (&inmem3)[32], int (&inmem4)[32],
-						 int (&inmem5)[32], int (&inmem6)[32],
-						 int (&inmem7)[32], int (&inmem8)[32],
-						 ap_uint<5> (&numbersin)[8],
+						 int inmem1[32], int inmem2[32],
+						 int inmem3[32], int inmem4[32],
+						 int inmem5[32], int inmem6[32],
+						 int inmem7[32], int inmem8[32],
+						 ap_uint<5> numbersin[8],
 						 // output memories
-						 int (&outmem1)[32], int (&outmem2)[32])
+						 int outmem1[32], int outmem2[32])
 	{	
 #pragma HLS ARRAY_PARTITION variable=numbersin complete
 
@@ -139,7 +139,7 @@ public:
 		
 	}
 
-	void init(ap_uint<5> (&numbersin)[8])
+	void init(ap_uint<5> numbersin[8])
 	{
 		read_imem_ = 0;
 		read_addr_ = 0;
@@ -156,11 +156,11 @@ public:
 	
 	// priority encoder for reading the 8 input memories
 	bool read_input_mems(int &datain,
-						 int (&mem1)[32], int (&mem2)[32],
-						 int (&mem3)[32], int (&mem4)[32],
-						 int (&mem5)[32], int (&mem6)[32],
-						 int (&mem7)[32], int (&mem8)[32],
-						 ap_uint<5> (&nentries)[8])
+						 int mem1[32], int mem2[32],
+						 int mem3[32], int mem4[32],
+						 int mem5[32], int mem6[32],
+						 int mem7[32], int mem8[32],
+						 ap_uint<5> nentries[8])
 	{
 		if (mem_hasdata_ == 0) return false;
 

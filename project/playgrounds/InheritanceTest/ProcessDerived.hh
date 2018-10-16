@@ -16,13 +16,13 @@ public:
 	
 	// redefine process()
 	void process(// input memories
-				 int (&inmem1)[32], int (&inmem2)[32],
-				 int (&inmem3)[32], int (&inmem4)[32],
-				 int (&inmem5)[32], int (&inmem6)[32],
-				 int (&inmem7)[32], int (&inmem8)[32],
-				 ap_uint<5> (&numbersin)[8],
+				 int inmem1[32], int inmem2[32],
+				 int inmem3[32], int inmem4[32],
+				 int inmem5[32], int inmem6[32],
+				 int inmem7[32], int inmem8[32],
+				 ap_uint<5> numbersin[8],
 				 // output memories
-				 int (&outmem1)[32], int (&outmem2)[32])
+				 int outmem1[32], int outmem2[32])
 	{
 #pragma HLS ARRAY_PARTITION variable=numbersin complete
 		
@@ -65,13 +65,13 @@ public:
 	// redefine process_virtual
 	// exactly the same as process
 	void process_virtual(// input memories
-				 int (&inmem1)[32], int (&inmem2)[32],
-				 int (&inmem3)[32], int (&inmem4)[32],
-				 int (&inmem5)[32], int (&inmem6)[32],
-				 int (&inmem7)[32], int (&inmem8)[32],
-				 ap_uint<5> (&numbersin)[8],
+				 int inmem1[32], int inmem2[32],
+				 int inmem3[32], int inmem4[32],
+				 int inmem5[32], int inmem6[32],
+				 int inmem7[32], int inmem8[32],
+				 ap_uint<5> numbersin[8],
 				 // output memories
-				 int (&outmem1)[32], int (&outmem2)[32])
+				 int outmem1[32], int outmem2[32])
 	{
 		process(inmem1, inmem2, inmem3, inmem4, inmem5, inmem6, inmem7, inmem8,
 				numbersin, outmem1, outmem2);
