@@ -31,9 +31,9 @@ int main() {
   CandidateMatches outputcandmatches;
 
   // open input files
-  ifstream fin_vmstub("emData_ME/VMStubs_VMSME_L1PHIE20n1_04.dat");
-  ifstream fin_vmproj("emData_ME/VMProjections_VMPROJ_L1PHIE20_04.dat");
-  ifstream fin_candmatch("emData_ME/CandidateMatches_CM_L1PHIE20_04.dat");
+  ifstream fin_vmstub("../emData/ME/L1PHIE20/VMStubs_VMSME_L1PHIE20n1_04.dat");
+  ifstream fin_vmproj("../emData/ME/L1PHIE20/VMProjections_VMPROJ_L1PHIE20_04.dat");
+  ifstream fin_candmatch("../emData/ME/L1PHIE20/CandidateMatches_CM_L1PHIE20_04.dat");
 
   assert(fin_vmstub.good());
   assert(fin_vmproj.good());

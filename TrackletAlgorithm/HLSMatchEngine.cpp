@@ -8,7 +8,7 @@
 void readTable(bool table[256]){
 
   bool tmp[256]=
-#include "../TestBenches/emData_ME/METable_ME_L1PHIE20.dat"
+#include "../emData/ME/L1PHIE20/METable_ME_L1PHIE20.tab"
 
   for (int i=0;i<256;i++){
     table[i]=tmp[i];
