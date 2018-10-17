@@ -1,60 +1,29 @@
 #include "HLSProjectionRouter.h"
 
-void HLSProjectionRouter(
-			     TProj inprojdata1[MemDepth],
-			     TProj inprojdata2[MemDepth],
-			     TProj inprojdata3[MemDepth],
-			     TProj inprojdata4[MemDepth],
-			     TProj inprojdata5[MemDepth],
-			     TProj inprojdata6[MemDepth],
-			     TProj inprojdata7[MemDepth],
-			     TProj inprojdata8[MemDepth],
-			     // more
-				 ap_uint<NBits_MemAddr> inprojnumber1,
-				 ap_uint<NBits_MemAddr> inprojnumber2,
-				 ap_uint<NBits_MemAddr> inprojnumber3,
-				 ap_uint<NBits_MemAddr> inprojnumber4,
-				 ap_uint<NBits_MemAddr> inprojnumber5,
-				 ap_uint<NBits_MemAddr> inprojnumber6,
-				 ap_uint<NBits_MemAddr> inprojnumber7,
-				 ap_uint<NBits_MemAddr> inprojnumber8,
+void HLSProjectionRouter(ap_uint<3> bx_in,
+						 TrackletProjectionMemory& inproj1,
+						 TrackletProjectionMemory& inproj2,
+						 TrackletProjectionMemory& inproj3,
+						 TrackletProjectionMemory& inproj4,
+						 TrackletProjectionMemory& inproj5,
+						 TrackletProjectionMemory& inproj6,
+						 TrackletProjectionMemory& inproj7,
+						 TrackletProjectionMemory& inproj8,
 
-			     AllProj outallproj[MemDepth],
-			     VMProj outvmprojphi1[MemDepth],
-			     VMProj outvmprojphi2[MemDepth],
-			     VMProj outvmprojphi3[MemDepth],
-			     VMProj outvmprojphi4[MemDepth]/*,
-			     VMProjData outvmprojphi5[MemDepth],
-			     VMProjData outvmprojphi6[MemDepth],
-			     VMProjData outvmprojphi7[MemDepth],
-			     VMProjData outvmprojphi8[MemDepth],
-			     VMProjData outvmprojphi9[MemDepth],
-			     VMProjData outvmprojphi10[MemDepth],
-			     VMProjData outvmprojphi11[MemDepth],
-			     VMProjData outvmprojphi12[MemDepth]*/
-			     )
+						 ap_uint<3>& bx_out,
+						 AllProjectionMemory& outallproj,
+						 VMProjectionMemory& outvmproj1,
+						 VMProjectionMemory& outvmproj2,
+						 VMProjectionMemory& outvmproj3,
+						 VMProjectionMemory& outvmproj4)
 {
-	//
-	TProj* inprojs[8] = {inprojdata1, inprojdata2, inprojdata3, inprojdata4,
-			inprojdata5, inprojdata6, inprojdata7, inprojdata8};
-#pragma HLS ARRAY_PARTITION variable=inprojs complete dim=1
-
-	ap_uint<NBits_MemAddr> inprojnum[8] = {inprojnumber1, inprojnumber2, inprojnumber3, inprojnumber4,
-			inprojnumber5, inprojnumber6, inprojnumber7, inprojnumber8};
-#pragma HLS ARRAY_PARTITION variable=inprojnum complete dim=1
-
-	VMProj* vmprojs[4] = {outvmprojphi1, outvmprojphi2, outvmprojphi3, outvmprojphi4};
-#pragma HLS ARRAY_PARTITION variable=vmprojs complete dim=1
-
-	/*
-	static ProjectionRouter aPR(
-			inprojs, //inprojnum,
-			outallproj, vmprojs);
-
-	aPR.execute(inprojnum);
-	*/
-
+	/////////////////////////////////////
+	// Processing module under test
 	static ProjectionRouter aPR;
-	aPR.execute(inprojs, inprojnum, outallproj, vmprojs);
-
+	aPR.process(bx_in,
+				&inproj1, &inproj2, &inproj3, &inproj4,
+				&inproj5, &inproj6, &inproj7, &inproj8,
+				bx_out,
+				&outallproj, &outvmproj1, &outvmproj2, &outvmproj3, &outvmproj4
+				);
 }

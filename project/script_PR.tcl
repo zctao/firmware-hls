@@ -8,7 +8,7 @@ set_top HLSProjectionRouter
 add_files ../TrackletAlgorithm/HLSProjectionRouter.cpp
 add_files -tb ../TestBenches/ProjectionRouter_test.cpp -cflags "-I../TrackletAlgorithm"
 add_files -tb ../TestBenches/emData_PR
-open_solution -reset "solution2"
+open_solution -reset "solution1"
 set_part {xcku115-flvb2104-2-e} -tool vivado
 create_clock -period 4 -name default
 #source "./projrouter/solution1/directives.tcl"
@@ -17,4 +17,4 @@ create_clock -period 4 -name default
 #cosim_design
 #export_design -rtl verilog -format ip_catalog
 
-exit
+#exit
