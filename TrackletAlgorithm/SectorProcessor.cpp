@@ -10,7 +10,7 @@ void SectorProcessor
  hls::stream<TProjData>& input_stream5,
  hls::stream<TProjData>& input_stream6,
  // outputs
- ap_uint<3> bx_out,
+ ap_uint<3>& bx_out,
  hls::stream<AllProjData>& output_stream,
  hls::stream<VMProjData>& output2_stream1,
  hls::stream<VMProjData>& output2_stream2,
