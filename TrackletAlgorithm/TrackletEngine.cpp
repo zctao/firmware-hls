@@ -1,5 +1,5 @@
 
-#include "HLSTrackletEngine.h"
+#include "TrackletEngine.h"
 #include "hls_math.h"
 #include <iostream>
 #include <fstream>
@@ -40,14 +40,14 @@ void readBendOuterTable(bool table[256]){
 }
 
 
-void HLSTrackletEngine(
-		       const ap_uint<3> bx,
-		       const VMStubsTEInner& instubinnerdata,
-		       const VMStubsTEOuter& instubouterdata,
-		       StubPairs& outstubpair) {
+void TrackletEngine(
+		    const ap_uint<3> bx,
+		    const VMStubsTEInner& instubinnerdata,
+		    const VMStubsTEOuter& instubouterdata,
+		    StubPairs& outstubpair) {
 
 
-  std::cout << "In HLSTrackletEngine "<<instubinnerdata.getEntries(bx);
+  std::cout << "In TrackletEngine "<<instubinnerdata.getEntries(bx);
   for (unsigned int zbin=0;zbin<8;zbin++){
     std::cout<<" "<<instubouterdata.getEntries(bx,zbin);
   }
@@ -117,6 +117,6 @@ void HLSTrackletEngine(
     }
   }
 
-  std::cout << "Done in HLSTrackletEngine"<<std::endl;
+  std::cout << "Done in TrackletEngine"<<std::endl;
 
 }

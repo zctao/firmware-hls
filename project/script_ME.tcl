@@ -4,8 +4,8 @@
 ## Copyright (C) 1986-2017 Xilinx, Inc. All Rights Reserved.
 ############################################################
 open_project -reset matchengine
-set_top HLSMatchEngine
-add_files ../TrackletAlgorithm/HLSMatchEngine.cpp
+set_top MatchEngine
+add_files ../TrackletAlgorithm/MatchEngine.cpp
 add_files -tb ../TestBenches/MatchEngine_test.cpp -cflags "-I../TrackletAlgorithm"
 add_files -tb ../emData/ME
 open_solution -reset "solution1"

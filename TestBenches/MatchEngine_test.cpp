@@ -1,5 +1,5 @@
 // ProjectionRouter test bench
-#include "HLSMatchEngine.h"
+#include "MatchEngine.h"
 #include "CandidateMatches.hh"
 #include "VMStubs.hh"
 #include "VMProjections.hh"
@@ -53,12 +53,12 @@ int main() {
     ap_uint<3> bx=ievt&0x7;
 
     // Unit Under Test
-    HLSMatchEngine(
-		   bx,
-		   inputvmstubs,
-		   inputvmprojs,
-		   outputcandmatches
-		   );
+    MatchEngine(
+		bx,
+		inputvmstubs,
+		inputvmprojs,
+		outputcandmatches
+		);
 
 
     // compare calculated outputs with those read from emulation printout

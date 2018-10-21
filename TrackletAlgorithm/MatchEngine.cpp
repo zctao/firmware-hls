@@ -1,5 +1,4 @@
-
-#include "HLSMatchEngine.h"
+#include "MatchEngine.h"
 #include "hls_math.h"
 #include <iostream>
 #include <fstream>
@@ -20,12 +19,12 @@ void readTable(bool table[256]){
 /* 
 
 //Attempt at new version of code
-void HLSMatchEngine(const ap_uint<3> bx,
+void MatchEngine(const ap_uint<3> bx,
 		    const VMStubs& instubdata,
 		    const VMProjections& inprojdata,
 		    CandidateMatches& outcandmatch){
 
-  std::cout << "In HLSMatchEngine #proj ="<<hex<<inprojdata.getEntries(bx)<<" #stubs=";
+  std::cout << "In MatchEngine #proj ="<<hex<<inprojdata.getEntries(bx)<<" #stubs=";
   for (unsigned int zbin=0;zbin<8;zbin++){
     std::cout <<" "<<instubdata.getEntries(bx,zbin);
   }
@@ -153,12 +152,12 @@ void HLSMatchEngine(const ap_uint<3> bx,
 
 */
 
-void HLSMatchEngine(const ap_uint<3> bx,
-		    const VMStubs& instubdata,
-		    const VMProjections& inprojdata,
-		    CandidateMatches& outcandmatch){
+void MatchEngine(const ap_uint<3> bx,
+		 const VMStubs& instubdata,
+		 const VMProjections& inprojdata,
+		 CandidateMatches& outcandmatch){
 
-  std::cout << "In HLSMatchEngine #proj ="<<hex<<inprojdata.getEntries(bx)<<" #stubs=";
+  std::cout << "In MatchEngine #proj ="<<hex<<inprojdata.getEntries(bx)<<" #stubs=";
   for (unsigned int zbin=0;zbin<8;zbin++){
     std::cout <<" "<<instubdata.getEntries(bx,zbin);
   }

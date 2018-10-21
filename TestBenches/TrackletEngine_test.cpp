@@ -1,5 +1,5 @@
 // ProjectionRouter test bench
-#include "HLSTrackletEngine.h"
+#include "TrackletEngine.h"
 #include "StubPairs.hh"
 #include "VMStubsTEInner.hh"
 #include "VMStubsTEOuter.hh"
@@ -54,12 +54,12 @@ int main(){
 
 
     // Unit Under Test
-    HLSTrackletEngine(
-		      bx,
-		      inputvmstubsinner,
-		      inputvmstubsouter,
-		      outputstubpairs
-		      );
+    TrackletEngine(
+		   bx,
+		   inputvmstubsinner,
+		   inputvmstubsouter,
+		   outputstubpairs
+		   );
     
     // compare calculated outputs with those read from emulation printout
     err_count+=inputstubpairs.compare(outputstubpairs,bx);
