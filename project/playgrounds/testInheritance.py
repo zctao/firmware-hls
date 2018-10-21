@@ -173,30 +173,77 @@ for test in args.tests:
 # plot
 if args.plot:
     #print TestPerf
+    
+###########
+    def PlotResults(npoints, xvar, yvar, title, xtitle, ytitle, outname):
+        canvas = TCanvas()
+
+        mg = TMultiGraph()
+        leg = TLegend(0.7, 0.73, 0.9, 0.9)
+
+        ymax = 0
+        ymin = 999999999999999
+        
+        for it, test in enumerate(args.tests):
+            xarray = TestPerf[test][xvar]
+            yarray = TestPerf[test][yvar]
+            gr = TGraph(npoints, xarray, yarray)
+            gr.SetLineColor(it+2)
+            gr.SetMarkerColor(it+2)
+            gr.SetMarkerStyle(20+it)
+            gr.SetMarkerSize(0.75)
+
+            mg.Add(gr)
+            leg.AddEntry(gr, test, "l")
+
+            ymax = max(ymax, max(yarray)*1.05)
+            ymin = min(ymin, min(yarray)*0.95)
+
+        mg.Draw("APL")
+        mg.SetTitle(title)
+        mg.GetXaxis().SetTitle(xtitle)
+        mg.GetYaxis().SetTitle(ytitle)
+        mg.SetMaximum(ymax)
+        mg.SetMinimum(ymin)
+
+        leg.Draw("same")
+
+        canvas.SaveAs(outname)
+###########
 
     nclks = len(args.clocks)
+
+    # post synthesis results
+    PlotResults(nclks, 'nFF_syn', 'nLUT_syn', "Post synthesis resource usage",
+                "number of FFs", "number of LUTs",
+                "postsyn_resource.pdf")
+
+    PlotResults(nclks, 'CLK_set', 'CLK_syn', "Post synthesis timing",
+                "Target clock period (ns)", "Estimated clock period (ns)",
+                "postsyn_timing.pdf")
+
+    PlotResults(nclks, 'CLK_set', 'nFF_syn', "Post synthesis FFs",
+                "Target clock period (ns)", "number of FFs",
+                "postsyn_nff.pdf")
+
+    PlotResults(nclks, 'CLK_set', 'nLUT_syn', "Post synthesis LUTs",
+                "Target clock period (ns)", "number of LUTs",
+                "postsyn_nlut.pdf")
+
+    # post implementation results
+    PlotResults(nclks, 'nFF_impl', 'nLUT_impl',
+                "Post implementation resource usage",
+                "number of FFs", "number of LUTs",
+                "postimpl_resource.pdf")
     
-    canvas = TCanvas ()
+    PlotResults(nclks, 'CLK_set', 'CLK_impl', "Post implementation timing",
+                "Target clock period (ns)", "Achieved clock period (ns)",
+                "postimpl_timing.pdf")
 
-    # nLUT vs nFF
-    mg_syn_res = TMultiGraph()
-    leg = TLegend(0.75,0.85,0.95,0.95)
-    for it, test in enumerate(args.tests):
-        
-        g_syn_res = TGraph(nclks,
-                           TestPerf[test]['nFF_syn'], TestPerf[test]['nLUT_syn'])
-        g_syn_res.SetLineColor(it+2)
-        g_syn_res.SetMarkerColor(it+2)
-        g_syn_res.SetMarkerSize(40)
-       
-        mg_syn_res.Add(g_syn_res)
-        leg.AddEntry(g_syn_res, test, "l")
+    PlotResults(nclks, 'CLK_set', 'nFF_impl', "Post implementation FFs",
+                "Target clock period (ns)", "number of FFs",
+                "postimpl_nff.pdf")
 
-    mg_syn_res.Draw("APL")
-    mg_syn_res.SetTitle("Post synthesis resource usage")
-    mg_syn_res.GetXaxis().SetTitle("number of FFs")
-    mg_syn_res.GetYaxis().SetTitle("number of LUTs")
-
-    leg.Draw("same")
-    
-    canvas.SaveAs("postsyn_resource.pdf")
+    PlotResults(nclks, 'CLK_set', 'nLUT_impl', "Post implementation LUTs",
+                "Target clock period (ns)", "number of LUTs",
+                "postimpl_nlut.pdf")
