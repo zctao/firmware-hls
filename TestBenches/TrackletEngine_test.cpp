@@ -32,9 +32,9 @@ int main(){
 
 
   // open input files from emulation
-  ifstream fin_vmstubsinner("../emData/TE/L1PHIE18_L2PHIC17/VMStubs_VMSTE_L1PHIE18n2_04.dat");
-  ifstream fin_vmstubsouter("../emData/TE/L1PHIE18_L2PHIC17/VMStubs_VMSTE_L2PHIC17n4_04.dat");
-  ifstream fin_stubpairs("../emData/TE/L1PHIE18_L2PHIC17/StubPairs_SP_L1PHIE18_L2PHIC17_04.dat");  
+  ifstream fin_vmstubsinner("../../../../../emData/TE/TE_L1PHIE18_L2PHIC17/VMStubs_VMSTE_L1PHIE18n2_04.dat");
+  ifstream fin_vmstubsouter("../../../../../emData/TE/TE_L1PHIE18_L2PHIC17/VMStubs_VMSTE_L2PHIC17n4_04.dat");
+  ifstream fin_stubpairs("../../../../../emData/TE/TE_L1PHIE18_L2PHIC17/StubPairs_SP_L1PHIE18_L2PHIC17_04.dat");  
   assert(fin_vmstubsinner.good());
   assert(fin_vmstubsouter.good());
   assert(fin_stubpairs.good());

@@ -7,7 +7,7 @@ open_project -reset matchengine
 set_top HLSMatchEngine
 add_files ../TrackletAlgorithm/HLSMatchEngine.cpp
 add_files -tb ../TestBenches/MatchEngine_test.cpp -cflags "-I../TrackletAlgorithm"
-add_files -tb ../TestBenches/emData_ME
+add_files -tb ../emData/ME
 open_solution -reset "solution1"
 set_part {xcku115-flvb2104-2-e} -tool vivado
 create_clock -period 4 -name default

@@ -8,7 +8,7 @@
 void readPtTable(bool table[32]){
 
   bool tmp[]=
-#include "../emData/TE/L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_ptcut.tab"
+#include "../emData/TE/TE_L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_ptcut.tab"
     
   for (int i=0;i<32;i++){
     table[i]=tmp[i];
@@ -20,7 +20,7 @@ void readPtTable(bool table[32]){
 void readBendInnerTable(bool table[256]){
 
   bool tmp[]=
-#include "../emData/TE/L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_stubptinnercut.tab"
+#include "../emData/TE/TE_L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_stubptinnercut.tab"
     
   for (int i=0;i<256;i++){
     table[i]=tmp[i];
@@ -31,7 +31,7 @@ void readBendInnerTable(bool table[256]){
 void readBendOuterTable(bool table[256]){
 
   bool tmp[]=
-#include "../emData/TE/L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_stubptoutercut.tab"
+#include "../emData/TE/TE_L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_stubptoutercut.tab"
     
   for (int i=0;i<256;i++){
     table[i]=tmp[i];

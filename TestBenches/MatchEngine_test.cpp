@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <iterator>
 
+
 const int nevents = 1;  // number of events to run
 
 using namespace std;
@@ -31,9 +32,9 @@ int main() {
   CandidateMatches outputcandmatches;
 
   // open input files
-  ifstream fin_vmstub("../emData/ME/L1PHIE20/VMStubs_VMSME_L1PHIE20n1_04.dat");
-  ifstream fin_vmproj("../emData/ME/L1PHIE20/VMProjections_VMPROJ_L1PHIE20_04.dat");
-  ifstream fin_candmatch("../emData/ME/L1PHIE20/CandidateMatches_CM_L1PHIE20_04.dat");
+  ifstream fin_vmstub("../../../../../emData/ME/ME_L1PHIE20/VMStubs_VMSME_L1PHIE20n1_04.dat");
+  ifstream fin_vmproj("../../../../../emData/ME/ME_L1PHIE20/VMProjections_VMPROJ_L1PHIE20_04.dat");
+  ifstream fin_candmatch("../../../../../emData/ME/ME_L1PHIE20/CandidateMatches_CM_L1PHIE20_04.dat");
 
   assert(fin_vmstub.good());
   assert(fin_vmproj.good());
