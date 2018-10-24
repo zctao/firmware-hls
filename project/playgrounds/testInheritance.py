@@ -5,7 +5,7 @@ import argparse
 import xml.etree.ElementTree as et
 
 from array import array
-from ROOT import TCanvas, TGraph, TMultiGraph, TLegend
+from ROOT import TCanvas, TGraph, TGraphErrors, TMultiGraph, TLegend
 
 parser = argparse.ArgumentParser()
 
@@ -108,8 +108,8 @@ for test in args.tests:
     # container for performance analysis
     test_perf_dict = {'nFF_syn':array('f'), 'nLUT_syn':array('f'),
                       'nFF_impl':array('f'), 'nLUT_impl':array('f'),
-                      'CLK_syn':array('f'), 'CLK_impl':array('f'),
-                      'CLK_set':array('f')}
+                      'CLK_syn':array('f'), 'CLK_syn_unc':array('f'),
+                      'CLK_impl':array('f'), 'CLK_set':array('f')}
 
     srcdir = args.project if args.source_dir is None else args.source_dir.rstrip('/')
     srcfile = srcdir+'/'+'InheritanceTest_'+test+'.cc'
@@ -152,6 +152,7 @@ for test in args.tests:
             test_perf_dict['nFF_syn'].append(nff_syn)
             test_perf_dict['nLUT_syn'].append(nlut_syn)
             test_perf_dict['CLK_syn'].append(clk_syn)
+            test_perf_dict['CLK_syn_unc'].append(clk_unc)
             test_perf_dict['CLK_set'].append(clk_set)
             
             # Implementation report
@@ -175,7 +176,8 @@ if args.plot:
     #print TestPerf
     
 ###########
-    def PlotResults(npoints, xvar, yvar, title, xtitle, ytitle, outname):
+    def PlotResults(npoints, xvar, yvar, title, xtitle, ytitle, outname,
+                    outdir = args.project):
         canvas = TCanvas()
 
         mg = TMultiGraph()
@@ -187,7 +189,12 @@ if args.plot:
         for it, test in enumerate(args.tests):
             xarray = TestPerf[test][xvar]
             yarray = TestPerf[test][yvar]
-            gr = TGraph(npoints, xarray, yarray)
+
+            xerror = array('f',[0]*len(xarray))
+            yerror = array('f',[0]*len(yarray)) if yvar!='CLK_syn' else TestPerf[test]['CLK_syn_unc']
+            
+            gr = TGraphErrors(npoints, xarray, yarray) if yvar!='CLK_syn' else TGraphErrors(npoints, xarray, yarray, xerror, yerror)
+            
             gr.SetLineColor(it+2)
             gr.SetMarkerColor(it+2)
             gr.SetMarkerStyle(20+it)
@@ -208,7 +215,7 @@ if args.plot:
 
         leg.Draw("same")
 
-        canvas.SaveAs(outname)
+        canvas.SaveAs(outdir+'/'+outname)
 ###########
 
     nclks = len(args.clocks)
