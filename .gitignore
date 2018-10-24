@@ -32,6 +32,9 @@
 emData
 vmrouter_1
 vmrouter_2
+projrouter
+sectproc
+playgrounds
 
 # Precompiled Headers
 *.gch
