@@ -1,5 +1,5 @@
 // ProjectionRouter test bench
-#include "HLSProjectionRouter.h"
+#include "ProjectionRouter.h"
 
 #include <iostream>
 #include <fstream>
@@ -77,8 +77,8 @@ int main()
 	static TrackletProjectionMemory tproj4;
 	static TrackletProjectionMemory tproj5;
 	static TrackletProjectionMemory tproj6;
-	static TrackletProjectionMemory tproj7;
-	static TrackletProjectionMemory tproj8;
+	//static TrackletProjectionMemory tproj7;
+	//static TrackletProjectionMemory tproj8;
 
 	// output memories
 	static AllProjectionMemory allproj;
@@ -119,12 +119,12 @@ int main()
 		ap_uint<3> bx_out;
 
 		// Unit Under Test
-		HLSProjectionRouter(bx,
-							tproj1, tproj2, tproj3, tproj4,
-							tproj5, tproj6, tproj7, tproj8,
+		ProjectionRouter(bx,
+							&tproj1, &tproj2, &tproj3, &tproj4,
+							&tproj5, &tproj6, 0, 0,
 							bx_out,
-							allproj,
-							vmproj1, vmproj2, vmproj3, vmproj4
+							&allproj,
+							&vmproj1, &vmproj2, &vmproj3, &vmproj4
 							);
 
 		// dump output

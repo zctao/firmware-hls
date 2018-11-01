@@ -11,6 +11,7 @@ typedef ap_uint<5> VMPRINV;
 
 typedef ap_uint<7+MEBinsBits+1+4+5+1> VMProjData;
 
+
 // Data definition
 class VMProjection
 {
@@ -83,15 +84,15 @@ typedef MemoryBase<VMProjection, 2, kMemDepth> VMProjectionMemory;
 
 /*
 //template<unsigned int bx=2, unsigned int memdepth=kMemDepth>
-class VMProjections: public MemoryBase<VMProj, 2, kMemDepth>
+class VMProjectionMemory: public MemoryBase<VMProjData, 2, kMemDepth>
 {
 public:
 
-  static VMPID get_index(const VMProj data) {return data.range(20,14);}
-  static VMPZBIN get_zbin(const VMProj data) {return data.range(13,10);}
-  static VMPFINEZ get_finez(const VMProj data) {return data.range(9,6);}
-  static VMPRINV get_rinv(const VMProj data) {return data.range(5,1);}
-  static bool get_PSseed(const VMProj data) {return data.range(0,0);}
+  static VMPID get_index(const VMProjData data) {return data.range(20,14);}
+  static VMPZBIN get_zbin(const VMProjData data) {return data.range(13,10);}
+  static VMPFINEZ get_finez(const VMProjData data) {return data.range(9,6);}
+  static VMPRINV get_rinv(const VMProjData data) {return data.range(5,1);}
+  static bool get_PSseed(const VMProjData data) {return data.range(0,0);}
 };
 */
 

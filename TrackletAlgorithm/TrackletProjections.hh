@@ -98,18 +98,18 @@ typedef MemoryBase<TrackletProjection, 2, kMemDepth> TrackletProjectionMemory;
 
 /*
 //template<unsigned int bx=2, unsigned int memdepth=kMemDepth>
-class TrackletProjections: public MemoryBase<TProj, 2, kMemDepth>
+class TrackletProjectionMemory: public MemoryBase<TProjData, 2, kMemDepth>
 {
 public:
 
   // getter
-  static bool get_plusNeighbor(const TProj data)       {return data.range(61,61);}
-  static bool get_minusNeighbor(const TProj data)      {return data.range(60,60);}
-  static TProjTCID get_trackletIndex(const TProj data) {return data.range(59,47);}
-  static TProjPHI get_phi(const TProj data)            {return data.range(46,33);}
-  static TProjZ get_z(const TProj data)                {return data.range(32,21);}
-  static TProjPHIDER get_phider(const TProj data)      {return data.range(20,10);}
-  static TProjZDER get_zder(const TProj data)          {return data.range(9,0);}
+  static bool get_plusNeighbor(const TProjData data)       {return data.range(61,61);}
+  static bool get_minusNeighbor(const TProjData data)      {return data.range(60,60);}
+  static TProjTCID get_trackletIndex(const TProjData data) {return data.range(59,47);}
+  static TProjPHI get_phi(const TProjData data)            {return data.range(46,33);}
+  static TProjZ get_z(const TProjData data)                {return data.range(32,21);}
+  static TProjPHIDER get_phider(const TProjData data)      {return data.range(20,10);}
+  static TProjZDER get_zder(const TProjData data)          {return data.range(9,0);}
 };
 */
 

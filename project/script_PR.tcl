@@ -4,8 +4,8 @@
 ## Copyright (C) 1986-2017 Xilinx, Inc. All Rights Reserved.
 ############################################################
 open_project -reset projrouter
-set_top HLSProjectionRouter
-add_files ../TrackletAlgorithm/HLSProjectionRouter.cpp
+set_top ProjectionRouter
+add_files ../TrackletAlgorithm/ProjectionRouter.cpp
 add_files -tb ../TestBenches/ProjectionRouter_test.cpp -cflags "-I../TrackletAlgorithm"
 add_files -tb ../TestBenches/emData_PR
 open_solution -reset "solution1"

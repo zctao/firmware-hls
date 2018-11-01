@@ -97,18 +97,18 @@ typedef MemoryBase<AllProjection, 2, kMemDepth> AllProjectionMemory;
 
 /*
 //template<unsigned int bx=2, unsigned int memdepth=kMemDepth>
-class AllProjections: public MemoryBase<AllProj, 2, kMemDepth>
+class AllProjectionMemory: public MemoryBase<AllProjData, 2, kMemDepth>
 {
 public:
 
   // getter
-  static bool get_plusNeighbor(const AllProj data)       {return data.range(61,61);}
-  static bool get_minusNeighbor(const AllProj data)      {return data.range(60,60);}
-  static AProjTCID get_trackletIndex(const AllProj data) {return data.range(59,47);}
-  static AProjPHI get_phi(const AllProj data)            {return data.range(46,33);}
-  static AProjZ get_z(const AllProj data)                {return data.range(32,21);}
-  static AProjPHIDER get_phider(const AllProj data)      {return data.range(20,10);}
-  static AProjZDER get_zder(const AllProj data)          {return data.range(9,0);}
+  static bool get_plusNeighbor(const AllProjData data)       {return data.range(61,61);}
+  static bool get_minusNeighbor(const AllProjData data)      {return data.range(60,60);}
+  static AProjTCID get_trackletIndex(const AllProjData data) {return data.range(59,47);}
+  static AProjPHI get_phi(const AllProjData data)            {return data.range(46,33);}
+  static AProjZ get_z(const AllProjData data)                {return data.range(32,21);}
+  static AProjPHIDER get_phider(const AllProjData data)      {return data.range(20,10);}
+  static AProjZDER get_zder(const AllProjData data)          {return data.range(9,0);}
 
 };
 */

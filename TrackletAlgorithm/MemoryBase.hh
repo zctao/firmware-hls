@@ -9,14 +9,15 @@ public:
   
   MemoryBase()
   {
-#pragma HLS ARRAY_PARTITION variable=nentries_ complete
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
 	clear();
   }
 
-  virtual ~MemoryBase(){}
+  ~MemoryBase(){}
 
   void clear()
   {
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
   MEM_RST: for (ap_uint<3> ibx=0; ibx<NBX; ++ibx) {
 #pragma HLS UNROLL
 	  nentries_[ibx%NBX] = 0;
@@ -28,28 +29,39 @@ public:
   unsigned int getDepth() const {return DEPTH;}
   unsigned int getnBX() const {return NBX;}
   
-  unsigned int getEntries(ap_uint<3> bx) const {return nentries_[bx%NBX];}
+  unsigned int getEntries(ap_uint<3> bx) const {
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
+	return nentries_[bx%NBX];
+  }
 
   DataType* get_mem() {return dataarray_;}
   
   DataType read_mem(ap_uint<3> ibx, unsigned int index) const // to be optimized
   {
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
 	// TODO: check if valid
 	return dataarray_[ibx%NBX][index];
   }
 
   bool write_mem(ap_uint<3> ibx, DataType data)
   {
-	//assert(ibx < NBX);
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
+#pragma HLS dependence variable=nentries_ intra WAR true
 	
-	if (nentries_[ibx%NBX] <= DEPTH) {
-	  dataarray_[ibx%NBX][nentries_[ibx%NBX]++] = data;
+	unsigned int nentry_ibx = nentries_[ibx%NBX];
+	
+	if (nentry_ibx <= DEPTH) {
+	  dataarray_[ibx%NBX][nentry_ibx] = data;
+	  nentries_[ibx%NBX] = nentry_ibx + 1;
 	  return true;
 	}
 	else
 	  return false;
   }
-  
+
+#ifndef __SYNTHESIS__
+#include <iostream>
+
   bool write_mem(ap_uint<3> bx, const char* datastr, int base = 16)
   {
 	DataType data(datastr, base);
@@ -57,13 +69,11 @@ public:
 	return write_mem(bx, data);
   }
 
-#ifndef __SYNTHESIS__
-#include <iostream>
-
   // print memory contents
   virtual void print_data(const DataType data) const
   {
 	std::cout << std::hex << data.raw() << std::endl;
+	//std::cout << std::hex << data << std::endl;
   }
 
   void print_entry(ap_uint<3> bx, unsigned int i) const
