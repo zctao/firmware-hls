@@ -10,7 +10,7 @@ add_files -tb ../TestBenches/MatchEngine_test.cpp -cflags "-I../TrackletAlgorith
 add_files -tb ../emData/ME
 open_solution -reset "solution1"
 set_part {xcku115-flvb2104-2-e} -tool vivado
-create_clock -period 4 -name default
+create_clock -period 32 -name default
 #source "./projrouter/solution1/directives.tcl"
 #csim_design -compiler gcc
 #csynth_design

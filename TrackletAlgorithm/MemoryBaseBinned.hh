@@ -15,7 +15,7 @@ public:
   
   MemoryBaseBinned()
   {
-#pragma HLS ARRAY_PARTITION variable=nentries_ complete
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
 	clear();
   }
 
@@ -36,6 +36,7 @@ public:
 
   void clear()
   {
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
 	for (ap_uint<3> ibx=0; ibx<NBX; ++ibx) {
 #pragma HLS UNROLL
 	  clear(ibx);
@@ -43,6 +44,7 @@ public:
   }
 
   void clear(ap_uint<3> bx) {
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
     for(unsigned int zbin=0;zbin<8;zbin++) {
       nentries_[bx%NBX][zbin] = 0;}
   }
@@ -51,12 +53,14 @@ public:
   unsigned int getnBX() const {return NBX;}
   
   void getEntries(ap_uint<3> bx, ap_uint<4> nentries[8]) const {
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
     for (unsigned int zbin=0;zbin<8;zbin++) {
       nentries[zbin]=nentries_[bx%NBX][zbin];
     }
   }
 
   ap_uint<4>  getEntries(ap_uint<3> bx, ap_uint<3> zbin) const {
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
     return nentries_[bx%NBX][zbin];
   }
 

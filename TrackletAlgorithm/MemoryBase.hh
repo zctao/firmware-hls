@@ -55,7 +55,7 @@ public:
 
   DataType* get_mem(ap_uint<3> bx) {return dataarray_[bx%NBX];}
   
-  DataType read_mem(ap_uint<3> ibx, unsigned int index) const // to be optimized
+  DataType read_mem(const ap_uint<3> ibx, const ap_uint<4> index) const // to be optimized
   {
 	// TODO: check if valid
 	return dataarray_[ibx%NBX][index];
