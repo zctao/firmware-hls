@@ -4,6 +4,12 @@
 #include "ap_int.h"
 #include "Constants.hh"
 
+typedef ap_uint<8> FullZ_Layer_2S;
+typedef ap_uint<17> FullPhi_Layer_2S;
+typedef ap_uint<8>  FullR_Layer_2S;
+typedef ap_uint<3>  FullPt_Layer_2S;
+
+
 
 class FullStubLayer2S
 {
@@ -22,39 +28,40 @@ public:
     return data_;
   }
   FullStubLayer2S(const FullZ_Layer_2S newZ, const FullPhi_Layer_2S newPhi,
-		     const FullR_Layer_2S newR, const FullPt_Layer_2S newPt)
+		  const FullR_Layer_2S newR, const FullPt_Layer_2S newPt)
   {
     AddStub(newZ, newPhi, newR, newPt);
   }
   void AddStub(const StubData newStub)
   {
-	data_ = newStub;
+    data_ = newStub;
   }
   void AddStub(const FullZ_Layer_2S newZ, const FullPhi_Layer_2S newPhi,
 	       const FullR_Layer_2S newR, const FullPt_Layer_2S newPt)
   {
     // without the to_long these variables truncate at their current bit width.
-    data_ = newZ | (newPhi.to_long()<<8) | (newR.to_long()<<(17+8)) | (newPt.to_long()<<(17+8+8));
+    //data_ = newZ | (newPhi.to_long()<<8) | (newR.to_long()<<(17+8)) | (newPt.to_long()<<(17+8+8));
+    data_ = (((newZ, newPhi),newR),newPt);
   }
   FullZ_Layer_2S GetZ() const
   {
-    FullZ_Layer_2S tz = (data_&0xFFUL);
-    return tz;
+    //FullZ_Layer_2S tz = (data_&0xFFUL);
+    return data_.range(0,7);
   }
   FullPhi_Layer_2S GetPhi()  const
   {
-    FullPhi_Layer_2S tPhi = (data_>>8)& 0x1FFFFUL;
-    return tPhi;
+    //FullPhi_Layer_2S tPhi = (data_>>8)& 0x1FFFFUL;
+    return data_.range(8,8+17);
   }
   FullR_Layer_2S GetR()  const
   {
-    FullR_Layer_2S tR = (data_>> (8+17))&0xFFUL;
-    return tR;
+    //FullR_Layer_2S tR = (data_>> (8+17))&0xFFUL;
+    return data_.range(8+17,8+17+8);
   }
   FullPt_Layer_2S GetPt()  const
   {
-    FullPt_Layer_2S tPt = (data_ >> (8+17+8)) & 0x7UL;
-    return tPt;
+    //FullPt_Layer_2S tPt = (data_ >> (8+17+8)) & 0x7UL;
+    return data_.range(8+17+8,8+17+8+3);
     //return pt;
   }
   // --------------------------------------------------
