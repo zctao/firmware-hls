@@ -1,5 +1,14 @@
-// This is the ReducedStubLayer class, which contains, in essence the 18 bits of a reduced stub, after it has been routed
+// This is the ReducedStubLayer class, which contains the 18 bits of a reduced stub
 #pragma once
+
+// Define bit widths for reduced stub parameters
+typedef ap_uint<18> ReducedStubData;
+typedef ap_uint<4> ReducedZ_Layer;
+typedef ap_uint<3> ReducedPhi_Layer;
+typedef ap_uint<2> ReducedR_Layer;
+typedef ap_uint<3> ReducedPt_Layer;
+typedef ap_uint<6> ReducedIndex;
+
 
 // ReducedZ_Layer z; // 4 bits
 // ReducedPhi_Layer phi; // 3 bits
@@ -7,10 +16,37 @@
 // ReducedPt_Layer pt; // 3 bits
 // ReducedIndex index; // 6 bits
 
+namespace ReducedStub {
+  // sizes
+  constexpr int kZSize = 4;
+  constexpr int kPhiSize = 3;
+  constexpr int kRSize = 2;
+  constexpr int kPtSize = 3;
+  constexpr int kIndexSize = 6;
+  constexpr int kReducedStubSize = kZSize + kPhiSize + kRSize + kPtSize + kIndexSize;
+
+  // offsets
+  constexpr int kZLowOff = 0;
+  constexpr int kZHiOff = kZLowOff + kZSize - 1;
+  constexpr int kPhiLowOff = kZHiOff + 1;
+  constexpr int kPhiHiOff = kPhiLowOff + kPhiSize - 1;
+  constexpr int kRLowOff = kPhiHiOff + 1;
+  constexpr int kRHiOff = kRLowOff + kRSize - 1 ;
+  constexpr int kPtLowOff = kRHiOff + 1;
+  constexpr int kPtHiOff = kPtLowOff + kPtSize - 1;
+  constexpr int kIndexLowOff = kPtHiOff + 1;
+  constexpr int kIndexHiOff = kIndexLowOff + kIndexSize -1;
+   
+};
+
 
 
 #include "ap_int.h"
 #include "Constants.hh"
+
+//#include "MemoryTemplate.hh"
+using namespace ReducedStub;
+
 class ReducedStubLayer
 {
 private:
@@ -20,61 +56,66 @@ public:
     data_(0)
   {
   }
-  // default copy constructor is ok
+  // default copy, move etc constructor is ok
 
-  void AddStub(ReducedZ_Layer newZ, ReducedPhi_Layer newPhi, ReducedR_Layer newR, ReducedPt_Layer newPt, ReducedIndex newIndex)
+  ReducedStubLayer(const ReducedZ_Layer newZ, const ReducedPhi_Layer newPhi,
+		   const ReducedR_Layer newR, const ReducedPt_Layer newPt,
+		   const ReducedIndex newIndex):
+    data_((((( newZ, newPhi), newR), newPt), newIndex))
   {
-    data_ = newZ | (newPhi.to_long()<< 4) | (newR.to_long() << (4+3)) | 
-      (newPt.to_long() << (4+3+2)) | (newIndex.to_long() << (4+3+2+3));
   }
+  void AddStub(const ReducedZ_Layer newZ, const ReducedPhi_Layer newPhi,
+		   const ReducedR_Layer newR, const ReducedPt_Layer newPt,
+		   const ReducedIndex newIndex)
+  {
+	data_ = (((( newZ, newPhi), newR), newPt), newIndex);
+
+  }
+
   ReducedStubData raw() const 
   {
     return data_;
   }
   ReducedZ_Layer GetZ() const
   {
-    ReducedZ_Layer tz = data_ & 0xFUL;
-    return tz;
+    return data_.range(kZLowOff, kZHiOff);
   }
   ReducedPhi_Layer GetPhi() const
   {
-    ReducedPhi_Layer tphi = ( data_>> 4 ) & 0x7UL;
-    return tphi;
+    return data_.range(kPhiLowOff, kPhiHiOff);
   }
   ReducedR_Layer GetR() const
   {
-    ReducedR_Layer tr = (data_ >> (4+3)) & 0x3UL;
-    return tr;
+    return data_.range(kZLowOff, kZHiOff);
   }
   ReducedPt_Layer GetPt() const
   {
-    ReducedPt_Layer tpt = (data_ >> (4+3+2) ) & 0x7UL;
-    return tpt;
+    return data_.range(kPtLowOff, kPtHiOff);
   }
   ReducedIndex GetIndex() const
   {
-    ReducedIndex tindex = ( data_ >> (4+3+2+3) ) & 0x3FUL;
-    return tindex;
+    return data_.range(kIndexLowOff, kIndexHiOff);
   }
-  // void SetZ(const ReducedZ_Layer newZ)
-  // {
-  //   z = newZ;
-  // }
-  // void SetPhi(const ReducedPhi_Layer newPhi)
-  // {
-  //   phi = newPhi;
-  // }
-  // void SetR(const ReducedR_Layer newR)
-  // {
-  //   r = newR;
-  // }
-  // void SetPt(const ReducedPt_Layer newPt)
-  // {
-  //   pt = newPt;
-  // }
-  // void SetIndex(const ReducedIndex newIndex)
-  // {
-  //   index = newIndex;
-  // }
+  void SetZ(const ReducedZ_Layer newZ)
+  {
+    data_.range(kZLowOff, kZHiOff) = newZ;
+  }
+  void SetPhi(const ReducedPhi_Layer newPhi)
+  {
+    data_.range(kPhiLowOff, kPhiHiOff) = newPhi;
+  }
+  void SetR(const ReducedR_Layer newR)
+  {
+    data_.range(kZLowOff, kZHiOff) = newR;
+  }
+  void SetPt(const ReducedPt_Layer newPt)
+  {
+    data_.range(kPtLowOff, kPtHiOff) = newPt;
+  }
+  void SetIndex(const ReducedIndex newIndex)
+  {
+    data_.range(kIndexLowOff, kIndexHiOff) = newIndex;
+  }
 };
 
+//typedef MemoryTemplate<ReducedStubLayer, 3, kNBits_MemAddr> ReducedStubLayerMemory;
