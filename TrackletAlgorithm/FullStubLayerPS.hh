@@ -5,6 +5,12 @@
 #include "ap_int.h"
 #include "Constants.hh"
 
+typedef ap_uint<12> FullZ_Layer_PS;
+typedef ap_uint<14> FullPhi_Layer_PS;
+typedef ap_uint<7>  FullR_Layer_PS;
+typedef ap_uint<3>  FullPt_Layer_PS;
+
+
 
 class FullStubLayerPS
 {
