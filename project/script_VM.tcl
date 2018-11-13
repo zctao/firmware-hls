@@ -5,8 +5,8 @@ set part "xc7vx690tffg1927-2"
 set clockperiod 4
 
 # better to delete to remove stale csim output
-delete_project vmrouter_2 
-open_project -reset vmrouter_2
+delete_project vmrouter 
+open_project -reset vmrouter
 set_top VMRouterDispatcher 
 
 # source files
