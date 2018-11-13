@@ -2,13 +2,6 @@
 #pragma once
 
 // Define bit widths for reduced stub parameters
-typedef ap_uint<18> ReducedStubData;
-
-typedef ap_uint<4> ReducedZ_Layer;
-typedef ap_uint<3> ReducedPhi_Layer;
-typedef ap_uint<2> ReducedR_Layer;
-typedef ap_uint<3> ReducedPt_Layer;
-typedef ap_uint<6> ReducedIndex;
 
 
 // ReducedZ_Layer z; // 4 bits
@@ -39,6 +32,14 @@ namespace ReducedStub {
   constexpr int kIndexHiOff = kIndexLowOff + kIndexSize -1;
    
 };
+
+typedef ap_uint<ReducedStub::kReducedStubSize> ReducedStubData;
+
+typedef ap_uint<ReducedStub::kZSize> ReducedZ_Layer;
+typedef ap_uint<ReducedStub::kPhiSize> ReducedPhi_Layer;
+typedef ap_uint<ReducedStub::kRSize> ReducedR_Layer;
+typedef ap_uint<ReducedStub::kPtSize> ReducedPt_Layer;
+typedef ap_uint<ReducedStub::kIndexSize> ReducedIndex;
 
 
 
