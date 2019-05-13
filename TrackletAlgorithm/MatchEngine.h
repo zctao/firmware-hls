@@ -80,7 +80,7 @@ void readTable(bool table[256]){
 
 //Attempt at new version of code
 template<int L, regionType VMSMEType>
-void MatchEngine(const ap_uint<3> bx,
+void MatchEngine(const BXType bx,
 		 const VMStubMEMemory<VMSMEType>* const instubdata,
 		 const VMProjectionMemory<BARREL>* const inprojdata,
 		 CandidateMatchMemory* const outcandmatch){

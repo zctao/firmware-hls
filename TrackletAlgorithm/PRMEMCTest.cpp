@@ -1,0 +1,162 @@
+#include "PRMEMCTest.h"
+
+void PRMEMCTest(
+BXType bx,
+const VMStubMEMemory<BARRELPS>& VMSME_L3PHIC22n1,
+const VMStubMEMemory<BARRELPS>& VMSME_L3PHIC23n1,
+const VMStubMEMemory<BARRELPS>& VMSME_L3PHIC24n1,
+const TrackletProjectionMemory<BARRELPS>& TPROJ_L1L2F_L3PHIC,
+const TrackletProjectionMemory<BARRELPS>& TPROJ_L1L2G_L3PHIC,
+const TrackletProjectionMemory<BARRELPS>& TPROJ_L1L2H_L3PHIC,
+const TrackletProjectionMemory<BARRELPS>& TPROJ_L1L2I_L3PHIC,
+const TrackletProjectionMemory<BARRELPS>& TPROJ_L1L2J_L3PHIC,
+const TrackletProjectionMemory<BARRELPS>& TPROJ_L5L6B_L3PHIC,
+const TrackletProjectionMemory<BARRELPS>& TPROJ_L5L6C_L3PHIC,
+const TrackletProjectionMemory<BARRELPS>& TPROJ_L5L6D_L3PHIC,
+const VMStubMEMemory<BARRELPS>& VMSME_L3PHIC17n1,
+const VMStubMEMemory<BARRELPS>& VMSME_L3PHIC18n1,
+const VMStubMEMemory<BARRELPS>& VMSME_L3PHIC19n1,
+const AllStubMemory<BARRELPS>& AS_L3PHICn4,
+const VMStubMEMemory<BARRELPS>& VMSME_L3PHIC20n1,
+const VMStubMEMemory<BARRELPS>& VMSME_L3PHIC21n1,
+BXType& bx_o,
+FullMatchMemory<BARREL>& FM_L5L6_L3PHIC,
+FullMatchMemory<BARREL>& FM_L1L2_L3PHIC)
+{
+static VMProjectionMemory<BARREL> VMPROJ_L3PHIC17;
+
+static VMProjectionMemory<BARREL> VMPROJ_L3PHIC18;
+
+static VMProjectionMemory<BARREL> VMPROJ_L3PHIC19;
+
+static VMProjectionMemory<BARREL> VMPROJ_L3PHIC20;
+
+static VMProjectionMemory<BARREL> VMPROJ_L3PHIC21;
+
+static VMProjectionMemory<BARREL> VMPROJ_L3PHIC22;
+
+static VMProjectionMemory<BARREL> VMPROJ_L3PHIC23;
+
+static VMProjectionMemory<BARREL> VMPROJ_L3PHIC24;
+
+static CandidateMatchMemory CM_L3PHIC17;
+
+static CandidateMatchMemory CM_L3PHIC18;
+
+static CandidateMatchMemory CM_L3PHIC19;
+
+static CandidateMatchMemory CM_L3PHIC20;
+
+static CandidateMatchMemory CM_L3PHIC21;
+
+static CandidateMatchMemory CM_L3PHIC22;
+
+static CandidateMatchMemory CM_L3PHIC23;
+
+static CandidateMatchMemory CM_L3PHIC24;
+
+static AllProjectionMemory<BARRELPS> AP_L3PHIC;
+
+
+ProjectionRouter<BARRELPS,BARREL,8,3,0>
+(bx,
+&TPROJ_L1L2F_L3PHIC,
+&TPROJ_L1L2G_L3PHIC,
+&TPROJ_L1L2H_L3PHIC,
+&TPROJ_L1L2I_L3PHIC,
+&TPROJ_L1L2J_L3PHIC,
+&TPROJ_L5L6B_L3PHIC,
+&TPROJ_L5L6C_L3PHIC,
+&TPROJ_L5L6D_L3PHIC,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+bx_o,
+&AP_L3PHIC,
+&VMPROJ_L3PHIC17,
+&VMPROJ_L3PHIC18,
+&VMPROJ_L3PHIC19,
+&VMPROJ_L3PHIC20,
+&VMPROJ_L3PHIC21,
+&VMPROJ_L3PHIC22,
+&VMPROJ_L3PHIC23,
+&VMPROJ_L3PHIC24);
+
+MatchEngine<3,BARRELPS>
+(bx,
+&VMSME_L3PHIC17n1,
+&VMPROJ_L3PHIC17,
+&CM_L3PHIC17);
+
+MatchEngine<3,BARRELPS>
+(bx,
+&VMSME_L3PHIC18n1,
+&VMPROJ_L3PHIC18,
+&CM_L3PHIC18);
+
+MatchEngine<3,BARRELPS>
+(bx,
+&VMSME_L3PHIC19n1,
+&VMPROJ_L3PHIC19,
+&CM_L3PHIC19);
+
+MatchEngine<3,BARRELPS>
+(bx,
+&VMSME_L3PHIC20n1,
+&VMPROJ_L3PHIC20,
+&CM_L3PHIC20);
+
+MatchEngine<3,BARRELPS>
+(bx,
+&VMSME_L3PHIC21n1,
+&VMPROJ_L3PHIC21,
+&CM_L3PHIC21);
+
+MatchEngine<3,BARRELPS>
+(bx,
+&VMSME_L3PHIC22n1,
+&VMPROJ_L3PHIC22,
+&CM_L3PHIC22);
+
+MatchEngine<3,BARRELPS>
+(bx,
+&VMSME_L3PHIC23n1,
+&VMPROJ_L3PHIC23,
+&CM_L3PHIC23);
+
+MatchEngine<3,BARRELPS>
+(bx,
+&VMSME_L3PHIC24n1,
+&VMPROJ_L3PHIC24,
+&CM_L3PHIC24);
+
+MatchCalculator<BARRELPS,BARRELPS,BARREL,3,0,2>
+(bx,
+&CM_L3PHIC17,
+&CM_L3PHIC18,
+&CM_L3PHIC19,
+&CM_L3PHIC20,
+&CM_L3PHIC21,
+&CM_L3PHIC22,
+&CM_L3PHIC23,
+&CM_L3PHIC24,
+&AS_L3PHICn4,
+&AP_L3PHIC,
+bx_o,
+&FM_L1L2_L3PHIC,
+&FM_L5L6_L3PHIC);
+
+}
