@@ -795,21 +795,21 @@ void MatchCalculator(BXType bx,
     if (istep==0){
       // Reset output memories
       fullmatch1->clear(bx);
-      fullmatch2->clear(bx);
+      //fullmatch2->clear(bx);
       fullmatch3->clear(bx);
-      fullmatch4->clear(bx);
-      fullmatch5->clear(bx);
-      fullmatch6->clear(bx);
-      fullmatch7->clear(bx);
+      //fullmatch4->clear(bx);
+      //fullmatch5->clear(bx);
+      //fullmatch6->clear(bx);
+      //fullmatch7->clear(bx);
     }
-    else{ // Write out only the best match, based on the seeding 
+    else{ // Write out only the best match, based on the seeding
       fullmatch1->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==0)); // L1L2 seed
-      fullmatch2->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==1)); // L3L4 seed
+      //fullmatch2->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==1)); // L3L4 seed
       fullmatch3->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==2)); // L5L6 seed
-      fullmatch4->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==3)); // D1D2 seed
-      fullmatch5->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==4)); // D3D4 seed
-      fullmatch6->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==5)); // L1D1 seed
-      fullmatch7->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==6)); // L2D1 seed
+      //fullmatch4->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==3)); // D1D2 seed
+      //fullmatch5->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==4)); // D3D4 seed
+      //fullmatch6->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==5)); // L1D1 seed
+      //fullmatch7->write_mem(bx,bestmatch,(newtracklet && goodmatch==true && projseed==6)); // L2D1 seed
     }
 
     // pipeline the bestmatch registers 

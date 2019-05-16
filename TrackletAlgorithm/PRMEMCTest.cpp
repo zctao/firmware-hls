@@ -23,6 +23,8 @@ BXType& bx_o,
 FullMatchMemory<BARREL>& FM_L5L6_L3PHIC,
 FullMatchMemory<BARREL>& FM_L1L2_L3PHIC)
 {
+#pragma HLS dataflow
+
 static VMProjectionMemory<BARREL> VMPROJ_L3PHIC17;
 
 static VMProjectionMemory<BARREL> VMPROJ_L3PHIC18;
@@ -157,6 +159,11 @@ MatchCalculator<BARRELPS,BARRELPS,BARREL,3,0,2>
 &AP_L3PHIC,
 bx_o,
 &FM_L1L2_L3PHIC,
-&FM_L5L6_L3PHIC);
+0,
+ &FM_L5L6_L3PHIC,
+0,
+0,
+0,
+0);
 
 }
