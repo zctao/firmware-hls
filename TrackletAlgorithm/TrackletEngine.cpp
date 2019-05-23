@@ -1,15 +1,56 @@
 
 #include "TrackletEngine.h"
 #include "hls_math.h"
+#include <iostream>
+#include <fstream>
+#include <string.h>
 
+#include "bitonic_sort.hpp"
+
+void  write_sorted( const ap_uint<14> (&tmpout)[16],
+		    StubPair (&out)[128],
+		    unsigned length,
+		    int iteration) {
+#pragma HLS PIPELINE
+  static unsigned offset = 0;
+    if( !iteration ) offset=0;
+ writeloop : for( int i=0; i<16; i++ ) { 
+    //    if( i == length ) break;
+    out[offset+i].data_ = tmpout[i];
+  }
+  
+  offset += length;
+}
+
+
+void  write_sorted( const ap_uint<14> (&tmpout)[8],
+		    StubPair (&out)[128],
+		    unsigned length,
+		    unsigned &offset,
+		    int iteration) {
+  //#pragma HLS PIPELINE
+  //  static unsigned offset = 0;
+    if( !iteration ) offset=0;
+ writeloop : for( int i=0; i<8; i++ ) { 
+    //    if( i == length ) break;
+    out[offset+i].data_ = tmpout[i];
+    // if( tmpout[i] != 0 )
+    //   std::cout << "out["<< offset+i << "].data_ = "
+    // 		<<  std::hex << out[offset+i].data_ 
+    // 		<< std::dec << std::endl;
+    }
+  
+  offset += length;
+}
 
 
 void readPtTable(ap_uint<1> table[32]){
 
   ap_uint<1> tmp[]=
-#include "../emData/TE/TE_L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_ptcut.tab"
+#include "TE_L1PHIE18_L2PHIC17_ptcut.tab"//"../emData/TE/TE_L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_ptcut.tab"
 
-  for (unsigned int i=0;i<32;i++){
+    PTtableloop: for (unsigned int i=0;i<32;i++){
+#pragma HLS PIPELINE
     table[i]=tmp[i];
   }
 
@@ -19,9 +60,10 @@ void readPtTable(ap_uint<1> table[32]){
 void readBendInnerTable(ap_uint<1> table[256]){
 
   ap_uint<1> tmp[]=
-#include "../emData/TE/TE_L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_stubptinnercut.tab"
+#include "TE_L1PHIE18_L2PHIC17_stubptinnercut.tab"//"../emData/TE/TE_L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_stubptinnercut.tab"
 
-  for (unsigned int i=0;i<256;i++){
+    BItableloop: for (unsigned int i=0;i<256;i++){
+#pragma HLS PIPELINE
     table[i]=tmp[i];
   }
 
@@ -30,9 +72,10 @@ void readBendInnerTable(ap_uint<1> table[256]){
 void readBendOuterTable(ap_uint<1> table[256]){
 
   ap_uint<1> tmp[]=
-#include "../emData/TE/TE_L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_stubptoutercut.tab"
+#include "TE_L1PHIE18_L2PHIC17_stubptoutercut.tab"//"../emData/TE/TE_L1PHIE18_L2PHIC17/TE_L1PHIE18_L2PHIC17_stubptoutercut.tab"
 
-  for (int i=0;i<256;i++){
+    BOtableloop: for (int i=0;i<256;i++){
+#pragma HLS PIPELINE
     table[i]=tmp[i];
   }
 
@@ -40,10 +83,37 @@ void readBendOuterTable(ap_uint<1> table[256]){
 
 
 void TrackletEngine(
-		    const ap_uint<3> bx,
-		    const VMStubTEInnerMemory<BARRELPS>& instubinnerdata,
-		    const VMStubTEOuterMemory<BARRELPS>& instubouterdata,
-		    StubPairMemory& outstubpair) {
+		    ap_uint<3> bx,
+		    VMStubTEInnerMemory<BARRELPS>& instubinnerdata,
+		    VMStubTEOuterMemory<BARRELPS>& instubouterdata,
+		    //		    ap_uint<14> (&tmpoutstubpair)[16],
+		    //ap_uint<14> (&tmpoutstubpair)[8],
+		    TmpData &tmpoutstubpair,
+		    StubPair (&outstubpair)[128]) {
+		    
+		      //StubPairMemory& outstubpair) {
+
+
+  //  #pragma HLS dependence variable=outstubpair intra false
+  // #pragma HLS dependence variable=outstubpair inter false
+
+#pragma HLS ARRAY_PARTITION variable=tmpoutstubpair.data_ complete dim=0
+
+  // KH for array ...
+  //  #pragma HLS ARRAY_PARTITION variable=outstubpair block factor=32 dim=1
+  // KH for object?
+  #pragma HLS ARRAY_PARTITION variable=instubouterdata complete dim=0
+  //  #pragma HLS ARRAY_PARTITION variable=outstubpair complete dim=1
+  #pragma HLS ARRAY_PARTITION variable=outstubpair cyclic factor=8 dim=1
+
+
+  /*
+  std::cout << "In TrackletEngine yo "<<instubinnerdata.getEntries(bx);
+  for (unsigned int zbin=0;zbin<8;zbin++){
+    std::cout<<" "<<instubouterdata.getEntries(bx,zbin);
+  }
+  std::cout<<std::dec<<std::endl;
+  */
 
   ap_uint<1> pttable[32];
   readPtTable(pttable);
@@ -54,164 +124,112 @@ void TrackletEngine(
   ap_uint<1> bendoutertable[256];
   readBendOuterTable(bendoutertable);
 
-  outstubpair.clear(bx);
+  //outstubpair.clear(bx);
 
-  //
-  // Set up a FIFO based on a circular buffer structure
-  // Each element consists of
-  //   * kNBits_BufferAddr is the number of bits to handle buffer index (i.e. buffer size will be 1<<kNBits_BufferAddr).
-  //   * kBufferDataSize is the size of each element in the buffer. The element data consists of, in order of MSB to LSB:
-  //       [# of outer stubs in z-bin][inner stub data][index of z-bin][z-bin flag]
-  //
-  constexpr unsigned int kNBits_BufferAddr = 3;
-  constexpr int kBufferDataSize =
-		    5                                             // number of bits for outer stubs array size (size of NEntryT in MemoryTemplateBinned.h)
-		  + VMStubTEInner<BARRELPS>::kVMStubTEInnerSize   // inner stub data size
-		  + TEBinsBits                                    // number of bits for index of z-bin
-		  + 1;                                            // z-bin flag (0 => first bin, 1 => second bin)
-
-  ap_uint<kBufferDataSize> teBuffer[1<<kNBits_BufferAddr];
-#pragma HLS ARRAY_PARTITION variable teBuffer complete dim=0
-  ap_uint<kNBits_BufferAddr> writeindex = 0;     // handles current buffer index for writing
-  ap_uint<kNBits_BufferAddr> readindex  = 0;     // handles current buffer index for reading
-
-
-  ap_uint<kNBits_MemAddr> istubinner=0;
-  auto const nstubinner = instubinnerdata.getEntries(bx);
-  ap_uint<1> morestubinner = istubinner<nstubinner;
-
-  // variables for inner stub information
-  VMStubTEInner<BARRELPS>::VMSTEIID      innerstubindex;
-  VMStubTEInner<BARRELPS>::VMSTEIBEND    innerstubbend;
-  VMStubTEInner<BARRELPS>::VMSTEIFINEPHI innerstubfinephi;
-  VMStubTEInner<BARRELPS>::VMSTEIZBITS   innerstubzbits;
-  ap_uint<TEBinsBits> zdiffmax;
-  ap_uint<TEBinsBits> zbinfirst;
-  ap_uint<1> second;
-
-  // variables for outer stub information
-  ap_uint<kNBits_MemAddrBinned> nstubs     = 0;
-  ap_uint<kNBits_MemAddrBinned> istubouter = 0;
-#pragma HLS dependence variable=istubouter intra WAR true
 
   //
   // main loop
   //
-  for (unsigned int istep=1; istep<kMaxProc; istep++) {
+  unsigned offset=0;
+ innerstubloop:  for (unsigned int i=0; i<16; i++) {
+	  // #pragma HLS loop_tripcount min=10 max=50 avg=30
+    //#pragma HLS pipeline II=1
+
+  // zeroloop:      for (unsigned int j=0; j<16; j++) {
+  //     tmpoutstubpair[j] = 0;
+  //   }
+    
+  binloop:    for (unsigned int k=0; k<2; k++) {
 #pragma HLS pipeline II=1
+    zeroloop:      for (unsigned int j=0; j<8; j++) {
+	tmpoutstubpair.data_[j] = 0;
+      }
+     
+    unsigned length=0;	  
+    outerstubloop:      for (unsigned int j=0; j<8; j++) {
 
-	  // pre-fetch element from buffer
-	  auto const bufdata = teBuffer[readindex];
+	//#pragma HLS UNROLL
 
-	  // buffer is not full if 2 slots are available, as we may write stubs for up to 2 z-bins
-	  ap_uint<kNBits_BufferAddr> writeindexplus     = writeindex+1;
-	  ap_uint<kNBits_BufferAddr> writeindexplusplus = writeindex+2;
-	  ap_uint<1> buffernotfull = (writeindexplus!=readindex) && (writeindexplusplus!=readindex);
+	// variables for inner stubs info
+	unsigned int nstubinner = instubinnerdata.getEntries(bx);
+	VMStubTEInner<BARRELPS>                innerstubdata;
+	VMStubTEInner<BARRELPS>::VMSTEIID      innerstubindex;
+	VMStubTEInner<BARRELPS>::VMSTEIBEND    innerstubbend;
+	VMStubTEInner<BARRELPS>::VMSTEIFINEPHI innerstubfinephi;
+	VMStubTEInner<BARRELPS>::VMSTEIZBITS   innerstubzbits;
+ 
 
-	  // buffer is not empty when current write index and read index are different
-	  ap_uint<1> buffernotempty = (writeindex!=readindex);
+	int zdiffmax, zbinfirst;
+	      
+	innerstubdata    = instubinnerdata.read_mem(bx,i);
+	innerstubindex   = innerstubdata.getIndex();
+	innerstubbend    = innerstubdata.getBend();
+	innerstubfinephi = innerstubdata.getFinePhi();
+	innerstubzbits   = innerstubdata.getZBits();
+	
+	      
+	zdiffmax  = innerstubzbits.range(9,7);
+	zbinfirst = innerstubzbits.range(2,0);
 
-	  // buffer is not full and there are more inner stubs to read in...
-	  if(morestubinner && buffernotfull) {
-		  auto const innerstubdatatmp  = instubinnerdata.read_mem(bx,istubinner);
-		  istubinner++;
-		  morestubinner = istubinner<nstubinner;
+	unsigned int ibin  = innerstubzbits.range(6,4) + k;
 
-		  auto const innerstubzbitstmp = innerstubdatatmp.getZBits();
-		  ap_uint<TEBinsBits> zbinstart = innerstubzbitstmp.range(6,4);
-		  ap_uint<TEBinsBits> zbinlast  = zbinstart + innerstubzbitstmp.range(3,3);
+	
+	VMStubTEOuter<BARRELPS>                outerstubdata;
+	VMStubTEOuter<BARRELPS>::VMSTEOID      outerstubindex;
+	VMStubTEOuter<BARRELPS>::VMSTEOFINEPHI outerstubfinephi;
+	VMStubTEOuter<BARRELPS>::VMSTEOBEND    outerstubbend;
+	VMStubTEOuter<BARRELPS>::VMSTEOFINEZ   outerstubfinez;
 
-		  auto const nstubsstart = instubouterdata.getEntries(bx,zbinstart);
-		  auto const nstubslast  = instubouterdata.getEntries(bx,zbinlast);
-		  ap_uint<1> savestart = (nstubsstart != 0);
-		  ap_uint<1> savelast  = (nstubslast  != 0) && innerstubzbitstmp.range(3,3);
+	outerstubdata    = instubouterdata.read_mem(bx,j+16*ibin);
+	outerstubindex   = outerstubdata.getIndex();
+	outerstubfinephi = outerstubdata.getFinePhi();
+	outerstubbend    = outerstubdata.getBend();
+	outerstubfinez   = outerstubdata.getFineZ();
+	      
+	      
+	      unsigned int nstubouter = instubouterdata.getEntries(bx,ibin);
+	      
+	      // adjust z-bin index for the 2nd z-bin
+	      // Note: these statements are sort of awkwardly placed here, but the counters need
+	      //       to be updated before performing cuts because any failed cut will advance the
+	      //       loop to the next iteration...
+	      int zbin=outerstubfinez + k*8;
+	      	      
+	      ap_uint<5> ptindex=innerstubfinephi.concat(outerstubfinephi);
+	      ap_uint<8> bendinnerindex=ptindex.concat(innerstubbend);
+	      ap_uint<8> bendouterindex=ptindex.concat(outerstubbend);
 
-		  if(savestart) {
-			  ap_uint<1> zero = 0;
-			  ap_uint<TEBinsBits+1> tmp1 = zbinstart.concat(zero);
-			  ap_uint<VMStubTEInner<BARRELPS>::kVMStubTEInnerSize+TEBinsBits+1> tmp2 = innerstubdatatmp.raw().concat(tmp1);
-			  teBuffer[writeindex] = nstubsstart.concat(tmp2);
-		  }
-		  if(savelast) {
-			  ap_uint<1> one = 1;
-			  ap_uint<TEBinsBits+1> tmp1 = zbinlast.concat(one);
-			  ap_uint<VMStubTEInner<BARRELPS>::kVMStubTEInnerSize+TEBinsBits+1> tmp2 = innerstubdatatmp.raw().concat(tmp1);
-			  if(savestart) {
-				  teBuffer[writeindexplus] = nstubslast.concat(tmp2);
-			  } else {
-				  teBuffer[writeindex] = nstubslast.concat(tmp2);
-			  }
-		  }
+	      int val0 = (i >= nstubinner || j >= nstubouter); 	      
+	      int val1 = ((zbin<zbinfirst)||(zbin-zbinfirst>zdiffmax)) || (!pttable[ptindex]);
+	      int val2 = (!bendinnertable[bendinnerindex])  || (!bendoutertable[bendouterindex]) ;
+	      int val3 = val0 + val1 + val2;
 
-		  if(savestart && savelast) {
-			  writeindex = writeindexplusplus;
-		  } else if (savestart || savelast){
-			  writeindex = writeindexplus;
-		  }
-	  }
+	      if (!val3 ) {
+		// good stub pair, so write it!
+		StubPair spair(innerstubindex.concat(outerstubindex));
+		//		const int index =  k*8+j;
+		const int index =  j;
 
-	  // buffer has elements to process...
-	  if(buffernotempty) {
-		  ap_uint<kNBits_MemAddrBinned> istuboutertmp = istubouter;
-		  ap_uint<TEBinsBits> ibin;
+		if( spair.raw() > 0 ) { 
+		  tmpoutstubpair.data_[index] = spair.raw();
+		  length++;
+		  std::cout << "sp: " << std::hex << spair.raw() << std::dec << std::endl;
+		}
+	      }
 
-		  if(istubouter==0) {
-			  nstubs = bufdata.range(30,26);
+      } // outerstubloop
 
-			  ibin = bufdata.range(3,1);
-			  VMStubTEInner<BARRELPS> data(bufdata.range(25,4));
+      bitonic_sort_array(tmpoutstubpair.data_);
+      write_sorted( tmpoutstubpair.data_, outstubpair, length, offset, i+k );
+      
+    } // binloop
+  } // innerstubloop
+	
+	
 
-			  innerstubindex   = data.getIndex();
-			  innerstubbend    = data.getBend();
-			  innerstubfinephi = data.getFinePhi();
-			  innerstubzbits   = data.getZBits();
-			  zdiffmax  = innerstubzbits.range(9,7);
-			  zbinfirst = innerstubzbits.range(2,0);
 
-			  second = bufdata.range(0,0);
-		  }
 
-		  // if there are no more outer stubs to process, advance the read index pointer to the next buffer element,
-		  // otherwise increment the outer stub counter
-		  if(istubouter+1 >= nstubs) {
-			  istubouter=0;
-			  readindex++;
-		  } else {
-			  istubouter++;
-		  }
 
-		  ///// Check if stub-pair candidate pass requirements /////
+  std::cout << "Done in TrackletEngine"<<std::endl;
 
-		  auto const outerstubdata    = instubouterdata.read_mem(bx,istuboutertmp+16*ibin);
-		  auto const outerstubindex   = outerstubdata.getIndex();
-		  auto const outerstubfinephi = outerstubdata.getFinePhi();
-		  auto const outerstubbend    = outerstubdata.getBend();
-		  auto const outerstubfinez   = outerstubdata.getFineZ();
-
-		  // z-coordinate consistency
-		  int tmpz = outerstubfinez;
-		  int zbin = (second) ? (tmpz+8) : tmpz;
-		  ap_uint<1> z_tmp = (zbin>=zbinfirst) && (zbin-zbinfirst<=zdiffmax);
-
-          	  // pT cut
-          	  ap_uint<5> ptindex1=innerstubfinephi.concat(outerstubfinephi);
-          	  ap_uint<5> ptindex2=ptindex1;
-          	  ap_uint<1> pt_tmp = pttable[ptindex1];
-
-          	  // inner stub bend consistency
-          	  ap_uint<8> bendinnerindex=ptindex1.concat(innerstubbend);
-          	  ap_uint<1> bi_tmp = bendinnertable[bendinnerindex];
-
-          	  ap_uint<8> bendouterindex=ptindex2.concat(outerstubbend);
-          	  ap_uint<1> bo_tmp = bendoutertable[bendouterindex];
-
-          	  ap_uint<1> ifskip = (!z_tmp) || (!pt_tmp) || (!bi_tmp) || (!bo_tmp);
-
-          	  if(!ifskip) {
-                 	// good stub pair, so write it!
-                  	StubPair spair(innerstubindex.concat(outerstubindex));
-                  	outstubpair.write_mem(bx,spair);
-          	  }
-      	 }
-  }
 }
