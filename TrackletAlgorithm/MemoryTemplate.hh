@@ -54,6 +54,13 @@ public:
 	return nentries_[bx];
   }
 
+  void setEntries(BunchXingT bx, NEntryT nEntries)
+  {
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
+#pragma HLS inline
+    nentries_[bx] = nEntries;
+  }
+
   DataType* get_mem() {return dataarray_;}
 
   DataType read_mem(BunchXingT ibx, ap_uint<NBIT_ADDR> index) const
@@ -63,8 +70,15 @@ public:
 	return dataarray_[ibx][index];
   }
 
+  void write_mem(BunchXingT ibx, ap_uint<NBIT_ADDR> addr, DataType data)
+  {
+#pragma HLS inline
+    dataarray_[ibx][addr] = data;
+  }
+  
   bool write_mem(BunchXingT ibx, DataType data, const bool enable = true)
   {
+    // To be deprecated
 #pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
 #pragma HLS dependence variable=nentries_ intra WAR true
 #pragma HLS inline

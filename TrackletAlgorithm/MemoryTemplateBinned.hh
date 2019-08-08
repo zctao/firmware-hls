@@ -80,6 +80,12 @@ public:
     return val;
   }
 
+  void setEntries(BunchXingT bx, ap_uint<NBIT_BIN> slot, NEntryT nEntries)
+  {
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
+#pragma HLS inline
+    nentries_[bx][slot] = nEntries;
+  }
 
   DataType* get_mem(BunchXingT ibx) {return dataarray_[ibx];}
 
@@ -98,8 +104,16 @@ public:
     return dataarray_[ibx][(1<<(NBIT_ADDR-NBIT_BIN))*slot+index];
   }
 
+  void write_mem(BunchXingT ibx, ap_uint<NBIT_BIN> slot,
+                 ap_uint<NBIT_ADDR> addr, DataType data)
+  {
+#pragma HLS inline
+    dataarray_[ibx][(1<<(NBIT_ADDR-NBIT_BIN))*slot+addr] = data;
+  }
+  
   bool write_mem(BunchXingT ibx, ap_uint<NBIT_BIN> slot, DataType data)
   {
+    // To be deprecated
 #pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
 #pragma HLS dependence variable=nentries_ intra WAR true
 #pragma HLS inline

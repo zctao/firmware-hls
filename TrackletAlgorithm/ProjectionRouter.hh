@@ -186,6 +186,17 @@ void ProjectionRouter(BXType bx,
   vmprojout6->clear(bx);
   vmprojout7->clear(bx);
   vmprojout8->clear(bx);
+  
+  // write address counters
+  ap_uint<kNBits_MemAddr+1> allproj_wr_addr = 0;
+  ap_uint<kNBits_MemAddr+1> vmproj1_wr_addr = 0;
+  ap_uint<kNBits_MemAddr+1> vmproj2_wr_addr = 0;
+  ap_uint<kNBits_MemAddr+1> vmproj3_wr_addr = 0;
+  ap_uint<kNBits_MemAddr+1> vmproj4_wr_addr = 0;
+  ap_uint<kNBits_MemAddr+1> vmproj5_wr_addr = 0;
+  ap_uint<kNBits_MemAddr+1> vmproj6_wr_addr = 0;
+  ap_uint<kNBits_MemAddr+1> vmproj7_wr_addr = 0;
+  ap_uint<kNBits_MemAddr+1> vmproj8_wr_addr = 0;
 
   // initialization:
   // check the number of entries in the input memories
@@ -303,32 +314,43 @@ void ProjectionRouter(BXType bx,
     //assert(iphi>=0 and iphi<4);
     switch(iphi) {
     case 0:
-      vmprojout1->write_mem(bx, vmproj); break;
+      vmprojout1->write_mem(bx, vmproj1_wr_addr++, vmproj); break;
     case 1:
-      vmprojout2->write_mem(bx, vmproj); break;
+      vmprojout2->write_mem(bx, vmproj2_wr_addr++, vmproj); break;
     case 2:
-      vmprojout3->write_mem(bx, vmproj); break;
+      vmprojout3->write_mem(bx, vmproj3_wr_addr++, vmproj); break;
     case 3:
-      vmprojout4->write_mem(bx, vmproj); break;
+      vmprojout4->write_mem(bx, vmproj4_wr_addr++, vmproj); break;
     case 4:
-      vmprojout5->write_mem(bx, vmproj); break;
+      vmprojout5->write_mem(bx, vmproj5_wr_addr++, vmproj); break;
     case 5:
-      vmprojout6->write_mem(bx, vmproj); break;
+      vmprojout6->write_mem(bx, vmproj6_wr_addr++, vmproj); break;
     case 6:
-      vmprojout7->write_mem(bx, vmproj); break;
+      vmprojout7->write_mem(bx, vmproj7_wr_addr++, vmproj); break;
     case 7:
-      vmprojout8->write_mem(bx, vmproj); break;
+      vmprojout8->write_mem(bx, vmproj8_wr_addr++, vmproj); break;
     }
 
     /////////////////
     // AllProjection
     AllProjection<PROJTYPE> aproj(tproj.raw());
     // write output
-    allprojout->write_mem(bx, aproj);
+    allprojout->write_mem(bx, allproj_wr_addr++, aproj);
 
     bx_o = bx;
     
   } // end of PROC_LOOP
+
+  // write number of entries for output memories
+  vmprojout1->setEntries(bx, vmproj1_wr_addr);
+  vmprojout2->setEntries(bx, vmproj2_wr_addr);
+  vmprojout3->setEntries(bx, vmproj3_wr_addr);
+  vmprojout4->setEntries(bx, vmproj4_wr_addr);
+  vmprojout5->setEntries(bx, vmproj5_wr_addr);
+  vmprojout6->setEntries(bx, vmproj6_wr_addr);
+  vmprojout7->setEntries(bx, vmproj7_wr_addr);
+  vmprojout8->setEntries(bx, vmproj8_wr_addr);
+  allprojout->setEntries(bx, allproj_wr_addr);
   
 } // ProjectionRouter
 
