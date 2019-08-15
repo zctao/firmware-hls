@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <cstring>
 #include <cerrno>
@@ -118,6 +119,7 @@ unsigned int compareMemWithFile(const MemType& memory, std::ifstream& fout,
                                 bool& truncated)
 {
   unsigned int err_count = 0;
+  std::stringstream error_printout;
 
   ////////////////////////////////////////
   // Read from file
@@ -127,43 +129,44 @@ unsigned int compareMemWithFile(const MemType& memory, std::ifstream& fout,
   // Check if at least one of the memories in comparison is non empty
   // before spamming the screen
   if (memory_ref.getEntries(ievt) or memory.getEntries(ievt)) {
-    std::cout << label << ":" << std::endl;
+    error_printout << label << ":" << std::endl;
   }
 
   ////////////////////////////////////////
   // compare expected data with those computed and stored in the output memory
   if (memory.getEntries(ievt)!=0 or memory_ref.getEntries(ievt)!=0)
-    std::cout << "reference" << "\t" << "computed" << std::endl;
+    error_printout << "reference" << "\t" << "computed" << std::endl;
   
   for (int i = 0; i < memory_ref.getEntries(ievt); ++i) {
 
     // Maximum processing steps per event is kMaxProc
     if (i >= kMaxProc) {
-      std::cout << "WARNING: Extra data in the reference memory!" << std::endl;
-      std::cout << "Truncation due to maximum number of processing steps per event kMaxProc = " << std::dec << kMaxProc << std::endl;
+      error_printout << "WARNING: Extra data in the reference memory!" << std::endl;
+      error_printout << "Truncation due to maximum number of processing steps per event kMaxProc = " << std::dec << kMaxProc << std::endl;
       truncated = true;
       break;
     }
     
     auto data_ref = memory_ref.read_mem(ievt,i).raw();
-    std::cout << std::hex << data_ref << "\t";
+    error_printout << std::hex << data_ref << "\t";
     
     if (i >= memory.getEntries(ievt) ) {
       // missing entries in the computed memory
       if (not truncated) err_count++;
-      std::cout << "missing" << std::endl;
+      error_printout << "missing" << std::endl;
       continue;
     }
 
     auto data_com = memory.read_mem(ievt,i).raw();
-    std::cout << std::hex << data_com; // << std::endl;
+    error_printout << std::hex << data_com;
 
     if (data_com != data_ref) {
-      std::cout << "\t" << "<=== INCONSISTENT";
+      error_printout << "\t" << "<=== INCONSISTENT";
       err_count++;
     }
 
-    std::cout << std::endl;
+    //std::cout << std::endl;
+    error_printout << std::endl;
   }
   
   // in case computed memory has extra contents...
@@ -171,10 +174,12 @@ unsigned int compareMemWithFile(const MemType& memory, std::ifstream& fout,
     
     for (int i = memory_ref.getEntries(ievt); i < memory.getEntries(ievt); ++i) {
       auto data_extra = memory.read_mem(ievt, i).raw();   
-      std::cout << "missing" << "\t" << std::hex << data_extra << std::endl;
+      error_printout << "missing" << "\t" << std::hex << data_extra << std::endl;
       err_count++;
     }
   }
+
+  if (err_count > 0) std::cout << error_printout.str();
 
   return err_count;
   
@@ -187,6 +192,7 @@ unsigned int compareBinnedMemWithFile(const MemType& memory,
                                       bool& truncated)
 {
   unsigned int err_count = 0;
+  std::stringstream error_printout;
 
   ////////////////////////////////////////
   // Read from file
@@ -196,60 +202,61 @@ unsigned int compareBinnedMemWithFile(const MemType& memory,
   // Check if at least one of the memories in comparison is non empty
   // before spamming the screen
   if (memory_ref.getEntries(ievt) or memory.getEntries(ievt)) {
-    std::cout << label << ":" << std::endl;
+    error_printout << label << ":" << std::endl;
   }
   else 
     return err_count;
 
   ////////////////////////////////////////
   // compare expected data with those computed and stored in the output memory
-  std::cout << "reference" << "\t" << "computed" << std::endl;
+  error_printout << "reference" << "\t" << "computed" << std::endl;
   for ( int j = 0; j < memory_ref.getNBins(); ++j ) {
     auto val = memory_ref.getEntries(ievt,j);
-    std::cout << "Bin " << std::dec << j
+    error_printout << "Bin " << std::dec << j
 	      << ", n_entries = " << val 
 	      << std::endl;
     for (int i = 0; i < val ; ++i) {
 
       // Maximum processing steps per event is kMaxProc
       if (i >= kMaxProc) {
-	std::cout << "WARNING: Extra data in the reference memory!" << std::endl;
-	std::cout << "Truncation due to maximum number of processing steps per event kMaxProc = " << std::dec << kMaxProc << std::endl;
+	error_printout << "WARNING: Extra data in the reference memory!" << std::endl;
+	error_printout << "Truncation due to maximum number of processing steps per event kMaxProc = " << std::dec << kMaxProc << std::endl;
 	truncated = true;
 	break;
       }
     
       auto data_ref = memory_ref.read_mem(ievt,j,i).raw();
-      std::cout << std::hex << data_ref << "\t";
+      error_printout << std::hex << data_ref << "\t";
     
       if (i >= memory.getEntries(ievt,j) ) {
 	// missing entries in the computed memory
 	if (not truncated) err_count++;
-	std::cout << "missing" << std::endl;
+	error_printout << "missing" << std::endl;
 	continue;
       }
 
       auto data_com = memory.read_mem(ievt,j,i).raw();
-      std::cout << std::hex << data_com; // << std::endl;
+      error_printout << std::hex << data_com; // << std::endl;
 
       if (data_com != data_ref) {
-	std::cout << "\t" << "<=== INCONSISTENT";
+	error_printout << "\t" << "<=== INCONSISTENT";
 	err_count++;
       }
 
-      std::cout << std::endl;
+      error_printout << std::endl;
     } // loop over single bin
     // in case computed memory has extra contents...
     if (memory.getEntries(ievt) >  memory_ref.getEntries(ievt)) {
     
       for (int i = memory_ref.getEntries(ievt,j); i < memory.getEntries(ievt,j); ++i) {
 	auto data_extra = memory.read_mem(ievt,j, i).raw();   
-	std::cout << "missing" << "\t" << std::hex << data_extra << std::endl;
+	error_printout << "missing" << "\t" << std::hex << data_extra << std::endl;
 	err_count++;
       }
     }
   } // loop over bins
 
+  if (err_count > 0) std::cout << error_printout.str();
 
   return err_count;
   
