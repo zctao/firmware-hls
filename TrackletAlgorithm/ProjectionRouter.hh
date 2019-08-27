@@ -85,29 +85,32 @@ namespace PR
                        const MemType* const mem22, const MemType* const mem23,
                        DataType& data)
   {
-    if (mem_hasdata == 0) return false;
-
-    // 5 bits memory index for up to 32 input memories
-    // priority encoder
-    ap_uint<5> read_imem = __builtin_ctz(mem_hasdata);
-
-    // read the memory "read_imem" with the address "read_addr"
-    read_inmem(data, bx, read_imem, read_addr, 0,
-               mem0,mem1,mem2,mem3,mem4,mem5,mem6,mem7,
-               mem8,mem9,mem10,mem11,mem12,mem13,mem14,mem15,
-               mem16,mem17,mem18,mem19,mem20,mem21,mem22,mem23);
-
-    // Increase the read address
-    ++read_addr;
-
-    if (read_addr >= nentries[read_imem]) {
-      // All entries in the memory[read_imem] have been read out
-      // Prepare to move to the next non-empty memory
-      read_addr = 0;
-      mem_hasdata.clear(read_imem);  // set the current lowest 1 bit to 0
+    if (mem_hasdata == 0) {
+      return false;
     }
+    else {
+      // 5 bits memory index for up to 32 input memories
+      // priority encoder
+      ap_uint<5> read_imem = __builtin_ctz(mem_hasdata);
 
-    return true;
+      // read the memory "read_imem" with the address "read_addr"
+      read_inmem(data, bx, read_imem, read_addr, 0,
+                 mem0,mem1,mem2,mem3,mem4,mem5,mem6,mem7,
+                 mem8,mem9,mem10,mem11,mem12,mem13,mem14,mem15,
+                 mem16,mem17,mem18,mem19,mem20,mem21,mem22,mem23);
+
+      // Increase the read address
+      read_addr++;
+
+      if (read_addr >= nentries[read_imem]) {
+        // All entries in the memory[read_imem] have been read out
+        // Prepare to move to the next non-empty memory
+        read_addr = 0;
+        mem_hasdata.clear(read_imem);  // set the current lowest 1 bit to 0
+      }
+
+      return true;
+    }
     
   } // read_input_mems
 
@@ -172,21 +175,11 @@ void ProjectionRouter(BXType bx,
                       VMProjectionMemory<VMPTYPE>* const vmprojout7,
                       VMProjectionMemory<VMPTYPE>* const vmprojout8
 ){
-#pragma HLS inline off
-
+#pragma HLS inline
+  
   using namespace PR;
   
-  // reset output memories
-  allprojout->clear(bx);
-  vmprojout1->clear(bx);
-  vmprojout2->clear(bx);
-  vmprojout3->clear(bx);
-  vmprojout4->clear(bx);
-  vmprojout5->clear(bx);
-  vmprojout6->clear(bx);
-  vmprojout7->clear(bx);
-  vmprojout8->clear(bx);
-  
+  // initialization
   // write address counters
   ap_uint<kNBits_MemAddr+1> allproj_wr_addr = 0;
   ap_uint<kNBits_MemAddr+1> vmproj1_wr_addr = 0;
@@ -198,14 +191,12 @@ void ProjectionRouter(BXType bx,
   ap_uint<kNBits_MemAddr+1> vmproj7_wr_addr = 0;
   ap_uint<kNBits_MemAddr+1> vmproj8_wr_addr = 0;
 
-  // initialization:
   // check the number of entries in the input memories
   // fill the bit mask indicating if memories are empty or not
   ap_uint<nINMEM> mem_hasdata = 0;
   ap_uint<kNBits_MemAddr+1> numbersin[nINMEM];
 #pragma HLS ARRAY_PARTITION variable=numbersin complete dim=0
 
-  //init<nINMEM, kNBits_MemAddr+1, TrackletProjectionMemory<PROJTYPE>>
   init<nINMEM, kNBits_MemAddr+1, TrackletProjectionMemory<PROJTYPE>>
     (bx, mem_hasdata, numbersin,0,
      proj1in,proj2in,proj3in,proj4in,proj5in,proj6in,proj7in,proj8in,
@@ -216,7 +207,7 @@ void ProjectionRouter(BXType bx,
   ap_uint<kNBits_MemAddr> mem_read_addr = 0;
   
   PROC_LOOP: for (int i = 0; i < kMaxProc; ++i) {
-#pragma HLS PIPELINE II=1
+#pragma HLS PIPELINE II=1 rewind
 
     // read inputs
     TrackletProjection<PROJTYPE> tproj;
@@ -309,7 +300,6 @@ void ProjectionRouter(BXType bx,
 
     // VM Projection
     VMProjection<VMPTYPE> vmproj(index, zbin, finez, rinv, psseed);
-
     // write outputs
     //assert(iphi>=0 and iphi<4);
     switch(iphi) {
@@ -332,25 +322,25 @@ void ProjectionRouter(BXType bx,
     }
 
     /////////////////
+    vmprojout1->setEntries(bx, vmproj1_wr_addr);
+    vmprojout2->setEntries(bx, vmproj2_wr_addr);
+    vmprojout3->setEntries(bx, vmproj3_wr_addr);
+    vmprojout4->setEntries(bx, vmproj4_wr_addr);
+    vmprojout5->setEntries(bx, vmproj5_wr_addr);
+    vmprojout6->setEntries(bx, vmproj6_wr_addr);
+    vmprojout7->setEntries(bx, vmproj7_wr_addr);
+    vmprojout8->setEntries(bx, vmproj8_wr_addr);
+
+    /////////////////
     // AllProjection
     AllProjection<PROJTYPE> aproj(tproj.raw());
     // write output
     allprojout->write_mem(bx, allproj_wr_addr++, aproj);
+    allprojout->setEntries(bx, allproj_wr_addr);
 
     bx_o = bx;
     
   } // end of PROC_LOOP
-
-  // write number of entries for output memories
-  vmprojout1->setEntries(bx, vmproj1_wr_addr);
-  vmprojout2->setEntries(bx, vmproj2_wr_addr);
-  vmprojout3->setEntries(bx, vmproj3_wr_addr);
-  vmprojout4->setEntries(bx, vmproj4_wr_addr);
-  vmprojout5->setEntries(bx, vmproj5_wr_addr);
-  vmprojout6->setEntries(bx, vmproj6_wr_addr);
-  vmprojout7->setEntries(bx, vmproj7_wr_addr);
-  vmprojout8->setEntries(bx, vmproj8_wr_addr);
-  allprojout->setEntries(bx, allproj_wr_addr);
   
 } // ProjectionRouter
 
