@@ -15,40 +15,61 @@ namespace PR
   //////////////////////////////
   // Initialization
   // check the number of entries in the input memories
-  // fill the bit mask indicating if memories are empty or not
   template<int nMEM, int NBits_Entries, class MemType>
   inline void init(BXType bx,
-                   // bitmasks to indicate if memories are empty
-                   ap_uint<nMEM>& mem_hasdata,
                    // number of entries for each memory
                    ap_uint<NBits_Entries> nentries[nMEM],
+                   ap_uint<kNBits_MemAddr> read_addrs[nMEM],
                    const int i,
                    const MemType* const mem)
-  {    
-    ap_uint<kNBits_MemAddr+1> num = mem->getEntries(bx);
-    nentries[i] = num;
-    if (num > 0) mem_hasdata.set(i);
+  {
+#pragma HLS ARRAY_PARTITION variable=nentries complete dim=0
+#pragma HLS ARRAY_PARTITION variable=read_addrs complete dim=0
+    
+    nentries[i] = mem->getEntries(bx);
+    read_addrs[i] = 0;
   }
   
   // recursive case
   template<int nMEM, int NBits_Entries, class MemType, class... Args>
-  inline void init(BXType bx, ap_uint<nMEM>& mem_hasdata,
+  inline void init(BXType bx,
                    ap_uint<NBits_Entries> nentries[nMEM],
+                   ap_uint<kNBits_MemAddr> read_addrs[nMEM],
                    const int i,
                    const MemType* const mem, Args... args)
-  { 
-    ap_uint<kNBits_MemAddr+1> num = mem->getEntries(bx);
-    nentries[i] = num;
-    if (num > 0) mem_hasdata.set(i);
+  {
+#pragma HLS ARRAY_PARTITION variable=nentries complete dim=0
+#pragma HLS ARRAY_PARTITION variable=read_addrs complete dim=0
+    
+    nentries[i] = mem->getEntries(bx);
+    read_addrs[i] = 0;
+    
+    if (i+1 < nMEM)
+      init<nMEM, NBits_Entries, MemType>(bx, nentries, read_addrs, i+1, args...);
+  }
+  
+  //////////////////////////////
+  // Input memory reading logic
+  template<int nMEM, int NBits_Entries>
+  ap_uint<nMEM> get_bitmask_from_nentries(ap_uint<NBits_Entries> nentries[nMEM])
+  {
+#pragma HLS inline
+#pragma HLS ARRAY_PARTITION variable=nentries complete dim=0
+    
+    ap_uint<nMEM> bitmask = 0;
+    
+    for (int i=0; i<nMEM; ++i) {
+#pragma HLS unroll
+      bitmask += ((nentries[i] ? 1 : 0) << i);
+    }
 
-    if (i+1 < nMEM) init(bx, mem_hasdata, nentries, i+1, args...);
+    return bitmask;
   }
 
-  //////////////////////////////
-  // Priority encoder based input memory reading logic
+  
   template<class DataType, class MemType>
   void read_inmem(DataType& data, BXType bx, ap_uint<5> read_imem,
-                  ap_uint<kNBits_MemAddr>& read_addr,
+                  ap_uint<kNBits_MemAddr> read_addr,
                   const int i, const MemType* const inmem)
   {
     if (read_imem == i) data = inmem->read_mem(bx, read_addr);
@@ -56,7 +77,7 @@ namespace PR
 
   template<class DataType, class MemType, class... Args>
   void read_inmem(DataType& data, BXType bx, ap_uint<5> read_imem,
-                  ap_uint<kNBits_MemAddr>& read_addr,
+                  ap_uint<kNBits_MemAddr> read_addr,
                   const int i,
                   const MemType* const inmem, Args... args)
   {
@@ -64,12 +85,11 @@ namespace PR
     read_inmem(data, bx, read_imem, read_addr, i+1, args...);
   }
 
-  
   template<class DataType, class MemType, int nMEM, int NBits_Entries>
   bool read_input_mems(BXType bx,
-                       ap_uint<nMEM>& mem_hasdata,
                        ap_uint<NBits_Entries> nentries[nMEM],
-                       ap_uint<kNBits_MemAddr>& read_addr,
+                       ap_uint<kNBits_MemAddr> read_addrs[nMEM],
+                       ap_uint<nMEM>& bitmask,
                        // memory pointers
                        const MemType* const mem0, const MemType* const mem1,
                        const MemType* const mem2, const MemType* const mem3,
@@ -85,30 +105,33 @@ namespace PR
                        const MemType* const mem22, const MemType* const mem23,
                        DataType& data)
   {
-    if (mem_hasdata == 0) {
+#pragma HLS inline
+    #pragma HLS ARRAY_PARTITION variable=nentries complete dim=0
+#pragma HLS ARRAY_PARTITION variable=read_addrs complete dim=0
+
+    if (bitmask == 0) { // All memories are empty or have been read out
       return false;
     }
     else {
-      // 5 bits memory index for up to 32 input memories
       // priority encoder
-      ap_uint<5> read_imem = __builtin_ctz(mem_hasdata);
+      // determine which memory to read: 5 bits for up to 32 input memories
+      ap_uint<5> read_imem = __builtin_ctz(bitmask);
 
-      // read the memory "read_imem" with the address "read_addr"
-      read_inmem(data, bx, read_imem, read_addr, 0,
-                 mem0,mem1,mem2,mem3,mem4,mem5,mem6,mem7,
+      // read it
+      read_inmem(data, bx, read_imem, read_addrs[read_imem],
+                 0,mem0,mem1,mem2,mem3,mem4,mem5,mem6,mem7,
                  mem8,mem9,mem10,mem11,mem12,mem13,mem14,mem15,
                  mem16,mem17,mem18,mem19,mem20,mem21,mem22,mem23);
-
-      // Increase the read address
-      read_addr++;
-
-      if (read_addr >= nentries[read_imem]) {
-        // All entries in the memory[read_imem] have been read out
-        // Prepare to move to the next non-empty memory
-        read_addr = 0;
-        mem_hasdata.clear(read_imem);  // set the current lowest 1 bit to 0
+      
+      // update the bitmask if necessary
+      if (read_addrs[read_imem]+1 >= nentries[read_imem]) {
+        bitmask.clear(read_imem);
+        read_addrs[read_imem]+=1;
       }
-
+      else {
+        read_addrs[read_imem]+=1;
+      }
+      
       return true;
     }
     
@@ -116,8 +139,8 @@ namespace PR
 
   /////////////////////////////////////////////////////
   // FIXME
-  // Move the following to Constants.hh?
-  // How to deal with these using enum?
+  // Move the following to Constants.hh
+  // Need to double check if other processing modules use these constants as well
 
   // number of allstub memories for each layer
   constexpr unsigned int nallstubslayers[6]={8,4,4,4,4,4};
@@ -193,33 +216,35 @@ void ProjectionRouter(BXType bx,
 
   // check the number of entries in the input memories
   // fill the bit mask indicating if memories are empty or not
-  ap_uint<nINMEM> mem_hasdata = 0;
   ap_uint<kNBits_MemAddr+1> numbersin[nINMEM];
 #pragma HLS ARRAY_PARTITION variable=numbersin complete dim=0
 
+  ap_uint<kNBits_MemAddr> read_address[nINMEM];
+#pragma HLS ARRAY_PARTITION variable=read_address complete dim=0
+  
   init<nINMEM, kNBits_MemAddr+1, TrackletProjectionMemory<PROJTYPE>>
-    (bx, mem_hasdata, numbersin,0,
-     proj1in,proj2in,proj3in,proj4in,proj5in,proj6in,proj7in,proj8in,
+    (bx, numbersin, read_address,
+     0, proj1in,proj2in,proj3in,proj4in,proj5in,proj6in,proj7in,proj8in,
      proj9in,proj10in,proj11in,proj12in,proj13in,proj14in,proj15in,proj16in,
      proj17in,proj18in,proj19in,proj20in,proj21in,proj22in,proj23in,proj24in);
-  
-  // declare index of input memory to be read
-  ap_uint<kNBits_MemAddr> mem_read_addr = 0;
+
+  // bitmask indicating if memories are empty or not
+  ap_uint<nINMEM> bitmask = get_bitmask_from_nentries<nINMEM>(numbersin);
   
   PROC_LOOP: for (int i = 0; i < kMaxProc; ++i) {
 #pragma HLS PIPELINE II=1 rewind
-
+    
     // read inputs
     TrackletProjection<PROJTYPE> tproj;
     bool validin = read_input_mems<TrackletProjection<PROJTYPE>,
                                    TrackletProjectionMemory<PROJTYPE>,
                                    nINMEM, kNBits_MemAddr+1>
-      (bx, mem_hasdata, numbersin, mem_read_addr,
+      (bx, numbersin, read_address, bitmask,
        proj1in, proj2in, proj3in, proj4in, proj5in, proj6in, proj7in, proj8in,
        proj9in, proj10in, proj11in, proj12in, proj13in, proj14in, proj15in, proj16in,
        proj17in, proj18in, proj19in, proj20in, proj21in, proj22in, proj23in, proj24in,
        tproj);
-
+    
     if (not validin) continue;
     
     auto iphiproj = tproj.getPhi();
